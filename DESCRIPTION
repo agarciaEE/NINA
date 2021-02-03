@@ -1,0 +1,12 @@
+Package: NINA
+Type: Package
+Title: Niche Interaction Network Analyses
+Version: 0.1.0
+Author: Alberto Garcia <alberto.garciajimenez@unil.ch>
+Maintainer: Alberto Garcia <alberto.garciajimenez@unil.ch>
+Description: Implementation of biotic interactions into environmental niche models using kernel density estimations. 
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2, graphics, spatialEco, plyr, stats, tidyr, utils
+RoxygenNote: 7.1.1
