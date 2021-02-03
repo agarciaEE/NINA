@@ -10,3 +10,11 @@ Encoding: UTF-8
 LazyData: true
 Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2, graphics, spatialEco, plyr, stats, tidyr, utils
 RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+URL: https://github.com/agarciaEE/NINA
+BugReports: https://github.com/agarciaEE/NINA/issues
+Config/testthat/edition: 2

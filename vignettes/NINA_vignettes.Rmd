@@ -1,0 +1,20 @@
+---
+title: "NINA vignettes"
+author: "Alberto Garcia"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{NINA_vignettes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(NINA)
+```
