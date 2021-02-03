@@ -7,6 +7,8 @@
 
 [![Travis build
 status](https://travis-ci.com/agarciaEE/NINA.svg?branch=main)](https://travis-ci.com/agarciaEE/NINA)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/agarciaEE/NINA?branch=main&svg=true)](https://ci.appveyor.com/project/agarciaEE/NINA)
 <!-- badges: end -->
 
 The goal of NINA is the the analysis and implementation of biotic
