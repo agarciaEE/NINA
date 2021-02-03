@@ -12,7 +12,8 @@ Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    covr
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/agarciaEE/NINA
