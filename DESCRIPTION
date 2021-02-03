@@ -13,7 +13,8 @@ RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,
-    covr
+    covr,
+    testthat (>= 2.0.0)
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/agarciaEE/NINA
