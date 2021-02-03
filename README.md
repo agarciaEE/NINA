@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![Travis build
+status](https://travis-ci.com/agarciaEE/NINA.svg?branch=main)](https://travis-ci.com/agarciaEE/NINA)
 <!-- badges: end -->
 
 The goal of NINA is the the analysis and implementation of biotic
