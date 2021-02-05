@@ -1,18 +1,17 @@
 #' @title  ESTIMATE BC MODEL
 #'
-#' @param z environmental niche model
-#'
-#' @param y.list list of environmental niche models of species interactors
-#' @param id species name to be estimated. id must match the rownames in A.matrix
-#' @param D Binary integer indicating species independence on interactions. 0 for fully dependent, 1 for species that can be present without interactors
-#' @param A.matrix m by n matrix indicating the association coefficient (-1 to 1). m are species to be modelled as rows and n interactors as columns
-#' @param C.matrix n by n matrix indicating the competition coefficient between interactors (0 to 1).
+#' @param A.matrix m by n matrix indicating the association coefficient (-1 to 1). m are species to be modeled as rows and n interactions as columns
+#' @param C.matrix n by n matrix indicating the competition coefficient between interactions (0 to 1).
+#' @param x NINA EN model object for species group one
+#' @param y NINA EN model object for species group two
+#' @param type String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error
+#' @param D Numeric value indicating independence from biotic associations. Value must be comprised between 0 and 1.
 #'
 #' @description Transforms environmental niche in base to species interactions
 #'
 #' @return Data frame.
 #'
-#'@details Returns an error if \code{filename} does not exist.
+#' @details Returns an error if \code{filename} does not exist.
 #'
 #' @examples
 #' \dontrun{
@@ -21,33 +20,10 @@
 #'
 #' @importFrom plyr ldply
 #' @importFrom tidyr spread
-#' @importFrom raster cellStats
+#' @importFrom raster extract
 #'
 #' @export
-BC_model_ <- function(z, y.list, id, D = 0, A.matrix = NULL, C.matrix = NULL ){
-
-  out = list()
-  if(length(y.list) > 0){
-    out$w <- estimate_w(y.list, id = id, A.matrix = A.matrix, C.matrix = C.matrix)
-    wc <- out$w$z.uncor
-  }
-  else{ wc = 0}
-  z$z.uncor <- z$z.uncor * D + z$z.uncor * wc
-  z$z.uncor[is.na(z$z.uncor)] <- 0
-  z$z.uncor <- z$z.uncor / cellStats(z$z.uncor, "max")
-  z$z <- z$z.uncor * cellStats(z$z, "max")
-  z$w <- z$z.uncor
-  z$w[z$w > 0] <- 1
-  z$z.cor <- z$z/z$Z
-  z$z.cor[is.na(z$z.cor)] <- 0
-  z$z.cor <- z$z.cor/cellStats(z$z.cor, "max")
-  out$z = z
-  return(out)
-}
-
-
-
-BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, type = c("region", "global")){
+BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("region", "global")){
 
   type = type[1]
   BC = x
@@ -65,7 +41,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, type = c("region", 
         mod.Val[[e]] = list()
         for (i in names(x.mod[[e]])){
           z = x.mod[[e]][[i]]
-          bc <- BC_model_(z, y.mod[[e]], id = i, D = 0, A.matrix = A.matrix, C.matrix = C.matrix)
+          bc <- BC_model_(z, y.mod[[e]], id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
           mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w
@@ -94,12 +70,14 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, type = c("region", 
     z.mod = list()
     w.list = list()
     mod.Val = list()
+    message("Estimating species biotic constrains...")
     for (i in names(x.mod)){
       z = x.mod[[i]]
-      bc <- BC_model_(z, y.mod, id = i, D = 0, A.matrix = A.matrix, C.matrix = C.matrix)
+      bc <- BC_model_(z, y.mod, id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
       mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
       z.mod[[i]] = bc$z
       w.list[[i]] = bc$w
+      message(paste(i, "... Success."))
     }
     tab = names(z.mod)
     mod.Val <- ldply(mod.Val, data.frame, .id = "species")
@@ -112,5 +90,8 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, type = c("region", 
   BC$z.mod = z.mod
   BC$w = w.list
   BC$type = "BC"
+  message("Models successfully corrected!")
+  attr(BC, "class") <- "NINA"
+
   return(BC)
 }

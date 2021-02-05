@@ -8,7 +8,7 @@ Description: Implementation of biotic interactions into environmental niche mode
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2, graphics, spatialEco, plyr, stats, tidyr, utils
+Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2, graphics, spatialEco, plyr, stats, tidyr, utils, grDevices, rasterVis, sp
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
@@ -20,3 +20,5 @@ Roxygen: list(markdown = TRUE)
 URL: https://github.com/agarciaEE/NINA
 BugReports: https://github.com/agarciaEE/NINA/issues
 Config/testthat/edition: 2
+Depends: 
+    R (>= 2.10)

@@ -11,7 +11,7 @@ cluster_regions(
   nstart = 25,
   K.max = NULL,
   B = 100,
-  res = 0.083
+  res = NULL
 )
 }
 \arguments{
