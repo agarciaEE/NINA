@@ -11,6 +11,8 @@
 #' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
 #' }
 #'
+#' @importFrom raster extract
+#'
 #' @return data frame
 #' @export
 niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL, w = NULL){

@@ -27,7 +27,7 @@
 #' @importFrom raster stack rasterFromXYZ maxValue
 #' @importFrom stats na.exclude
 #' @importFrom ecospat ecospat.sample.envar
-#' @importFrom ggplot2 ggplot aes ylim  scale_x_discrete geom_boxplot theme_classic element_text labs theme
+#' @import ggplot2
 #'
 #' @export
 models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL, ras = NULL, int.matrix = NULL, sample.pseudoabsences = TRUE,

@@ -44,7 +44,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         R = length(z[[e]][[sp]][[1]]$x)
         #mod.Val[[e]][[sp]] <- list()
         sc.vec <- NULL
-        for (i in names(z[[e]][[sp]])){
+        for (i in 1:length(z[[e]][[sp]])){
           if(eval){score = bootstrap.eval[[i]][sp,method]}
           if(score > threshold){
             sc.vec <- c(sc.vec, score)
@@ -55,7 +55,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         zz.l = zz.l[which(sapply(zz.l, "maxValue") > 0)]
         Z.l = Z.l[which(sapply(Z.l, "maxValue") > 0)]
         if (length(zz.l) == 0){
-          warning(paste("No partition of", sp, "in", e, "was able to reproduce a model fitting the assembliing threshold standards."), immediate. = T)
+          warning(paste("No partition of", sp, "in", e, "fits the assembling threshold standards."), immediate. = T)
           next()
         }
         if (length(zz.l) > 1){
@@ -78,7 +78,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
           Z <- stack(Z.l)
           z.mod[[e]][[sp]]$x = seq(rasterEx[1], rasterEx[2], length.out = R)
           z.mod[[e]][[sp]]$y = seq(rasterEx[3], rasterEx[4], length.out = R)
-          sc = sp.scores[sp.scores[,2] == e & sp.scores[,3] == sp,]
+          sc = sp.scores[sp.scores[,"region"] == e & sp.scores[,"species"] == sp,]
           z.mod[[e]][[sp]]$sp =  sc[!duplicated(sc), c("Axis1", "Axis2")]
           zz <- sum(zz, na.rm=TRUE)
           Z <- mean(Z, na.rm=TRUE)
@@ -127,7 +127,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         message("Assembling of ", sp, " in ", e, " completed.")
       }
       #mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
-      message(paste0(e, " models assembling completed."))
+      message(paste("Assembling models of region", e, "succesfully completed."))
     }
   }
   else {
@@ -160,7 +160,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         Z <- stack(Z.l)
         z.mod[[sp]]$x = seq(rasterEx[1], rasterEx[2], (rasterEx[2]-rasterEx[1])/R)
         z.mod[[sp]]$y = seq(rasterEx[3], rasterEx[4], (rasterEx[4]-rasterEx[3])/R)
-        sc = sp.scores[sp.scores[,2] == sp,]
+        sc = sp.scores[sp.scores[,"species"] == sp,]
         z.mod[[sp]]$sp =  sc[!duplicated(sc), c("Axis1", "Axis2")]
         zz <- sum(zz, na.rm=TRUE)/sum(stack(lapply(z[[sp]], function(x) raster::resample(x, ras.template, method='ngb'))))
         Z <- mean(Z, na.rm=TRUE)

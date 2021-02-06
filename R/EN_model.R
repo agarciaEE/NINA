@@ -24,6 +24,7 @@
 #' @param bootstraps Integer indicating number of partitions to perform. Default is 1
 #' @param assemble.models Boolean whether to assemble all partitions into ensemble model
 #' @param assemble.method String indicating the evaluation parameter to weight and compute the assembling. Default is "ACC"
+#' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
 #'
 #' @return List of elements
 #'
@@ -31,7 +32,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#' EN<- EN_model(env_data, occ_data1, boot)
+#' }
+#' \dontrun{
+#' EN<- EN_model(env_data, occ_data2, cluster = "env", n.clus = 5)
 #' }
 #'
 #' @importFrom utils write.table capture.output
@@ -39,8 +43,8 @@
 #'
 #' @export
 EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN",
-                     nstart = 25, k.max = NULL, B = 100,
-                     extrapolate.niche = FALSE, save.bootstraps = F,
+                     nstart = 25, k.max = NULL, B = 100, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
+                     extrapolate.niche = FALSE, save.bootstraps = F, save.model = F,
                      combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, sample.pseudoabsences = TRUE,
                      eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean"),
                      bootstraps = 1, assemble.models = TRUE, assemble.method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa")){
@@ -50,14 +54,16 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
   ### if bootstrap...
   ##################
   if (bootstraps > 1){
-    pn = project.name
-    i = 1
-    while (dir.exists(file.path(path, pn))){
-      pn = paste0(project.name,i)
-      i = i+1
+    if (save.bootstraps || save.model){
+      pn = project.name
+      i = 1
+      while (dir.exists(file.path(path, pn))){
+        pn = paste0(project.name,i)
+        i = i+1
+      }
+      dir.create(paste0(file.path(path, pn),"/"), showWarnings = FALSE)
+      path <- paste0(file.path(path, pn),"/")
     }
-    dir.create(paste0(file.path(path, pn),"/"), showWarnings = FALSE)
-    path <- paste0(file.path(path, pn),"/")
     modelsList <- list()
     for (n in 1:bootstraps){
       message("Carrying out EN model bootstrap n", n, "...")
@@ -65,6 +71,8 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
                       extrapolate.niche = extrapolate.niche, sample.pseudoabsences = sample.pseudoabsences,
                       combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
                       eval = eval, split.data = split.data, split.percentage = split.percentage, split.method = split.method)
+      pca = EN$pca
+      crs = EN$crs
       if (!is.null(cluster)){
         cluster = EN$clus
       }
@@ -90,8 +98,11 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
         EN$eval <- models_evaluation(EN$pred.dis, occ,
                                      predictors = env, sample.pseudoabsences = sample.pseudoabsences,  res = res)
       }
+      EN$pca = pca
       EN$obs = occ
-      EN$type = "EN"
+      if (save.model){
+        saveRDS(EN, file = paste0(path, project.name ,"_ensemble.RDS"))
+      }
     }
   }
   ### Single model
@@ -102,7 +113,10 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
                     extrapolate.niche = extrapolate.niche, sample.pseudoabsences = sample.pseudoabsences,
                     combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
                     eval = eval, split.data = split.data , split.percentage = split.percentage, split.method = split.method)
+    EN$obs = occ
+    if (save.model){
+      saveRDS(EN, file = paste0(path, project.name ,".RDS"))
+    }
   }
-  attr(EN, "class") <- "NINA"
   return(EN)
 }

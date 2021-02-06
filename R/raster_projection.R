@@ -15,37 +15,21 @@
 #' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
 #' }
 #'
-#' @importFrom raster rasterFromXYZ compareRaster extent stack
+#' @importFrom raster rasterFromXYZ compareRaster extent stack crs
 #'
 #' @export
-raster_projection <- function(df, spsNames = NULL, ras = NULL) {
+raster_projection <- function(df, spsNames = NULL, ras = NULL, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") {
   ### inner elements
   sp.rasdis <- list()
   if(is.null(spsNames)){spsNames = colnames(df)[-c(1:2)]}
   if(!all(spsNames %in% colnames(df))){ stop("Some species selected are not present in the data frame.")}
   ### error messages
-  ## give rasters same extent and resolution
-  sp.rasdis <- sapply(spsNames, function(i) rasterFromXYZ(df[, c("x", "y", i)]))
-  if (is.null(ras)){
-    if (compareRaster(sp.rasdis, stopiffalse = F) == F){
-      NR = max(sapply(sp.rasdis, function(x) { nrow(x) }))
-      NC = max(sapply(sp.rasdis, function(x) { ncol(x) }))
-      ras = c(min(sapply(sp.rasdis, function(x) { extent(x)[1] })),
-              max(sapply(sp.rasdis, function(x) { extent(x)[2] })),
-              min(sapply(sp.rasdis, function(x) { extent(x)[3] })),
-              max(sapply(sp.rasdis, function(x) { extent(x)[4] })))
-      ras.template <- raster::raster(nrow=NR,ncol=NC)
-      raster::extent(ras.template) <- raster::extent(ras)
-      sp.rasdis <- sapply(spsNames, function(i) raster::resample(sp.rasdis[[i]], ras.template, method='ngb'))
-    }
-  }
   if (!is.null(ras)){
-    ras.template <- raster::raster(nrow=nrow(ras),ncol=ncol(ras))
-    raster::extent(ras.template) <- raster::extent(ras)
-    sp.rasdis <- sapply(spsNames, function(i) raster::resample(sp.rasdis[[i]], ras.template, method='ngb'))
+    sp.rasdis <- sapply(spsNames, function(i) raster::rasterize(df[,1:2], ras, field = df[,i], fun = mean, na.rm = T, update = T))
+  } else{
+    sp.rasdis <- raster::rasterFromXYZ(df, crs = crs)
   }
   sp.rasdis <- stack(sp.rasdis)
-  message("Stacked species:")
-  print(names(sp.rasdis))
+
   return(sp.rasdis)
 }

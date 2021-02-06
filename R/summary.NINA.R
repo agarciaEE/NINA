@@ -1,6 +1,6 @@
 #' @title Summary
 #'
-#' @description  Suummarizes the output of an object class NINA
+#' @description  Summarizes the output models of an object class NINA
 #'
 #' @param x An object class NINA
 #' @param ... Additional arguments for S3 methods

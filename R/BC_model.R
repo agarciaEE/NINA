@@ -89,6 +89,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
   }
   BC$z.mod = z.mod
   BC$w = w.list
+  BC$maps  = raster_projection(mod.Val, ras = x$maps[[1]])
   BC$type = "BC"
   message("Models successfully corrected!")
   attr(BC, "class") <- "NINA"

@@ -4,7 +4,12 @@
 \alias{raster_projection}
 \title{CREATE RASTER PROJECTIONS}
 \usage{
-raster_projection(df, spsNames = NULL, ras = NULL)
+raster_projection(
+  df,
+  spsNames = NULL,
+  ras = NULL,
+  crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+)
 }
 \arguments{
 \item{df}{predicted model data frame}

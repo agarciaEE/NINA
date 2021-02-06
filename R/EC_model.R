@@ -82,6 +82,7 @@ EC_model <- function(BC, EN, type = c("region", "global")){
   EC$pred.dis = mod.Val
   EC$w <- w.mod
   EC$t.mod <- t.mod
+  BC$maps  = raster_projection(mod.Val, ras = BC$maps[[1]])
   EC$type = "EC"
   attr(EC, "class") <- "NINA"
 

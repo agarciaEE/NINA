@@ -1,7 +1,6 @@
 #' @title ASSEMBLING MODELS FUNCTION
 #'
 #' @param modelsList List of bootstrap niche models
-#'
 #' @param type String indicating the type of niche model
 #' @param method String indicating method to weight bootstrap performance. Default "ACC"
 #' @param threshold Threshold to select models cut-off. Default is 0.5
@@ -11,30 +10,40 @@
 #'
 #' @return Data frame.
 #'
-#'@details Returns an error if \code{filename} does not exist.
+#' @details Returns an error if \code{filename} does not exist.
 #'
 #' @examples
 #' \dontrun{
 #' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
 #' }
 #'
+#' @importFrom tidyr spread
+#' @importFrom plyr ldply
 #'
 #' @export
-assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa"), threshold = 0.5,  modelspath = "./"){
+assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
+                                method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa"),
+                                threshold = 0.5,  modelspath = "./"){
 
   method = method[1]
   type = type[1]
+  bootstrap.eval <- list()
+  eval = F
   if(is.list(modelsList)){
     if(!is.null(modelsList[[1]]$eval)){
       bootstrap.eval = lapply(modelsList, function(x) x$eval$tab)
+      eval = T
     }
     else{
       warning("Models not evaluated previously. Considering equal preformance...")
-      eval = F
       score = 1
     }
+    env.var = modelsList[[1]]$predictors
     env.scores = modelsList[[1]]$env.scores
-    sp.scores <- ldply(lapply(modelsList, function(x) x$sp.scores), data.frame, .id = "bootstrap")
+    sp.scores = lapply(modelsList, function(x) x$sp.scores)
+    ras = modelsList[[1]]$maps[[1]]
+    crs = modelsList[[1]]$crs
+    names(sp.scores) = as.character(1:length(modelsList))
     if(type == "EC"){
       t <- lapply(modelsList, function(x) x$t.mod)
       w <- lapply(modelsList, function(x) x$w)
@@ -49,7 +58,6 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method =
     z <- lapply(modelsList, function(x) x$z.mod)
   }
   else {
-    bootstrap.eval <- list()
     z <- list()
     t <- list()
     w <- list()
@@ -62,10 +70,12 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method =
       }
       else{
         warning("Models not evaluated previously. Considering equal preformance...")
-        eval = F
         score = 1
       }
+      env.var = model$predictors
       env.scores = model$env.scores
+      ras = model$maps[[1]]
+      crs = model$crs
       sp.scores[[modelsList[i]]] <- model$sp.scores
       if (!is.null(model$clus)){
         clus.df = model$clus
@@ -83,7 +93,8 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method =
     }
   }
   model <- list()
-  sp.scores <- ldply(sp.scores, data.frame, .id = "bootstrap")
+  if(length(bootstrap.eval) == 0){ bootstrap.eval = NULL}
+  sp.scores <- plyr::ldply(sp.scores, .id = "bootstrap")
   if(cluster){
     if(type == "BC"){
       w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = T,
@@ -117,12 +128,9 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method =
     model$pred.dis = cbind(env.scores[,1:2], mod.Val)
     model$tab = tab
     model$clus = clus.df
-    model$env.scores = env.scores
-    model$sp.scores = sp.scores
     if(!is.null(bootstrap.eval)){
       model$bootstrap.eval = bootstrap.eval
     }
-    message("Model assembling completed.")
   }
   else{
     if(type == "BC"){
@@ -147,14 +155,20 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"), method =
     z.mod = z$z.mod
     mod.Val = sapply(names(z.mod), function(i) niche_to_dis(env.scores, z.mod[[i]], cor = FALSE)[,3])
     mod.Val[is.na(mod.Val)] = 0
-    model$pred.dis = cbind(env.scores[,1:2], mod.Val)
-    model$z.mod = z.mod
-    model$env.scores = env.scores
-    model$sp.scores = sp.scores
+    model$tab = table(names(z.mod))
     if(!is.null(bootstrap.eval)){
       model$bootstrap.eval = bootstrap.eval
     }
-    message("Model assembling completed.")
   }
+  model$pred.dis = cbind(env.scores[,1:2], mod.Val)
+  model$z.mod = z.mod
+  model$env.scores = env.scores
+  model$sp.scores = sp.scores
+  model$maps  = raster_projection(model$pred.dis, ras = ras, crs = crs)
+  model$predictors = env.var
+  model$crs = crs
+  model$type = type
+  attr(model, "class") <- "NINA"
+  message("All models have been assembled.")
   return(model)
 }

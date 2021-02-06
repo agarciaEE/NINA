@@ -13,8 +13,10 @@ EN_model(
   nstart = 25,
   k.max = NULL,
   B = 100,
+  crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
   extrapolate.niche = FALSE,
   save.bootstraps = F,
+  save.model = F,
   combine.clusters = FALSE,
   cluster = NULL,
   n.clus = NULL,
@@ -45,6 +47,8 @@ EN_model(
 \item{k.max}{Maximum number of cluseters}
 
 \item{B}{Number of runs}
+
+\item{crs}{CRS object or a character string describing a projection and datum in PROJ.4 format}
 
 \item{extrapolate.niche}{Boolean wheter to allow niche extrapolation if needed}
 
@@ -85,7 +89,10 @@ Returns an error if \code{filename} does not exist.
 }
 \examples{
 \dontrun{
-accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+EN<- EN_model(env_data, occ_data1, boot)
+}
+\dontrun{
+EN<- EN_model(env_data, occ_data2, cluster = "env", n.clus = 5)
 }
 
 }

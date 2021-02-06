@@ -37,5 +37,4 @@ Returns an error if \code{filename} does not exist.
 accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
 }
 
-
 }

@@ -18,18 +18,18 @@
 #' @param split.percentage Split percentage, Default is 0.25
 #' @param split.method String indicating the method to split occurrence data. Default is kmeans
 #' @param res grid resolution of the spatial extent
+#' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
 #'
 #' @return List of elements
 #'
-#'@details Returns an error if \code{filename} does not exist.
+#' @details Returns an error if \code{filename} does not exist.
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#' EN<- EN_model_(env_data, occ_data2, cluster = "env", n.clus = 5)
 #' }
 #'
-#' @importFrom utils write.table capture.output
-#' @importFrom raster stack rasterFromXYZ maxValue res
+#' @importFrom raster stack rasterFromXYZ maxValue res crs
 #' @importFrom stats na.exclude
 #' @importFrom ade4 dudi.pca
 #' @importFrom ecospat ecospat.sample.envar ecospat.grid.clim.dyn
@@ -37,7 +37,7 @@
 #' @importFrom plyr ldply
 #'
 #' @export
-EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
+EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
                                 extrapolate.niche = FALSE, nstart = 25, k.max = NULL, B = 100,
                                 combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100,
                                 eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean")){
@@ -71,10 +71,11 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
   ###################
   if (is.data.frame(env)){
     env.var = colnames(env[,-c(1:2)]) # environmental variables
-    env.stack = stack(sapply(env.var, function(x) rasterFromXYZ(cbind(env[,1:2], env[,x]))))
+    env.stack = stack(sapply(env.var, function(x) raster::rasterFromXYZ(cbind(env[,1:2], env[,x], crs = crs))))
   }
   if (class(env) %in% c("raster", "RasterBrick", "RasterStack")){
     env.stack = env
+    crs = crs(env.stack)
     env <- na.exclude(raster::as.data.frame(env.stack, xy = T))
     env.var = colnames(env[,-c(1:2)]) # environmental variables
   }
@@ -169,7 +170,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
     }
     message("\t- Regions:")
     print(regions)
-    fail.m <- list()
+    fail.m <- NULL
     for (e in regions) {
       message("\t- Carrying out species EN models in region ", e, "...")
       reg = rownames(clus.df)[which(clus.df[,3] == e)]
@@ -180,7 +181,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
         sps.subset <- names(which(sapply(spsNames, function(x) sum(occ.subset[,x]) > 0)))
         z.mod[[e]] = list()
         mod.Val[[e]] <- list()
-        fail.m[[e]] <- list()
+        #fail.m[[e]] <- list()
         for(i in sps.subset) {
           message("\t\t- Modelling ", i, " Environmental Niche...")
           sp.scores <- merge(occ.df[occ.df[reg,i] != 0,1:2], env.scores.subset, by= 1:2)
@@ -200,7 +201,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
           }
           else {
             warning("Not enough observations of ", i , " in region ", e, ".", immediate. = T)
-            fail.m[[e]] <- c(fail.m[[e]], i)
+            fail.m <- rbind(fail.m, cbind( region = e ,  species = i))
           }
         }
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
@@ -227,9 +228,9 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
       mod.Val <- ldply(mod.Val, data.frame, .id = "region")
       mod.Val = mod.Val[,-1]
       output$clus <- clus.df
-      if (any(sapply(fail.m, function(x) length(x) != 0))){
-        fail.m <- ldply(fail.m, data.frame, .id = "region")
-        colnames(fail.m)[2] = "species"
+      if (nrow(fail.m) > 0){
+        #fail.m <- plyr::ldply(fail.m, data.frame, .id = "region")
+        #colnames(fail.m)[2] = "species"
         output$fail <- fail.m
         warning("Model failed to predict the following species due to lack of observations", immediate. = T)
         print(fail.m)
@@ -259,8 +260,11 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE,
     output$eval <- models_evaluation(mod.Val, if (split.data == TRUE){occ.test} else {occ}, predictors = env, sample.pseudoabsences = sample.pseudoabsences, res = res)
   }
   ###############
-  output$type = "EN"
+  output$maps  = raster_projection(mod.Val, ras = env.stack[[1]], crs = crs)
   output$predictors = env.var
+  output$crs = crs
+  output$type = "EN"
+  attr(output, "class") <- "NINA"
   message("Species EN models succesfully completed!")
   return(output)
 }
