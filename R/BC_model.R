@@ -20,7 +20,7 @@
 #'
 #' @importFrom plyr ldply
 #' @importFrom tidyr spread
-#' @importFrom raster extract
+#' @importFrom raster extract cellStats
 #'
 #' @export
 BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("region", "global")){
@@ -36,10 +36,12 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
       w.list = list()
       mod.Val = list()
       for (e in names(x.mod)){
+        message(paste0("Estimating biotic constrains of species in region ", e, "..."))
         z.mod[[e]] = list()
         w.list[[e]] = list()
         mod.Val[[e]] = list()
         for (i in names(x.mod[[e]])){
+          message(paste0("Adding biotic constrains to ", i, "..."))
           z = x.mod[[e]][[i]]
           bc <- BC_model_(z, y.mod[[e]], id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
           mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
@@ -57,7 +59,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
       mod.Val <- spread(mod.Val, "species", "vals")[,-1]
       mod.Val[is.na(mod.Val)] = 0
       mod.Val[,-c(1:2)] = apply(mod.Val[,-c(1:2)], 2, function(i) i/max(i, na.rm = T))
-      BC$tab = tab
+      BC$tab = t(tab)
       BC$pred.dis = mod.Val
     }
     else {
@@ -70,14 +72,13 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
     z.mod = list()
     w.list = list()
     mod.Val = list()
-    message("Estimating species biotic constrains...")
     for (i in names(x.mod)){
+      message(paste0("Adding biotic constrains to ", i, "..."))
       z = x.mod[[i]]
       bc <- BC_model_(z, y.mod, id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
       mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
       z.mod[[i]] = bc$z
       w.list[[i]] = bc$w
-      message(paste(i, "... Success."))
     }
     tab = names(z.mod)
     mod.Val <- ldply(mod.Val, data.frame, .id = "species")
@@ -96,3 +97,4 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
 
   return(BC)
 }
+

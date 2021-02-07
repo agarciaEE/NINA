@@ -3,7 +3,7 @@
 #' @description Samples pseudo-absences from a environmental extent based on euclidean distances to the observations in a environmental PCA
 #'
 #' @param Obs a n x 3 data.frame class object indicating longitud, latitud and species in the three first columns
-#' @param predictors a n x m data.frame class object indicating longitud, latitud and species in the two first columns. The rest of the columns must be the environmental variables from which the PCA will be computed.
+#' @param predictors a n x m data.frame class object indicating longitud, latitud and species in the two first columns. The rest of the columns must be the environmental variables from which the PCA will be computed. Alternatively a raster stack with environmental variables or a dudi.pca object. If dudi.pca, res argument must be provided, otherwhise it will be set to 1.
 #' @param spsNames a string vector with selected species names to subset Obs. Default NULL will select all species present in the third column of paramteter Obs
 #' @param th a numeric threshold to estimate pseudo-absence distances from observations environmental centroid. Default is 0.95
 #' @param ras raster or stacked raster with the ecological contrains that will weight pseudo-absence probabilities. Default NULL
@@ -13,11 +13,12 @@
 #'
 #' @return List
 #'
-#'@details Returns an error if \code{filename} does not exist.
+#' @details Returns an error if \code{filename} does not exist.
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#' EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+#' PseudoA <- sample_pseudoabsences(EN)
 #' }
 #'
 #' @importFrom ade4 dudi.pca
@@ -33,17 +34,29 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   # check spsNames argument
   if (is.null(spsNames)){spsNames = unique(Obs[,3])}
   # check predictors argument
-  if (is.data.frame(predictors)){
+  if (any("dudi" %in% class(predictors))){
+    pred_pca = predictors
+    if (is.null(res)){
+      warning("res argument is not given and cannot be computed from argument predictors. It will be set to value 1")
+      res = 1
+    }
+  }
+  else if (is.data.frame(predictors)){
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
     pred.stack = stack(sapply(pred.var, function(x) rasterFromXYZ(cbind(predictors[,1:2], predictors[,x]))))
+    pred_pca <- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
+    if (is.null(res)){
+      res = max(res(pred.stack))
+    }
   }
-  if (class(predictors) %in% c("raster", "RasterBrick", "RasterStack")){
+  else if (class(predictors) %in% c("raster", "RasterBrick", "RasterStack")){
     pred.stack = predictors
     predictors <- na.exclude(raster::as.data.frame(pred.stack, xy = T))
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
-  }
-  if (is.null(res)){
-    res = max(res(pred.stack))
+    pred_pca <- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
+    if (is.null(res)){
+      res = max(res(pred.stack))
+    }
   }
   if (!is.null(ras)){
     if(is.null(int.matrix)){
@@ -91,7 +104,6 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
       m.ras = m.ras[m.ras[,3] != 0, 1:3]
       ras.inn <- rownames(m.ras)
     }
-    pred_pca <- dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
     dist.mat <- sapply(1:length(occ.inn), function(n) sqrt((pred_pca$li[,1] - pred_pca$li[occ.inn[n],1])^2 + (pred_pca$li[,2] - pred_pca$li[occ.inn[n],2])^2))
     dist.p = rowSums(dist.mat)
     Dmax = max(dist.p)

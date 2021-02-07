@@ -32,9 +32,11 @@ EC_model <- function(BC, EN, type = c("region", "global")){
       mod.Val = list()
       t.mod = list()
       for (e in names(z.mod)){
+        message(paste0("Transforming niche space of species in region ", e, "..."))
         t.mod[[e]] = list()
         mod.Val[[e]] = list()
         for (i in names(z.mod[[e]])){
+          message(paste0("\tEstimating ecological niche of ", i, "..."))
           en = z.mod[[e]][[i]]
           W = w.mod[[e]][[i]]
           R = length(en$x)
@@ -66,6 +68,7 @@ EC_model <- function(BC, EN, type = c("region", "global")){
     t.mod = list()
     mod.Val = list()
     for (i in names(z.mod)){
+      message(paste0("\tEstimating ecological niche of ", i, "..."))
       en = z.mod[[i]]
       W = w.mod[[i]]
       R = length(en$x)
@@ -84,7 +87,9 @@ EC_model <- function(BC, EN, type = c("region", "global")){
   EC$t.mod <- t.mod
   BC$maps  = raster_projection(mod.Val, ras = BC$maps[[1]])
   EC$type = "EC"
+  message("Models successfully transformed!")
   attr(EC, "class") <- "NINA"
 
   return(EC)
 }
+

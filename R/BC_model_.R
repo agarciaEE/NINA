@@ -22,11 +22,12 @@
 #' @importFrom plyr ldply
 #' @importFrom tidyr spread
 #' @importFrom raster cellStats
-#'
-#' @export
+#' 
+#' @keywords internal
+#' @noRd
+#' 
 BC_model_ <- function(z, y.list, id, D = 0, A.matrix = NULL, C.matrix = NULL ){
 
-  message("Adding biotic constrains...")
   out = list()
   if(length(y.list) > 0){
     out$w <- estimate_w(y.list, id = id, A.matrix = A.matrix, C.matrix = C.matrix)
@@ -43,6 +44,7 @@ BC_model_ <- function(z, y.list, id, D = 0, A.matrix = NULL, C.matrix = NULL ){
   z$z.cor[is.na(z$z.cor)] <- 0
   z$z.cor <- z$z.cor/cellStats(z$z.cor, "max")
   out$z = z
+  message("Success!")
   return(out)
 }
 

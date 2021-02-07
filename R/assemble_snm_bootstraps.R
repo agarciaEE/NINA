@@ -23,7 +23,9 @@
 #'
 #' @importFrom raster extent maxValue stack compareRaster
 #'
-#' @export
+#' @keywords internal
+#' @noRd
+#'
 assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
                             bootstrap.eval = NULL, eval = F, threshold = 0.5,
                             cluster = F, method = "ACC"){
@@ -197,7 +199,9 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         z.mod[[e]][[sp]]$betas <- z[[e]][[sp]][[1]]$betas
         z.mod[[e]][[sp]]$alpha <- z[[e]][[sp]][[1]]$alpha
       }
+      message(paste("Assembling partitions of", sp, "succesfully completed."))
     }
+    message(paste("Partitions assembly succesfully completed."))
   }
-  return(list(z.mod = z.mod))
+  return(z.mod)
 }

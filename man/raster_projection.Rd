@@ -17,6 +17,8 @@ raster_projection(
 \item{spsNames}{species names to build maps from}
 
 \item{ras}{raster template in case extent, resolution and CRS are to be set at once}
+
+\item{crs}{CRS object or a character string describing a projection and datum in PROJ.4 format}
 }
 \value{
 Raster stack

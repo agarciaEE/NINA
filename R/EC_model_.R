@@ -18,7 +18,9 @@
 #' @importFrom raster maxValue rasterize stack
 #' @importFrom spatialEco raster.gaussian.smooth
 #'
-#' @export
+#' @keywords internal
+#' @noRd
+#'
 EC_model_ <- function(en, W, R){
 
   if( !is.na(maxValue(en$z.uncor)) >  0){
@@ -73,6 +75,7 @@ EC_model_ <- function(en, W, R){
       ec$z.cor[is.na(ec$z.cor)] <- 0
       ec$z.cor <- ec$z.cor/cellStats(ec$z.cor, "max")
     }
+    message("\tSuccess!")
   }
   else{
     stop("input model has not positive predictions")

@@ -19,7 +19,11 @@ Prints characteristics of an object class NINA
 }
 \examples{
 \dontrun{
-EN = EN_model(env_data, occ_data1, cluster = "env")
+EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+print(EN)
+}
+\dontrun{
+EN = EN_model(env_data, occ_data2)
 print(EN)
 }
 }

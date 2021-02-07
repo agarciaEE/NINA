@@ -36,7 +36,9 @@
 #' @importFrom tidyr spread
 #' @importFrom plyr ldply
 #'
-#' @export
+#' @keywords internal
+#' @noRd
+#'
 EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
                                 extrapolate.niche = FALSE, nstart = 25, k.max = NULL, B = 100,
                                 combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100,

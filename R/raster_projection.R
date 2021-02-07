@@ -5,6 +5,7 @@
 #' @param spsNames species names to build maps from
 #' @param df predicted model data frame
 #' @param ras raster template in case extent, resolution and CRS are to be set at once
+#' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
 #'
 #' @return Raster stack
 #'

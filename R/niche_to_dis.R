@@ -14,7 +14,10 @@
 #' @importFrom raster extract
 #'
 #' @return data frame
-#' @export
+#'
+#' @keywords internal
+#' @noRd
+#'
 niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL, w = NULL){
 
   if (!is.null(w)){

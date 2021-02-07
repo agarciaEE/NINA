@@ -25,6 +25,7 @@
 #' @param assemble.models Boolean whether to assemble all partitions into ensemble model
 #' @param assemble.method String indicating the evaluation parameter to weight and compute the assembling. Default is "ACC"
 #' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
+#' @param save.model Boolean whether to save the model
 #'
 #' @return List of elements
 #'
@@ -40,6 +41,12 @@
 #'
 #' @importFrom utils write.table capture.output
 #' @importFrom stats na.exclude
+#' @importFrom raster stack rasterFromXYZ maxValue res crs
+#' @importFrom stats na.exclude
+#' @importFrom ade4 dudi.pca
+#' @importFrom ecospat ecospat.sample.envar ecospat.grid.clim.dyn
+#' @importFrom tidyr spread
+#' @importFrom plyr ldply
 #'
 #' @export
 EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN",

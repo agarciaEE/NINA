@@ -115,15 +115,13 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
     z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                          cluster = cluster, method = method)
-    z.mod = z$z.mod
-    model$z.mod = z.mod
-    tab = cbind(ldply(sapply(z.mod, function(x) names(x)), data.frame, .id = "region"), P = 1)
+    tab = cbind(ldply(sapply(z, function(x) names(x)), data.frame, .id = "region"), P = 1)
     tab =  spread(tab, "region", "P")
     rownames(tab) <- tab[,1]
     tab <- tab[,-1]
     tab[is.na(tab)] = 0
-    z.mod = reverse_list(z.mod)
-    mod.Val = sapply(names(z.mod), function(i) niche_to_dis(env.scores, z.mod[[i]], cluster = clus.df, cor = FALSE)[,3])
+    z = reverse_list(z)
+    mod.Val = sapply(names(z), function(i) niche_to_dis(env.scores, z[[i]], cluster = clus.df, cor = FALSE)[,3])
     mod.Val[is.na(mod.Val)] = 0
     model$pred.dis = cbind(env.scores[,1:2], mod.Val)
     model$tab = tab
@@ -152,16 +150,15 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
     z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores, w = NULL,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                          cluster = cluster, method = method)
-    z.mod = z$z.mod
-    mod.Val = sapply(names(z.mod), function(i) niche_to_dis(env.scores, z.mod[[i]], cor = FALSE)[,3])
+    mod.Val = sapply(names(z), function(i) niche_to_dis(env.scores, z[[i]], cor = FALSE)[,3])
     mod.Val[is.na(mod.Val)] = 0
-    model$tab = table(names(z.mod))
+    model$tab = table(names(z))
     if(!is.null(bootstrap.eval)){
       model$bootstrap.eval = bootstrap.eval
     }
   }
   model$pred.dis = cbind(env.scores[,1:2], mod.Val)
-  model$z.mod = z.mod
+  model$z.mod = z
   model$env.scores = env.scores
   model$sp.scores = sp.scores
   model$maps  = raster_projection(model$pred.dis, ras = ras, crs = crs)

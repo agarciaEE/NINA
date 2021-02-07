@@ -54,6 +54,8 @@ EN_model(
 
 \item{save.bootstraps}{Boolean whether to save partitions}
 
+\item{save.model}{Boolean whether to save the model}
+
 \item{combine.clusters}{Boolean whether to combine regions into global models}
 
 \item{cluster}{data frame with clustered regions as levels}

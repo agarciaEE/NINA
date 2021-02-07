@@ -22,7 +22,9 @@
 #' @importFrom stats cor.test rbinom
 #' @importFrom ggplot2 ggplot stat_density_2d aes scale_y_continuous scale_x_reverse geom_tile scale_color_gradient geom_path geom_point annotate theme_classic element_blank element_text labs theme
 #'
-#' @export
+#' @keywords internal
+#' @noRd
+#'
 evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("similarity", "accuracy"),
                           main = "", plot = T){
 
@@ -91,6 +93,7 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
   res.[,"ACC"] = (res.[,1] + res.[,4]) / N
   res.[!is.finite(res.[,"ACC"]),"ACC"] = 0
   res.$test = "predicted"
+
   if( best.th == "similarity") {
     dist <- sapply(1:length(th), function(i) res.[res.$threshold == th[i], "jaccard.sim"] - mean(res.n[res.n$threshold == th[i], "jaccard.sim"], na.rm = T))
     dist <- (dist+1)/(max(dist)+1)
@@ -119,7 +122,7 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
   B = res.[th.index,2]
   C = res.[th.index,3]
   D = res.[th.index,4]
-  eval$n <- c(np = as.integer(np), na = as.integer(na))
+  eval$n <- c(np = A+B, na = C+D)
   # Accuracy
   ACC = (A + D) / N
   # True Positive Rate
@@ -153,6 +156,7 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
   kappa = (prA - prE) / (1-prE)
   # TSS
   TSS = TPR + TNR - 1
+
   if(TSS<0){TSS = 0}
   tab <- c( cor, p.cor, JACC, TPR, TNR, TSS, ACC, AUC, kappa, PPV, NPV, OR)
   names(tab) <- c("Pearson's correlation", "p.value", "Jaccard Similarity",
@@ -160,17 +164,20 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
   eval$tab <- tab
   eval$threshold <- c(threshold = THR, p.value = p.value)
   if (plot == TRUE){
-    g <- ggplot(res.n, aes(TNR, TPR)) +
+
+    plot.eval <- function() {
+
+      ggplot(res.n, aes(TNR, TPR)) +
       scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
       scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
       geom_tile(fill = "#132B42") +
-      stat_density_2d(aes(fill = "level", col = "level"), geom = "polygon",
+      stat_density_2d(aes_string(fill = "..level..", col = "..level..", with = FALSE), geom = "polygon",
                       alpha = 0.1, bins = 10) +
       #geom_density_2d(col = "#E69F00" ) +
       #stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE, n = 100) +
       scale_color_gradient(low = "#132B42", high =  "#96B3C9") +
       geom_path(data = res., aes(TNR, TPR), col = "#E69F00", size = 1) +
-      geom_point(data = data.frame(x = TNR, y = TPR), aes("x", "y"), col = "#E69F00", shape = 18, size = 4) +
+      geom_point(data = data.frame(x = TNR, y = TPR), aes_string(x = "x", y = "y"), col = "#E69F00", shape = 18, size = 4) +
       annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 4, hjust = -0.15, vjust = 1)+
       theme_classic() +
       labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
@@ -187,11 +194,14 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
             axis.text.x = element_text(color = "black", size = 12),
             axis.text.y = element_text(color = "black", size = 12 ),
             axis.line = element_blank())
-    print(g)
+    }
+
+    print(plot.eval())
     #plot(res.$TNR, res.$TPR, main = gsub("\\s", "\n", paste0(main, " AUC=", round(AUC,2))), asp = 0, type = "l",
     #     xlab = "specificity", ylab = "sensitivity", xlim = c(1,0))
     #points(TNR, TPR, pch = 18, bg = "red", col = "red", cex = 2, lwd = 2)
     #text(TNR + 0.05, TPR - 0.05, bquote(italic(p-value) == .(format.pval(p.value))) , cex = 0.8)
+    message("\t...done.")
   }
   return(eval)
 }

@@ -30,5 +30,6 @@ estimate_betas <- function(y.list, C.matrix = NULL){
     betas[[n]] <- 1 - sum.co/K
   }
   betas = betas[sapply(betas, function(i) maxValue(i) > 0)]
+
   return(betas)
 }

@@ -4,22 +4,26 @@
 \alias{summary.NINA}
 \title{Summary}
 \usage{
-\method{summary}{NINA}(x, ...)
+\method{summary}{NINA}(object, ...)
 }
 \arguments{
-\item{x}{An object class NINA}
+\item{object}{An object class NINA}
 
 \item{...}{Additional arguments for S3 methods}
 }
 \value{
-A \code{NINA} class object description
+A list summarizing the features of a \code{NINA} class object
 }
 \description{
-Summarizes the output models of an object class NINA
+Summarizes the features of an object class NINA and prints a description
 }
 \examples{
 \dontrun{
-EN = EN_model(env_data, occ_data1, cluster = "env")
+EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+EN.summary = summary(EN)
+}
+\dontrun{
+EN = EN_model(env_data, occ_data2)
 summary(EN)
 }
 }

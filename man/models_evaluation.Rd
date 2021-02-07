@@ -20,7 +20,7 @@ models_evaluation(
 )
 }
 \arguments{
-\item{Pred}{Predicted niche models}
+\item{Pred}{Data frame with predicted niche models. Alternatively it can be an object class NINA, in which case \code{Obs} and  \code{predictors} is omitted.}
 
 \item{Obs}{Occurrence dataset}
 
@@ -55,7 +55,9 @@ Returns an error if \code{filename} does not exist.
 }
 \examples{
 \dontrun{
-accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+eval = models_evaluation(EN$pred.dis, EN$obs, env_data)
+print(eval)
 }
 
 }

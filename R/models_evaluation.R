@@ -2,7 +2,7 @@
 #'
 #' @description full models evaluation
 #'
-#' @param Pred Predicted niche models
+#' @param Pred Data frame with predicted niche models. Alternatively it can be an object class NINA, in which case \code{Obs} and  \code{predictors} is omitted.
 #' @param Obs Occurrence dataset
 #' @param predictors Environmental predictors
 #' @param spsNames species names to evaluate
@@ -21,12 +21,15 @@
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#' EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+#' eval = models_evaluation(EN$pred.dis, EN$obs, env_data)
+#' print(eval)
 #' }
 #'
 #' @importFrom raster stack rasterFromXYZ maxValue
 #' @importFrom stats na.exclude
 #' @importFrom ecospat ecospat.sample.envar
+#' @importFrom tidyr gather
 #' @import ggplot2
 #'
 #' @export
@@ -34,9 +37,15 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
                               res = NULL, plot = TRUE, rep = 100,
                               best.th = c("accuracy", "similarity") ){
 
+  if (class(Pred) == "NINA"){
+    Obs = Pred$obs
+    predictors = Pred$pca
+    Pred = Pred$pred.dis
+  }
   best.th = best.th[1]
   # check Obs argument
   if (ncol(Obs) == 3) { Obs$PA = 1  }
+  message("Observations ... OK")
   # check predictors argument
   if (is.data.frame(predictors)){
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
@@ -50,6 +59,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   if (is.null(res)){
     res = max(res(pred.stack))
   }
+  message("Environmental predictors ... OK")
   # check Pred argument
   if (class(Pred) %in% c("raster", "RasterBrick", "RasterStack")){
     Pred <- cbind(predictors[,1:2], raster::extract(Pred, predictors[,1:2]))
@@ -63,9 +73,11 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     message("Following predicted species have no observations provided: ")
     print(missing.sps)
   }
+  message("Model predictions ... OK")
   Obs <- Obs[Obs[,3] %in% spsNames,]
   if (sample.pseudoabsences == TRUE){
-    Abs.samp <- sample_pseudoabsences(Obs,  predictors , ras = ras, int.matrix = int.matrix,  res = res)
+    message("Sampling pseudo_absences... ")
+    Abs.samp <- sample_pseudoabsences(Obs,  predictors , spsNames = spsNames, ras = ras, int.matrix = int.matrix,  res = res)
     Obs <- rbind(Abs.samp$Presences, Abs.samp$Absences)
     occ.tab <- Abs.samp$tab
   }
@@ -79,9 +91,12 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   }
   tab <- NULL
   confusion <- NULL
-  n <- NULL
+  n <- data.frame(matrix(NA, length(spsNames), 2), row.names = spsNames)
+  colnames(n) = c("np", "na")
   threshold <- NULL
+  message("Performing models evaluation...")
   for (i in spsNames){
+    message(paste("\t...Evaluating", i, "niche model..."))
     Obs.sp <- Obs[Obs$species == i,]
     pred.i <- which(colnames(Pred) %in% i)
     Pred.sp <- ecospat.sample.envar(dfsp=Obs.sp,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= pred.i ,resolution= res)
@@ -91,7 +106,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     eval = evaluate_model(Fit., Obs., best.th = best.th, rep = rep, th = th, main = i, plot = plot)
     tab = rbind(tab, eval$tab)
     confusion <- rbind(confusion, cbind(eval$confusion, species = i))
-    n <- rbind(n, eval$n)
+    n[i,] <- eval$n
     threshold <-  rbind(threshold, eval$threshold)
   }
   tab <- as.data.frame(tab, row.names = spsNames)
@@ -100,7 +115,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     z <- tidyr::gather(tab, "test", "value", -c(2,12) )
     z$test <- factor(z$test,levels = c("Pearson's correlation",  "Jaccard Similarity",
                                        "TPR" ,  "TNR", "TSS","ACC", "AUC", "kappa", "PPV", "NPV"))
-    p <- ggplot(z, aes(x = "test", y = "value", group = "test")) +
+    p <- ggplot(z, aes_string(x = "test", y = "value", group = "test")) +
       geom_boxplot() +
       ylim(0,1) +
       scale_x_discrete(labels = gsub('\\s','\n',levels(z$test))) +
@@ -111,6 +126,8 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
             axis.text.y = element_text(size=12,))
     print(p)
   }
-  out <- list(n = n, tab = tab, threshold = threshold, confusion = confusion, cases = occ.tab)
+  out <- list(n = n, tab = tab, threshold = threshold, confusion = confusion, cases = occ.tab, type = "eval")
+  attr(out, "class") <- "NINA"
+  message("Models evaluation performed.")
   return(out)
 }

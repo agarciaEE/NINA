@@ -18,7 +18,7 @@ sample_pseudoabsences(
 \arguments{
 \item{Obs}{a n x 3 data.frame class object indicating longitud, latitud and species in the three first columns}
 
-\item{predictors}{a n x m data.frame class object indicating longitud, latitud and species in the two first columns. The rest of the columns must be the environmental variables from which the PCA will be computed.}
+\item{predictors}{a n x m data.frame class object indicating longitud, latitud and species in the two first columns. The rest of the columns must be the environmental variables from which the PCA will be computed. Alternatively a raster stack with environmental variables or a dudi.pca object. If dudi.pca, res argument must be provided, otherwhise it will be set to 1.}
 
 \item{spsNames}{a string vector with selected species names to subset Obs. Default NULL will select all species present in the third column of paramteter Obs}
 
@@ -43,7 +43,8 @@ Returns an error if \code{filename} does not exist.
 }
 \examples{
 \dontrun{
-accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+PseudoA <- sample_pseudoabsences(EN)
 }
 
 }
