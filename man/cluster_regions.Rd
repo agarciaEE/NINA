@@ -6,7 +6,7 @@
 \usage{
 cluster_regions(
   x,
-  plot = TRUE,
+  plot = FALSE,
   n.clus = NULL,
   nstart = 25,
   K.max = NULL,
