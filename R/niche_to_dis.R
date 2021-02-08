@@ -22,10 +22,10 @@ niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL){
 
   if (is.null(cluster)){
     if (cor){
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.cor, z[[e]]$glob))
+      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.cor, z$glob))
     }
     else{
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.uncor, z[[e]]$glob))
+      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.uncor, z$glob))
     }
   }
   if (is.data.frame(cluster)){

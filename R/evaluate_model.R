@@ -180,6 +180,7 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
       geom_point(data = data.frame(x = TNR, y = TPR), aes_string(x = "x", y = "y"), col = "#E69F00", shape = 18, size = 4) +
       annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 4, hjust = -0.15, vjust = 1)+
       theme_classic() +
+      coord_fixed() +
       labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
       theme(legend.position='none',
             #panel.background = element_rect(fill = "#132B42",

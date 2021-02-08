@@ -100,7 +100,9 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
     if (!is.null(ras)){
       Xvar <- colnames(int.matrix)[which(int.matrix[sp,] != 0)]
       nvar<-length(Xvar)
-      m.ras <- invisible(sum(stack(sapply(Xvar, function(i) ras[[i]])), na.rm = T))
+      if (nvar > 1){
+        m.ras <- sum(ras[[Xvar]], na.rm = T)
+      } else {m.ras <- ras[[Xvar]]}
       m.ras <- cbind(predictors[,1:2], P = raster::extract(m.ras, predictors[,1:2]))
       m.ras = m.ras[m.ras[,3] != 0, 1:3]
       ras.inn <- rownames(m.ras)

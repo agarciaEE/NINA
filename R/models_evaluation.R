@@ -41,13 +41,10 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     Obs = Pred$obs
     predictors = Pred$env.scores
     pred.stack = Pred$maps
+    clus.df = Pred$clus
     if (Pred$type %in% c("BC", "EC")){
-      if (Pred$type == "BC"){
-        BioCons = sapply(reverse_list(Pred$z.mod), function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
-      }
-      if (Pred$type == "EC"){
-        BioCons = sapply(reverse_list(Pred$t.mod), function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
-      }
+      w = if(!is.null(Pred$clus)){reverse_list(Pred$w) } else {Pred$w}
+      BioCons = sapply(w, function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
       BioCons[is.na(BioCons)] = 0
       BioCons = cbind(predictors[,1:2], BioCons)
       ras = raster_projection(BioCons, ras = Pred$maps[[1]])
@@ -130,7 +127,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     z$test <- factor(z$test,levels = c("Pearson's correlation",  "Jaccard Similarity",
                                        "TPR" ,  "TNR", "TSS","ACC", "AUC", "kappa", "PPV", "NPV"))
     p <- ggplot(z, aes_string(x = "test", y = "value", group = "test")) +
-      geom_boxplot() +
+      geom_boxplot(fill = "#E69F00") +
       ylim(0,1) +
       scale_x_discrete(labels = gsub('\\s','\n',levels(z$test))) +
       labs(title= "All models" ,x="", y = "Score") + theme_classic() +

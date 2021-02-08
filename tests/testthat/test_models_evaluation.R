@@ -18,8 +18,8 @@ test_that("Succes", {
 
   expect_equal(rowSums(eval$cases[,2:3]), rowSums(eval$n))
 
-  eval = models_evaluation(g2_BC, plot = F)
-
+  eval = models_evaluation(g2_BC, plot = F, rep = 1000)
+plot(eval)
   expect_equal(class(eval), "NINA")
 
   expect_equal(nrow(eval$tab), length(levels(occ_data1$species)))
