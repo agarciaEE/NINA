@@ -28,7 +28,7 @@
 #' @export
 cluster_regions <- function(x, plot = TRUE, n.clus = NULL, nstart = 25, K.max = NULL, B = 100, res = NULL){
 
-  if (class(x) %in% c("raster", "RasterBrick", "RasterStack")){
+  if (any(class(x) %in% c("raster", "RasterBrick", "RasterStack"))) {
     df <- na.exclude(raster::as.data.frame(x, xy = T))
   }
   if (is.data.frame(x)){

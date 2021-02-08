@@ -34,8 +34,9 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   # check spsNames argument
   if (is.null(spsNames)){spsNames = unique(Obs[,3])}
   # check predictors argument
-  if (any("dudi" %in% class(predictors))){
-    pred_pca = predictors
+  if (class(predictors) == "NINA"){
+    pca_scores = predictors[,3:4]
+    predictors = predictors[,1:2]
     if (is.null(res)){
       warning("res argument is not given and cannot be computed from argument predictors. It will be set to value 1")
       res = 1
@@ -43,17 +44,17 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   }
   else if (is.data.frame(predictors)){
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
-    pred.stack = stack(sapply(pred.var, function(x) rasterFromXYZ(cbind(predictors[,1:2], predictors[,x]))))
-    pred_pca <- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
+    pred.stack = raster_projection(predictors)
+    pca_scores<- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2)$li # the pca is calibrated on all the sites of the study area
     if (is.null(res)){
       res = max(res(pred.stack))
     }
   }
-  else if (class(predictors) %in% c("raster", "RasterBrick", "RasterStack")){
+  else if (any(class(predictors) %in% c("raster", "RasterBrick", "RasterStack"))){
     pred.stack = predictors
     predictors <- na.exclude(raster::as.data.frame(pred.stack, xy = T))
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
-    pred_pca <- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
+    pca_scores <- ade4::dudi.pca(predictors[,pred.var], center = T, scale = T, scannf = F, nf = 2)$li # the pca is calibrated on all the sites of the study area
     if (is.null(res)){
       res = max(res(pred.stack))
     }
@@ -65,9 +66,9 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
     else{
       if (is.data.frame(ras)){
         ras.var = colnames(ras[,-c(1:2)]) # environmental variables
-        ras = stack(sapply(ras.var, function(x) rasterFromXYZ(cbind(ras[,1:2], ras[,x]))))
+        ras = raster_projection(ras)
       }
-      if (class(ras) %in% c("raster", "RasterBrick", "RasterStack")){
+      if (any(class(ras) %in% c("raster", "RasterBrick", "RasterStack"))){
         #  ras.stack = ras
         #  ras <- na.exclude(raster::as.data.frame(ras.stack, xy = T))
         ras.var = names(ras) # environmental variables
@@ -93,18 +94,18 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   for (i in 1:length(spsNames)) {
     sp = spsNames[i]
     occ <- Obs[Obs$species == sp, 1:3]
-    occ.inn <-na.exclude(ecospat.sample.envar(dfsp=predictors,colspxy=1:2,colspkept=1:2,dfvar=occ,colvarxy=1:2,colvar= 3 ,resolution=res))
+    occ.inn <-na.exclude(ecospat::ecospat.sample.envar(dfsp=predictors,colspxy=1:2,colspkept=1:2,dfvar=occ,colvarxy=1:2,colvar= 3 ,resolution=res))
     occ.inn <- rownames(occ.inn)
     occ.P = rbind(occ.P, cbind(predictors[occ.inn,1:2], species = sp, PA = 1))
     if (!is.null(ras)){
       Xvar <- colnames(int.matrix)[which(int.matrix[sp,] != 0)]
       nvar<-length(Xvar)
-      m.ras <- sum(stack(sapply(Xvar, function(i) ras[[i]])), na.rm = T)
+      m.ras <- invisible(sum(stack(sapply(Xvar, function(i) ras[[i]])), na.rm = T))
       m.ras <- cbind(predictors[,1:2], P = raster::extract(m.ras, predictors[,1:2]))
       m.ras = m.ras[m.ras[,3] != 0, 1:3]
       ras.inn <- rownames(m.ras)
     }
-    dist.mat <- sapply(1:length(occ.inn), function(n) sqrt((pred_pca$li[,1] - pred_pca$li[occ.inn[n],1])^2 + (pred_pca$li[,2] - pred_pca$li[occ.inn[n],2])^2))
+    dist.mat <- sapply(1:length(occ.inn), function(n) sqrt((pca_scores[,1] - pca_scores[occ.inn[n],1])^2 + (pca_scores[,2] - pca_scores[occ.inn[n],2])^2))
     dist.p = rowSums(dist.mat)
     Dmax = max(dist.p)
     dist.p = dist.p/Dmax

@@ -18,33 +18,29 @@
 #' @keywords internal
 #' @noRd
 #'
-niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL, w = NULL){
+niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL){
 
-  if (!is.null(w)){
-    env.scores[,3] <- env.scores[,3]*w
-    env.scores[,4] <- env.scores[,4]*w
-  }
   if (is.null(cluster)){
     if (cor){
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.cor, env.scores[,3:4]))
+      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.cor, z[[e]]$glob))
     }
     else{
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.uncor, env.scores[,3:4]))
+      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.uncor, z[[e]]$glob))
     }
   }
   if (is.data.frame(cluster)){
-    if (any(names(z) %in% unique(cluster[,3]))){
-      if (any(!names(z) %in% unique(cluster[,3]))){
+    if (any(names(z) %in% levels(cluster[,3]))){
+      if (any(!names(z) %in% levels(cluster[,3]))){
         warning("Some regions of z are not included in the provided cluster.")
       }
       df = cbind(env.scores[,1:2], vals = 0)
       for (e in names(z)){
         reg <- which(cluster[,3] == e)
         if (cor){
-          df[reg,3] <- raster::extract(z[[e]]$z.cor, env.scores[reg,3:4])
+          df[reg,3] <- raster::extract(z[[e]]$z.cor, z[[e]]$glob)
         }
         else{
-          df[reg,3] <- raster::extract(z[[e]]$z.uncor, env.scores[reg,3:4])
+          df[reg,3] <- raster::extract(z[[e]]$z.uncor, z[[e]]$glob)
         }
       }
     }

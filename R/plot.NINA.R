@@ -85,7 +85,7 @@ plot.NINA <- function(x, ...){
     }
     if (raster::nlayers(x$maps) > 4) {
       for (i in 1:4) plot(x$maps[[i]], main  = names(x$maps[[i]]))
-      warning(paste("Ploting only the first four species maps of a total of", raster::nlayers(x$maps)), immediate. = T)
+      message(paste("Ploting only the first four species maps of a total of", raster::nlayers(x$maps)), immediate. = T)
     }
     par(mfrow=c(1,1))
   }

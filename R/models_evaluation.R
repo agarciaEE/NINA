@@ -39,7 +39,21 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
 
   if (class(Pred) == "NINA"){
     Obs = Pred$obs
-    predictors = Pred$pca
+    predictors = Pred$env.scores
+    pred.stack = Pred$maps
+    if (Pred$type %in% c("BC", "EC")){
+      if (Pred$type == "BC"){
+        BioCons = sapply(reverse_list(Pred$z.mod), function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
+      }
+      if (Pred$type == "EC"){
+        BioCons = sapply(reverse_list(Pred$t.mod), function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
+      }
+      BioCons[is.na(BioCons)] = 0
+      BioCons = cbind(predictors[,1:2], BioCons)
+      ras = raster_projection(BioCons, ras = Pred$maps[[1]])
+      int.matrix = diag(nrow = raster::nlayers(Pred$maps))
+      rownames(int.matrix) <- colnames(int.matrix) <- names(Pred$maps)
+    }
     Pred = Pred$pred.dis
   }
   best.th = best.th[1]
@@ -49,19 +63,19 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   # check predictors argument
   if (is.data.frame(predictors)){
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
-    pred.stack = stack(sapply(pred.var, function(x) rasterFromXYZ(cbind(predictors[,1:2], predictors[,x]))))
+    pred.stack = raster_projection(predictors)
   }
-  if (class(predictors) %in% c("raster", "RasterBrick", "RasterStack")){
+  if (any(class(predictors) %in% c("raster", "RasterBrick", "RasterStack"))){
     pred.stack = predictors
     predictors <- na.exclude(raster::as.data.frame(pred.stack, xy = T))
     pred.var = colnames(predictors[,-c(1:2)]) # environmental variables
   }
   if (is.null(res)){
-    res = max(res(pred.stack))
+    res = max(raster::res(pred.stack))
   }
   message("Environmental predictors ... OK")
   # check Pred argument
-  if (class(Pred) %in% c("raster", "RasterBrick", "RasterStack")){
+  if (any(class(Pred) %in% c("raster", "RasterBrick", "RasterStack"))){
     Pred <- cbind(predictors[,1:2], raster::extract(Pred, predictors[,1:2]))
     #Pred <- ecospat.sample.envar(dfsp=predictors,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= 3:ncol(Pred) ,resolution= res)
   }

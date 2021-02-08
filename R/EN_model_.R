@@ -75,7 +75,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
     env.var = colnames(env[,-c(1:2)]) # environmental variables
     env.stack = stack(sapply(env.var, function(x) raster::rasterFromXYZ(cbind(env[,1:2], env[,x], crs = crs))))
   }
-  if (class(env) %in% c("raster", "RasterBrick", "RasterStack")){
+  if (any(class(env) %in% c("raster", "RasterBrick", "RasterStack"))){
     env.stack = env
     crs = crs(env.stack)
     env <- na.exclude(raster::as.data.frame(env.stack, xy = T))
