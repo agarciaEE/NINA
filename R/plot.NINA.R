@@ -93,10 +93,8 @@ plot.NINA <- function(x, ...){
     }
     if(n.maps > 4) {
       for (i in 1:4) {
-        if (i == 1){
-          par(mar=c(10,6,4,2))
-        } else{ par(mar=c(5,3,2,2)) }
-        plot(x$maps[[i]], sub  = names(x$maps[[i]]) )
+        par(mar=c(5,5,5,5))
+        plot(x$maps[[i]], main  = names(x$maps[[i]]) )
       }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }

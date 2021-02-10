@@ -2,7 +2,6 @@
 #'
 #' @param z niche model
 #'
-#' @param env environemtnal variables data frame
 #' @param type type of estimation. Default is "unimodal"
 #' @param method Method to estimate the niche centroid. Default is "max"
 #' @param quantile Numeric quantile to filter the niche
@@ -20,9 +19,10 @@
 #' }
 #'
 #' @importFrom stats cov.wt median
+#' @importFrom fpc dbscan
 #'
 #' @export
-niche_position <- function(z, env, type = c("unimodal", "multimodal"),  method = c("max", "median", "mean"), quantile = 0.5, cor = FALSE){
+niche_position <- function(z, type = c("unimodal", "multimodal"),  method = c("max", "median", "mean"), quantile = 0.5, cor = FALSE){
 
   type = type[1]
   method = method[1]
@@ -33,7 +33,7 @@ niche_position <- function(z, env, type = c("unimodal", "multimodal"),  method =
   if (cor == FALSE){
     v = raster::as.data.frame(z$z.uncor, xy = T)
   }
-  v[is.na(v[,3]),3] = 0
+  v[is.na(v)] = 0
   v = v[v[,3] != 0,]
   qt <- quantile(v[,3], quantile, na.rm = T)
   opt = v[v[,3] >= qt,]
@@ -42,13 +42,15 @@ niche_position <- function(z, env, type = c("unimodal", "multimodal"),  method =
     if (method == "max"){ctr <- t(sapply(unique(opt$cluster), function(x) opt[which.max(opt[opt$cluster == x,3]),1:2]))}
     if (method == "mean"){ctr <- t(sapply(unique(opt$cluster), function(x) cov.wt(opt[opt$cluster == x,1:2], wt = opt[opt$cluster == x,3])$center))  }
     if (method == "median"){ctr <- t(sapply(unique(opt$cluster), function(x)  c(median(opt[opt$cluster == x,1]), median(opt[opt$cluster == x,2]))))}
+    ctr = as.data.frame(ctr)
+    colnames(ctr) = c("Axis1", "Axis2")
   }
   if (type == "unimodal"){
     if (method == "max"){ ctr <- opt[which.max(opt[,3]),1:2]}
     if (method == "mean"){ ctr <- t(as.matrix(cov.wt(opt[,1:2], wt = opt[,3])$center))}
     if (method == "median"){ ctr <- t(as.matrix(c(median(opt[,1]), median(opt[,2]))))}
+    ctr = as.numeric(ctr)
+    names(ctr) = c("Axis1", "Axis2")
   }
-  ctr = as.numeric(ctr)
-  names(ctr) = c("Axis1", "Axis2")
   return(ctr)
 }

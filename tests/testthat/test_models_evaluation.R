@@ -32,4 +32,10 @@ test_that("Succes", {
   expect_equal(unique(eval$confusion$test), c("predicted", "random"))
 
   expect_equal(rowSums(eval$cases[,2:3]), rowSums(eval$n))
+
+  Pseudo_abs <- sample_pseudoabsences(occ_data1, env_data, spsNames = NULL, plot = T)
+
+  expect_equal(class(Pseudo_abs), "list")
+
+  expect_equal(nrow(Pseudo_abs$tab), length(levels(occ_data2$species)))
 })

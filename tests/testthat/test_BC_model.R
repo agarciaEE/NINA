@@ -22,6 +22,14 @@ test_that("Succes", {
 
   expect_equal(length(g2_BC$w), 5)
 
+  g1_EN = EN_model(env_data, occ_data1)
+  g2_EN = EN_model(env_data, occ_data2)
+  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "global")
+
+  expect_equal(length(g2_BC$z.mod), 5)
+
+  expect_equal(length(g2_BC$w), 5)
+
 
 })
 

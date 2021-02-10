@@ -41,10 +41,10 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
         w.list[[e]] = list()
         mod.Val[[e]] = list()
         for (i in names(x.mod[[e]])){
-          message(paste0("Adding biotic constrains to ", i, "..."))
+          message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
           z = x.mod[[e]][[i]]
           bc <- BC_model_(z, y.mod[[e]], id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
-          mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
+          mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z, bc$z$glob))
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w
         }
@@ -73,10 +73,10 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
     w.list = list()
     mod.Val = list()
     for (i in names(x.mod)){
-      message(paste0("Adding biotic constrains to ", i, "..."))
+      message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
       z = x.mod[[i]]
       bc <- BC_model_(z, y.mod, id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
-      mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z.uncor, bc$z$glob))
+      mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z, bc$z$glob))
       z.mod[[i]] = bc$z
       w.list[[i]] = bc$w
     }

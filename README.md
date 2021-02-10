@@ -11,6 +11,8 @@ status](https://travis-ci.com/agarciaEE/NINA.svg?branch=main)](https://travis-ci
 status](https://ci.appveyor.com/api/projects/status/github/agarciaEE/NINA?branch=main&svg=true)](https://ci.appveyor.com/project/agarciaEE/NINA)
 [![Codecov test
 coverage](https://codecov.io/gh/agarciaEE/NINA/branch/main/graph/badge.svg)](https://codecov.io/gh/agarciaEE/NINA?branch=main)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/NINA)](https://CRAN.R-project.org/package=NINA)
 <!-- badges: end -->
 
 The goal of NINA is the the analysis and implementation of biotic

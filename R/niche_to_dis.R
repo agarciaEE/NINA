@@ -22,10 +22,11 @@ niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL){
 
   if (is.null(cluster)){
     if (cor){
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.cor, z$glob))
+      vals = raster::extract(z$z, z$glob) / raster::extract(z$Z, z$glob)
+      df <- cbind(env.scores[,1:2], vals)
     }
     else{
-      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z.uncor, z$glob))
+      df <- cbind(env.scores[,1:2], vals = raster::extract(z$z, z$glob))
     }
   }
   if (is.data.frame(cluster)){
@@ -37,14 +38,15 @@ niche_to_dis <- function(env.scores, z, cor = FALSE, cluster = NULL){
       for (e in names(z)){
         reg <- which(cluster[,3] == e)
         if (cor){
-          df[reg,3] <- raster::extract(z[[e]]$z.cor, z[[e]]$glob)
+          df[reg,3] <- raster::extract(z[[e]]$z, z[[e]]$glob) / raster::extract(z[[e]]$Z, z[[e]]$glob)
         }
         else{
-          df[reg,3] <- raster::extract(z[[e]]$z.uncor, z[[e]]$glob)
+          df[reg,3] <- raster::extract(z[[e]]$z, z[[e]]$glob)
         }
       }
     }
   }
+  df[,3] = df[,3] / max(df[,3], na.rm = T)
   df[is.na(df)] = 0
   return(df)
 }

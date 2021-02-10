@@ -72,13 +72,14 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   # check env argument
   ###################
   if (is.data.frame(env)){
+    env = stats::na.exclude(env)
     env.var = colnames(env[,-c(1:2)]) # environmental variables
-    env.stack = stack(sapply(env.var, function(x) raster::rasterFromXYZ(cbind(env[,1:2], env[,x], crs = crs))))
+    env.stack = raster_projection(env, crs = crs)
   }
   if (any(class(env) %in% c("raster", "RasterBrick", "RasterStack"))){
     env.stack = env
-    crs = crs(env.stack)
-    env <- na.exclude(raster::as.data.frame(env.stack, xy = T))
+    crs = raster::crs(env.stack)
+    env <- stats::na.exclude(raster::as.data.frame(env.stack, xy = T))
     env.var = colnames(env[,-c(1:2)]) # environmental variables
   }
   message("Environmental dataset ... OK")
@@ -98,9 +99,9 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   ### error messages
   ### function
   message("\t- Conforming environmental space...")
-  pca.cal <- dudi.pca(na.exclude(env[,env.var]), center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
+  pca.cal <- dudi.pca(stats::na.exclude(env[,env.var]), center = T, scale = T, scannf = F, nf = 2) # the pca is calibrated on all the sites of the study area
   env.scores = cbind(env[,1:2], pca.cal$li) # environmental PCA scores
-  occ.df <- ecospat.sample.envar(dfsp=env,colspxy=1:2,colspkept=1:2,dfvar=occ.df,colvarxy=1:2,colvar= 3:ncol(occ.df) ,resolution=res) # match occ.df coordinates to env coordinates
+  occ.df <- ecospat::ecospat.sample.envar(dfsp=env,colspxy=1:2,colspkept=1:2,dfvar=occ.df,colvarxy=1:2,colvar= 3:ncol(occ.df) ,resolution=res) # match occ.df coordinates to env coordinates
   occ.df[is.na(occ.df)] = 0
   ## ENN method
   ### Whole niche

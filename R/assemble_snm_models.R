@@ -28,7 +28,9 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
   method = method[1]
   type = type[1]
   bootstrap.eval <- list()
+  W = F
   eval = F
+  cluster = F
   if(is.list(modelsList)){
     if(!is.null(modelsList[[1]]$eval)){
       bootstrap.eval = lapply(modelsList, function(x) x$eval$tab)
@@ -47,9 +49,11 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
     if(type == "EC"){
       t <- lapply(modelsList, function(x) x$t.mod)
       w <- lapply(modelsList, function(x) x$w)
+      w = T
     }
     if(type == "BC"){
       w <- lapply(modelsList, function(x) x$w)
+      W = T
     }
     if (!is.null(modelsList[[1]]$clus)){
       clus.df = modelsList[[1]]$clus
@@ -84,9 +88,11 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
       if(type == "EC"){
         t[[modelsList[i]]] <- model$t.mod
         w[[modelsList[i]]] <- model$w
+        w = T
       }
       if(type == "BC"){
         w[[modelsList[i]]] <- model$w
+        w = T
       }
       z[[modelsList[i]]] <- model$z.mod
       rm(model)
@@ -97,22 +103,22 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
   sp.scores <- plyr::ldply(sp.scores, .id = "bootstrap")
   if(cluster){
     if(type == "BC"){
-      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = T,
+      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
     if(type == "EC"){
-      t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores,
+      t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$t.mod = t$z.mod
-      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = T,
+      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
-    z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores,
+    z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores, w = W,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                          cluster = cluster, method = method)
     tab = cbind(ldply(sapply(z, function(x) names(x)), data.frame, .id = "region"), P = 1)
@@ -132,22 +138,22 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
   }
   else{
     if(type == "BC"){
-      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = T,
+      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
     if(type == "EC"){
-      t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores,
+      t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$t.mod = t$z.mod
-      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = T,
+      w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
-    z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores, w = NULL,
+    z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores, w = W,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                          cluster = cluster, method = method)
     mod.Val = sapply(names(z), function(i) niche_to_dis(env.scores, z[[i]], cor = FALSE)[,3])

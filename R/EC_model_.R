@@ -3,6 +3,7 @@
 #' @param en NINA Niche model to transform the niche space
 #' @param W Weighting coefficients
 #' @param R Niche space grid
+#' @param D Numeric value for independence of interactions
 #'
 #' @description Transform environmental niche space into ecological niche space
 #'
@@ -21,7 +22,7 @@
 #' @keywords internal
 #' @noRd
 #'
-EC_model_ <- function(en, W, R){
+EC_model_ <- function(en, W, R = 100, D = 0){
 
   if( !is.na(maxValue(en$z.uncor)) >  0){
     if(maxValue(W$z.uncor) ==  0){
@@ -36,8 +37,10 @@ EC_model_ <- function(en, W, R){
       b = raster::as.data.frame(en$z.uncor, xy = T)
       w = raster::as.data.frame(W$z.uncor, xy = T)
       betas = raster::as.data.frame(W$betas, xy = T)
-      b[,1:2] = b[,1:2]*w[,3]
-      b = b[w[,3] != 0,]
+      b[,1:2] =  b[,1:2] * D + b[,1:2] * w[,3]
+      if( D == 0){
+        b = b[w[,3] != 0,]
+      }
       ras = c(min(c(w[w[,3] != 0,1],b[b[,3] != 0, 1])),
               max(c(w[w[,3] != 0,1],b[b[,3] != 0, 1])),
               min(c(w[w[,3] != 0,2],b[b[,3] != 0, 2])),
@@ -52,30 +55,31 @@ EC_model_ <- function(en, W, R){
       ec$x = seq(ras[1], ras[2], length.out = R)
       ec$y = seq(ras[3], ras[4], length.out = R)
       if(W$alpha == 1){
-        ec$Z = raster::resample(round(W$z.uncor), ras.template, method = "ngb")
-        ec$z.uncor = raster::resample(en$z.uncor*W$z.uncor, ras.template, method = "ngb")
-        ec$z.uncor = ec$z.uncor / cellStats(ec$z.uncor, "max")
+        ec$z <- ec$z * D + ec$z * W$z.uncor
+        ec$Z = raster::resample(W$z, ras.template, method = "ngb")
+        ec$z = raster::resample(ec$z, ras.template, method = "ngb")
+        ec$z.uncor = ec$z / raster::cellStats(ec$z, "max")
         ec$betas = raster::resample(round(W$betas), ras.template, method = "ngb")
       }
       else{
-        ec$Z = rasterize(w[,1:2]*w[,3], ras.template, field = w[,3], fun = mean)
-        ec$Z= raster.gaussian.smooth(ec$Z, n = 3,type = mean)
-        ec$z.uncor = rasterize(b[,1:2], ras.template, field = b[,3], fun = mean)
-        ec$z.uncor= raster.gaussian.smooth(ec$z.uncor, n = 3,type = mean)
-        ec$z.uncor[is.na(ec$z.uncor)] <- 0
-        ec$z.uncor = ec$z.uncor / cellStats(ec$z.uncor, "max")
-        ec$betas = stack(sapply(names(W$betas), function(i) rasterize(betas[,1:2]*w[,3], ras.template, field = betas[,i], fun = mean)))
+        ec$Z = raster::rasterize(w[,1:2]*w[,3], ras.template, field = w[,3], fun = mean)
+        ec$Z= spatialEco::raster.gaussian.smooth(ec$Z, n = 3,type = mean)
+        ec$Z = ec$Z * raster::cellStats(W$z, "max")
+        ec$z.uncor = raster::rasterize(b[,1:2], ras.template, field = b[,3], fun = mean)
+        ec$z.uncor= spatialEco::raster.gaussian.smooth(ec$z.uncor, n = 3,type = mean)
+        ec$z.uncor = ec$z.uncor / raster::cellStats(ec$z.uncor, "max")
+        ec$betas = raster::stack(sapply(names(W$betas), function(i) raster::rasterize(betas[,1:2]*w[,3], ras.template, field = betas[,i], fun = mean)))
       }
       ec$Z[is.na(ec$Z)] <- 0
       ec$z.uncor[is.na(ec$z.uncor)] <- 0
-      ec$z = ec$z.uncor * cellStats(en$z, "max")
+      ec$z = ec$z.uncor * raster::cellStats(en$z, "max")
       ec$w <- ec$z.uncor
       ec$w[ec$w > 0] <- 1
       ec$z.cor <- ec$z/ec$Z
       ec$z.cor[is.na(ec$z.cor)] <- 0
-      ec$z.cor <- ec$z.cor/cellStats(ec$z.cor, "max")
+      ec$z.cor <- ec$z.cor/raster::cellStats(ec$z.cor, "max")
     }
-    message("\tSuccess!")
+    message("\t...Success!")
   }
   else{
     stop("input model has not positive predictions")

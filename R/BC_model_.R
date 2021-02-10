@@ -34,20 +34,18 @@ BC_model_ <- function(z, y.list, id, D = 0, A.matrix = NULL, C.matrix = NULL ){
     wc <- out$w$z.uncor
   }
   else{ wc = 0}
-  z$z.uncor <- z$z.uncor * D + z$z.uncor * wc
+  z$z <- z$z * D + z$z * wc
+  z$z.uncor <- z$z / raster::cellStats(z$z, "max")
   z$z.uncor[is.na(z$z.uncor)] <- 0
-  z$z.uncor <- z$z.uncor / cellStats(z$z.uncor, "max")
-  z$z <- z$z.uncor * cellStats(z$z, "max")
   z$w <- z$z.uncor
   z$w[z$w > 0] <- 1
   z$z.cor <- z$z/z$Z
   z$z.cor[is.na(z$z.cor)] <- 0
-  z$z.cor <- z$z.cor/cellStats(z$z.cor, "max")
+  z$z.cor <- z$z.cor/raster::cellStats(z$z.cor, "max")
   out$z = z
-  message("Success!")
+  message("\t...Success!")
   return(out)
 }
-
 
 
 

@@ -4,12 +4,14 @@
 \alias{EC_model}
 \title{ESTIMATE EC MODEL}
 \usage{
-EC_model(BC, EN, type = c("region", "global"))
+EC_model(BC, EN, D = 0, type = c("region", "global"))
 }
 \arguments{
 \item{BC}{NINA EN or BC model}
 
 \item{EN}{Optional. NINA EN Model}
+
+\item{D}{Numeric value for independence of interactions}
 
 \item{type}{String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error}
 }

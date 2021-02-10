@@ -83,7 +83,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
           sc = sp.scores[sp.scores[,"region"] == e & sp.scores[,"species"] == sp,]
           z.mod[[e]][[sp]]$sp =  sc[!duplicated(sc), c("Axis1", "Axis2")]
           zz <- sum(zz, na.rm=TRUE)
-          Z <- mean(Z, na.rm=TRUE)
+          Z <- raster::mean(Z, na.rm=TRUE)
           z.uncor <- zz/cellStats(zz, "max")
           zz <- zz * z.max
           ww <- z.uncor
@@ -137,14 +137,23 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
       zz.l <- list()
       Z.l <- list()
       z.mod[[sp]] <- z[[sp]][[1]]
+      R = length(z[[sp]][[1]]$x)
       #mod.Val[[sp]] <- list()
-      for (i in names(z[[sp]])){
+      sc.vec <- NULL
+      for (i in 1:length(z[[sp]])){
         if(eval){score = bootstrap.eval[[i]][sp,method]}
-        zz.l[[i]] <- z[[sp]][[i]]$z * score
-        Z.l[[i]] <- z[[sp]][[i]]$Z
+        if(score > threshold){
+          sc.vec <- c(sc.vec, score)
+          zz.l[[i]] <- z[[sp]][[i]]$z
+          Z.l[[i]] <- z[[sp]][[i]]$Z
+        }
       }
       zz.l = zz.l[which(sapply(zz.l, "maxValue") > 0)]
       Z.l = Z.l[which(sapply(Z.l, "maxValue") > 0)]
+      if (length(zz.l) == 0){
+        warning(paste("No partition of", sp, "in", e, "fits the assembling threshold standards."), immediate. = T)
+        next()
+      }
       if (length(zz.l) > 1){
         if (compareRaster(zz.l, stopiffalse = F) == F){
           ras = c(min(sapply(zz.l, function(x) { extent(x)[1] })),
@@ -157,16 +166,20 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
           zz.l <- lapply(zz.l, function(x) raster::resample(x, ras.template, method='ngb'))
           Z.l <- lapply(Z.l, function(x) raster::resample(x, ras.template, method='ngb'))
         }
+        sc.vec <- sapply(sc.vec, function(i) i/sum(sc.vec))
+        #sc.vec <- sc.vec/min(sc.vec)
         rasterEx <- raster::extent(zz.l[[1]])
-        zz <- stack(zz.l)
+        z.max <- max(maxValue(stack(zz.l)), na.rm = T)
+        zz <- stack(sapply(1:length(zz.l), function(i) zz.l[[i]]*sc.vec[i]))
         Z <- stack(Z.l)
-        z.mod[[sp]]$x = seq(rasterEx[1], rasterEx[2], (rasterEx[2]-rasterEx[1])/R)
-        z.mod[[sp]]$y = seq(rasterEx[3], rasterEx[4], (rasterEx[4]-rasterEx[3])/R)
+        z.mod[[sp]]$x = seq(rasterEx[1], rasterEx[2], length.out = R)
+        z.mod[[sp]]$y = seq(rasterEx[3], rasterEx[4], length.out = R)
         sc = sp.scores[sp.scores[,"species"] == sp,]
         z.mod[[sp]]$sp =  sc[!duplicated(sc), c("Axis1", "Axis2")]
-        zz <- sum(zz, na.rm=TRUE)/sum(stack(lapply(z[[sp]], function(x) raster::resample(x, ras.template, method='ngb'))))
-        Z <- mean(Z, na.rm=TRUE)
+        zz <- sum(zz, na.rm=TRUE)
+        Z <- raster::mean(Z, na.rm=TRUE)
         z.uncor <- zz/cellStats(zz, "max")
+        zz <- zz * z.max
         ww <- z.uncor
         ww[ww > 0] <- 1
         z.cor <- zz/Z
@@ -177,11 +190,18 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         z.mod[[sp]]$w <- ww
         z.mod[[sp]]$z <- zz
         z.mod[[sp]]$Z <- Z
-        #mod.Val[[sp]] <- cbind(env.scores[,1:2], vals = raster::extract(z.mod[[sp]]$z.uncor, z.mod[[sp]]$glob))
+        #sp.coords <- cbind(env.scores[,1:2], env.scores[,3:4])[rownames(z.mod[[sp]]$glob),]
+        #mod.Val[[sp]] <- cbind(sp.coords[,1:2], vals = raster::extract(z.mod[[sp]]$z.uncor, z.mod[[sp]]$glob))
       }
       if (length(zz.l) == 1){
         zz <- zz.l[[1]]
         Z <- Z.l[[1]]
+        if (compareRaster(zz,Z, stopiffalse = F) == F){
+          rasterEx <- raster::extent(Z)
+          ras.template <- raster::raster(nrow=R,ncol=R)
+          raster::extent(ras.template) <- rasterEx
+          zz <- raster::resample(zz, ras.template, method='ngb')
+        }
         z.uncor <- zz/cellStats(zz, "max")
         ww <- z.uncor
         ww[ww > 0] <- 1
@@ -193,11 +213,12 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         z.mod[[sp]]$w <- ww
         z.mod[[sp]]$z <- zz
         z.mod[[sp]]$Z <- Z
-        #mod.Val[[sp]] <-  cbind(env.scores[,1:2], vals = raster::extract(z.mod[[sp]]$z.uncor, z.mod[[sp]]$glob))
+        #sp.coords <- cbind(env.scores[,1:2], env.scores[,3:4])[rownames(z.mod[[sp]]$glob),]
+        #mod.Val[[sp]] <-  cbind(sp.coords[,1:2], vals = raster::extract(z.mod[[sp]]$z.uncor, z.mod[[sp]]$glob))
       }
       if(w) {
-        z.mod[[e]][[sp]]$betas <- z[[e]][[sp]][[1]]$betas
-        z.mod[[e]][[sp]]$alpha <- z[[e]][[sp]][[1]]$alpha
+        z.mod[[sp]]$betas <- z[[sp]][[1]]$betas
+        z.mod[[sp]]$alpha <- z[[sp]][[1]]$alpha
       }
       message(paste("Assembling partitions of", sp, "succesfully completed."))
     }

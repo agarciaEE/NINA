@@ -4,7 +4,13 @@
 \alias{niche_parameters}
 \title{NICHE PARAMETERS}
 \usage{
-niche_parameters(EN, EC, type = c("region", "global"))
+niche_parameters(
+  EN,
+  EC,
+  type = c("region", "global"),
+  quantile = 0.75,
+  np.metric = c("median", "mean", "max")
+)
 }
 \arguments{
 \item{EN}{NINA object. Environmental niche model}
@@ -12,6 +18,10 @@ niche_parameters(EN, EC, type = c("region", "global"))
 \item{EC}{NINA object. Ecological niche model}
 
 \item{type}{String indicating the scale of the analysis. Default is "region"}
+
+\item{quantile}{Numeric value defining quantile threshold to filter niche suitability}
+
+\item{np.metric}{Statistic metric to compute the niche position. Defaullt is median}
 }
 \value{
 Data frame.

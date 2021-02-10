@@ -3,6 +3,8 @@
 #' @param BC NINA EN or BC model
 #' @param EN Optional. NINA EN Model
 #' @param type String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error
+#' @param D Numeric value for independence of interactions
+#'
 #' @description Transform environmental niche space into ecological niche space
 #'
 #' @return Data frame.
@@ -18,7 +20,7 @@
 #' @importFrom spatialEco raster.gaussian.smooth
 #'
 #' @export
-EC_model <- function(BC, EN, type = c("region", "global")){
+EC_model <- function(BC, EN, D = 0, type = c("region", "global")){
 
   if (!missing(EN)){ EC = EN }
   else{ EC = BC }
@@ -36,13 +38,13 @@ EC_model <- function(BC, EN, type = c("region", "global")){
         t.mod[[e]] = list()
         mod.Val[[e]] = list()
         for (i in names(z.mod[[e]])){
-          message(paste0("\tEstimating ecological niche of ", i, "..."))
+          message(paste0("\tEstimating ecological niche of ", i, "..."), appendLF = F)
           en = z.mod[[e]][[i]]
           W = w.mod[[e]][[i]]
           R = length(en$x)
           if( !is.na(maxValue(en$z.uncor)) >  0){
-            t.mod[[e]][[i]] = EC_model_(en, W, R)
-            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(t.mod[[e]][[i]]$glob),1:2], vals = raster::extract(t.mod[[e]][[i]]$z.uncor, t.mod[[e]][[i]]$glob))
+            t.mod[[e]][[i]] = EC_model_(en, W, R = R, D = D)
+            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(t.mod[[e]][[i]]$glob),1:2], vals = raster::extract(t.mod[[e]][[i]]$z, t.mod[[e]][[i]]$glob))
           }
         }
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
@@ -68,13 +70,13 @@ EC_model <- function(BC, EN, type = c("region", "global")){
     t.mod = list()
     mod.Val = list()
     for (i in names(z.mod)){
-      message(paste0("\tEstimating ecological niche of ", i, "..."))
+      message(paste0("\tEstimating ecological niche of ", i, "..."), appendLF = F)
       en = z.mod[[i]]
       W = w.mod[[i]]
       R = length(en$x)
       if(!is.na(maxValue(en$z.uncor)) >  0){
         t.mod[[i]] = EC_model_(en, W, R)
-        mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(t.mod[[i]]$z.uncor, t.mod[[i]]$glob))
+        mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(t.mod[[i]]$z, t.mod[[i]]$glob))
       }
     }
     mod.Val <- ldply(mod.Val, data.frame, .id = "species")

@@ -171,7 +171,7 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
       scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
       scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
       geom_tile(fill = "#132B42") +
-      stat_density_2d(aes_string(fill = "..level..", col = "..level..", with = FALSE), geom = "polygon",
+      stat_density_2d(aes_string(fill = "..level..", col = "..level.."), geom = "polygon",
                       alpha = 0.1, bins = 10) +
       #geom_density_2d(col = "#E69F00" ) +
       #stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE, n = 100) +

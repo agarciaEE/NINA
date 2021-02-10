@@ -6,7 +6,6 @@
 \usage{
 niche_position(
   z,
-  env,
   type = c("unimodal", "multimodal"),
   method = c("max", "median", "mean"),
   quantile = 0.5,
@@ -15,8 +14,6 @@ niche_position(
 }
 \arguments{
 \item{z}{niche model}
-
-\item{env}{environemtnal variables data frame}
 
 \item{type}{type of estimation. Default is "unimodal"}
 
