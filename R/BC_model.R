@@ -27,11 +27,28 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
 
   type = type[1]
   BC = x
+  w = F
+  clus = F
+  type = type[1]
+  if(!is.null(x$clus)){clus = T}
+  if (sum(class(x) %in% c("NINA", "ENmodel", "BCmodel")) != 2) {
+    stop("Argument 'x' is not a NINA Environmental model")
+  }
+  if (sum(class(y) %in% c("NINA", "ENmodel", "BCmodel")) != 2) {
+    stop("Argument 'y' is not a NINA Environmental model")
+  }
+  if (is.null(A.matrix)) { stop("Argument 'A.matrix' needed")}
+  else {
+    if(any(!names(x$maps) %in% rownames(A.matrix))){ stop("Some species in models 'x' are not present in argument 'A.matrix")}
+    if(any(!colnames(A.matrix) %in% names(y$maps))){ stop("Some species in models 'y' are not present in argument 'A.matrix")}
+  }
+  if(!is.null(y$clus) != clus) {stop("Model x and model y have been estimated in different scales") }
+
+  x.mod = x$z.mod
+  y.mod = y$z.mod
   env.scores = x$env.scores
   if (type == "region"){
     if(!is.null(x$clus) && !is.null(y$clus)){
-      x.mod = x$z.mod
-      y.mod = y$z.mod
       z.mod = list()
       w.list = list()
       mod.Val = list()
@@ -48,8 +65,12 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w
         }
+        z.mod[[e]] <-  z.mod[[e]][unlist(lapply(z.mod[[e]], length) != 0)]
+        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
+        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) maxValue(x$z) != 0))]
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
       }
+      z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
       tab = cbind(ldply(sapply(z.mod, function(x) names(x)), data.frame, .id = "region"), P = 1)
       tab =  spread(tab, "region", "P")
       rownames(tab) <- tab[,1]
@@ -67,8 +88,8 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
     }
   }
   if (type == "global"){
-    if(!is.null(x$clus)){x.mod = x$z.mod.global}else{x.mod = x$z.mod}
-    if(!is.null(y$clus)){y.mod = y$z.mod.global}else{y.mod = y$z.mod}
+    if(!is.null(x$clus)){x.mod = x$z.mod.global}
+    if(!is.null(y$clus)){y.mod = y$z.mod.global}
     z.mod = list()
     w.list = list()
     mod.Val = list()
@@ -80,6 +101,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
       z.mod[[i]] = bc$z
       w.list[[i]] = bc$w
     }
+    z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
     tab = names(z.mod)
     mod.Val <- ldply(mod.Val, data.frame, .id = "species")
     mod.Val <- spread(mod.Val, "species", "vals")
@@ -91,9 +113,9 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
   BC$z.mod = z.mod
   BC$w = w.list
   BC$maps  = raster_projection(mod.Val, ras = x$maps[[1]])
-  BC$type = "BC"
+  #BC$type = "BC"
   message("Models successfully corrected!")
-  attr(BC, "class") <- "NINA"
+  attr(BC, "class") <- c("NINA", "BCmodel")
 
   return(BC)
 }

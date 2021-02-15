@@ -11,7 +11,7 @@ test_that("Succes", {
 
   g2_EC <- EC_model(g2_BC, type = "region")
 
-  expect_equal(class(g2_EC), "NINA")
+  expect_equal(class(g2_EC), c("NINA", "ECmodel"))
 
   expect_equal(raster::nlayers(g2_EC$maps), length(levels(occ_data2$species)))
 
@@ -22,20 +22,20 @@ test_that("Succes", {
 
   expect_equal(length(g2_EC$z.mod), 5)
 
-  expect_equal(length(g2_EC$w), 5)
+  expect_equal(length(g2_EC$g), 5)
 
-  g1_EN = EN_model(env_data, occ_data1)
-  g2_EN = EN_model(env_data, occ_data2)
-  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "global")
-  g2_EC <- EC_model(g2_BC, type = "global")
+#  g1_EN = EN_model(env_data, occ_data1)
+#  g2_EN = EN_model(env_data, occ_data2)
+#  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "global")
+#  g2_EC <- EC_model(g2_EN, g1_EN, D = 0, A.matrix = int_matrix, C.matrix = NULL, type = "global")
 
-  g2_NP <- niche_parameters(g2_BC, g2_EC, type = "global")
+#  g2_NP <- niche_parameters(g2_BC, g2_EC, type = "global")
 
-  expect_equal(class(g2_NP), "data.frame")
+ # expect_equal(class(g2_NP), "data.frame")
 
-  expect_equal(all(names(g2_BC$maps) %in% g2_NP$species), TRUE)
+#  expect_equal(all(names(g2_BC$maps) %in% g2_NP$species), TRUE)
 
-  expect_equal(length(g2_EC$z.mod), 5)
+#  expect_equal(length(g2_EC$z.mod), 5)
 
-  expect_equal(length(g2_EC$w), 5)
+#  expect_equal(length(g2_EC$g), 5)
 })

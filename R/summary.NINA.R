@@ -21,12 +21,12 @@
 #' @export
 summary.NINA <- function(object, ...){
 
-  type = object$type
+  type = class(object)[2]
 
-  if (type %in% c("EN", "BC", "EC")){
-    if (type == "EN"){ type = "Environmental-only"}
-    if (type == "BC"){ type = "Environmental-constrained"}
-    if (type == "EC"){ type = "Ecological"}
+  if (type %in% c("ENmodel", "BCmodel", "ECmodel")){
+    if (type == "ENmodel"){ type = "Environmental-only"}
+    else if (type == "BCmodel"){ type = "Environmental-constrained"}
+    else if (type == "ECmodel"){ type = "Ecological"}
 
     env.var = object$predictors
 
@@ -71,12 +71,22 @@ summary.NINA <- function(object, ...){
                       failures = list(failures =fail, tab = object$fail),
                       eval = list(evaluation = eval, tab = object$eval))))
   }
-
-  if (type == "eval"){
-    cat("Object class: NINA.eval\n\n")
+  else if (type == "eval"){
+    cat("Object class: NINA\n\n")
+    cat("Models evaluation output: \n=========================")
     cat("Presences/Absences: "); print(object$n)
     cat("Evaluation: "); print(object$tab)
     cat("Thresholds: "); print(object$threshold)
     cat("Cases: "); print(object$cases)
+  }
+  else if (type == "metrics"){
+    cat("Object class: NINA\n\n")
+    cat("\nNiche metrics: \n=========================")
+    cat("\nNiche overlap:\n"); print(object$D$obs); cat("\np-value:\n"); print(object$D$pvalue)
+    cat("\nNiche position:\n"); print(object$np$obs)
+    cat("\nCentrid Shift:\n"); print(object$CS$obs); cat("\np-value:\n"); print(object$CS$pvalue)
+    cat("\nAxes coefficiients:\n"); print(object$CS$weights)
+    cat("\nEnvironmental Relocation:\n"); print(object$ER$obs); cat("\np-value:\n"); print(object$ER$pvalue)
+    cat("\nUSE metrics:\n"); print(object$USE$obs); cat("\np-value:\n"); print(object$USE$pvalue)
   }
 }

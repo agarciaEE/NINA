@@ -4,15 +4,15 @@ test_that("Succes", {
 
   library(NINA)
 
-
   EN_sp1 = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5, eval = T, combine.clusters = T)
 
-  expect_equal(class(EN_sp1), "NINA")
+  expect_equal(class(EN_sp1), c("NINA", "ENmodel"))
 
   pred = EN_sp1$pred.dis
   expect_equal(nrow(pred), nrow(na.exclude(raster::getValues(env_data))))
 
   expect_equal(length(EN_sp1$z.mod), 5)
+
   expect_equal(all(unlist(sapply(EN_sp1$z.mod, names)) %in% occ_data1$species), TRUE)
 
   expect_equal(nrow(EN_sp1$eval$tab), length(levels(occ_data1$species)))

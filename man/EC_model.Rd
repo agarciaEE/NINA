@@ -4,14 +4,25 @@
 \alias{EC_model}
 \title{ESTIMATE EC MODEL}
 \usage{
-EC_model(BC, EN, D = 0, type = c("region", "global"))
+EC_model(
+  x,
+  y,
+  D = 0,
+  A.matrix = NULL,
+  C.matrix = NULL,
+  type = c("region", "global")
+)
 }
 \arguments{
-\item{BC}{NINA EN or BC model}
+\item{x}{NINA EN or BC model}
 
-\item{EN}{Optional. NINA EN Model}
+\item{y}{Optional. NINA EN Model}
 
 \item{D}{Numeric value for independence of interactions}
+
+\item{A.matrix}{m by n matrix indicating the association coefficient (-1 to 1). m are species to be modeled as rows and n interactions as columns}
+
+\item{C.matrix}{n by n matrix indicating the competition coefficient between interactions (0 to 1).}
 
 \item{type}{String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error}
 }

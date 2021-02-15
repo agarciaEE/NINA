@@ -17,6 +17,7 @@ EN_model(
   extrapolate.niche = FALSE,
   save.bootstraps = F,
   save.model = F,
+  relative.niche = T,
   combine.clusters = FALSE,
   cluster = NULL,
   n.clus = NULL,
@@ -55,6 +56,8 @@ EN_model(
 \item{save.bootstraps}{Boolean whether to save partitions}
 
 \item{save.model}{Boolean whether to save the model}
+
+\item{relative.niche}{logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.}
 
 \item{combine.clusters}{Boolean whether to combine regions into global models}
 

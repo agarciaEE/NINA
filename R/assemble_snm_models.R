@@ -12,16 +12,14 @@
 #'
 #' @details Returns an error if \code{filename} does not exist.
 #'
-#' @examples
-#' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
-#' }
 #'
 #' @importFrom tidyr spread
 #' @importFrom plyr ldply
 #'
-#' @export
-assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
+#' @keywords internal
+#' @noRd
+#'
+assemble_snm_models <- function(modelsList, type = c("ENmodel", "BCmodel", "ECmodel"),
                                 method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa"),
                                 threshold = 0.5,  modelspath = "./"){
 
@@ -46,12 +44,12 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
     ras = modelsList[[1]]$maps[[1]]
     crs = modelsList[[1]]$crs
     names(sp.scores) = as.character(1:length(modelsList))
-    if(type == "EC"){
+    if(type == "ECmodel"){
       t <- lapply(modelsList, function(x) x$t.mod)
       w <- lapply(modelsList, function(x) x$w)
       w = T
     }
-    if(type == "BC"){
+    if(type == "BCmodel"){
       w <- lapply(modelsList, function(x) x$w)
       W = T
     }
@@ -85,12 +83,12 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
         clus.df = model$clus
         cluster = T
       }
-      if(type == "EC"){
+      if(type == "ECmodel"){
         t[[modelsList[i]]] <- model$t.mod
         w[[modelsList[i]]] <- model$w
         w = T
       }
-      if(type == "BC"){
+      if(type == "BCmodel"){
         w[[modelsList[i]]] <- model$w
         w = T
       }
@@ -102,13 +100,13 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
   if(length(bootstrap.eval) == 0){ bootstrap.eval = NULL}
   sp.scores <- plyr::ldply(sp.scores, .id = "bootstrap")
   if(cluster){
-    if(type == "BC"){
+    if(type == "BCmodel"){
       w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
-    if(type == "EC"){
+    if(type == "ECmodel"){
       t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
@@ -137,13 +135,13 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
     }
   }
   else{
-    if(type == "BC"){
+    if(type == "BCmodel"){
       w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
       model$w = w$z.mod
     }
-    if(type == "EC"){
+    if(type == "ECmodel"){
       t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores, w = W,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
@@ -170,8 +168,8 @@ assemble_snm_models <- function(modelsList, type = c("EN", "BC", "EC"),
   model$maps  = raster_projection(model$pred.dis, ras = ras, crs = crs)
   model$predictors = env.var
   model$crs = crs
-  model$type = type
-  attr(model, "class") <- "NINA"
+  #model$type = type
+  attr(model, "class") <- c("NINA", type)
   message("All models have been assembled.")
   return(model)
 }

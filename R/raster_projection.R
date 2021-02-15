@@ -26,7 +26,7 @@ raster_projection <- function(df, spsNames = NULL, ras = NULL, crs = "+proj=long
   if(!all(spsNames %in% colnames(df))){ stop("Some species selected are not present in the data frame.")}
   ### error messages
   if (!is.null(ras)){
-    sp.rasdis <- sapply(spsNames, function(i) raster::rasterize(df[,1:2], ras, field = df[,i], fun = mean, na.rm = T, update = T))
+    sp.rasdis <- sapply(spsNames, function(i) raster::rasterize(df[,1:2], ras, field = df[,i], fun = mean, na.rm = T))
   } else{
     sp.rasdis <- raster::rasterFromXYZ(df, crs = crs)
   }

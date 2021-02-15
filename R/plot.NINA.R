@@ -31,9 +31,9 @@
 #' @export
 plot.NINA <- function(x, ...){
 
-  type = x$type
+  type = class(x)[2]
 
-  if (type %in% c("EN", "BC", "EC")){
+  if (type %in% c("ENmodel", "BCmodel", "ECmodel")){
     df = merge(x$env.scores, x$obs, by = c(1,2), all = T)
     pca = x$pca
     mode.region = if(!is.null(x$clus)){TRUE} else {FALSE}
@@ -49,7 +49,7 @@ plot.NINA <- function(x, ...){
     if (mode.region){
       layout(matrix(c(1,1,2,2,
                       1,1,3,4,
-                      pos.maps+4), 3, 4, byrow = T))
+                      5,6,7,8), 3, 4, byrow = T))
       clus = raster::rasterize(x$clus[,1:2], x$maps[[1]], field = as.numeric(x$clus[,3]), fun = "last", na.rm = T)
       clusNames =levels(x$clus[,3])
       n.clus = length(clusNames)
@@ -57,7 +57,7 @@ plot.NINA <- function(x, ...){
     } else{
       layout(matrix(c(1,1,2,2,
                       1,1,2,2,
-                      pos.maps+2), 3, 4, byrow = T))
+                      3,4,5,6), 3, 4, byrow = T))
     }
     par(mar=c(6,4,3,4))
     plot(df[,3:4], col = "green2", pch = 19)
@@ -69,7 +69,7 @@ plot.NINA <- function(x, ...){
            y.intersp = 0.1)
     points(df[,3:4], col = rep("blue")[df[,5]], pch = 4)
     plot(ellipse.occ, add = T,  border = "blue4", lty = 2, lwd = 2)
-    legend(center.occ[1], center.occ[2], "ocurrences",
+    legend(center.occ[1], center.occ[2], "occurrences",
            xjust = 0.5,      # 0.5 means center adjusted
            yjust = 0.5,      # 0.5 means center adjusted
            x.intersp = -0.5, # adjust character interspacing as you like to effect box width
@@ -85,23 +85,23 @@ plot.NINA <- function(x, ...){
       plot.new()
       plotrix::addtable2plot(0,0,tab,bty="o",display.rownames=T,hlines=F, cex=1.5)
     }
+    par(mar=c(10,8,8,8))
     if(n.maps <= 4) {
       for (i in 1:n.maps) {
-        par(mar=c(4,4,6,4))
-        plot(x$maps[[i]], main  = names(x$maps[[i]]))
+        plot(x$maps[[i]], sub  = names(x$maps[[i]]))
+        par(mar=c(5,4,4,4))
       }
     }
-    if(n.maps > 4) {
-      for (i in 1:4) {
-        par(mar=c(5,5,5,5))
-        plot(x$maps[[i]], main  = names(x$maps[[i]]) )
-      }
+    else {
+     for (i in 1:4) {
+        plot(x$maps[[i]], sub  = names(x$maps[[i]]) )
+       par(mar=c(5,4,4,4))
+     }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }
-    par(mfrow=c(1,1))
   }
 
-  if (type == "eval"){
+  else if (type == "eval"){
       grobList = list()
       for (i in unique(x$confusion$species)){
         res.n = x$confusion[x$confusion$test == "random" & x$confusion$species == i,]
@@ -164,5 +164,7 @@ plot.NINA <- function(x, ...){
       grobList <- arrangeGrob(grobs = grobList, ncol=ceiling(sqrt(length(grobList))))
       grid.arrange(grobList, bplot, ncol=2, widths=c(3,1))
   }
+  par(mfrow=c(1,1))
+
 }
 

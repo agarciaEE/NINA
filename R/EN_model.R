@@ -26,6 +26,7 @@
 #' @param assemble.method String indicating the evaluation parameter to weight and compute the assembling. Default is "ACC"
 #' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
 #' @param save.model Boolean whether to save the model
+#' @param relative.niche logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.
 #'
 #' @return List of elements
 #'
@@ -51,7 +52,7 @@
 #' @export
 EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN",
                      nstart = 25, k.max = NULL, B = 100, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
-                     extrapolate.niche = FALSE, save.bootstraps = F, save.model = F,
+                     extrapolate.niche = FALSE, save.bootstraps = F, save.model = F, relative.niche = T,
                      combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, sample.pseudoabsences = TRUE,
                      eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean"),
                      bootstraps = 1, assemble.models = TRUE, assemble.method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa")){
@@ -74,7 +75,7 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
     modelsList <- list()
     for (n in 1:bootstraps){
       message("Carrying out EN model bootstrap n", n, "...")
-      EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,
+      EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,  relative.niche =  relative.niche,
                       extrapolate.niche = extrapolate.niche, sample.pseudoabsences = sample.pseudoabsences,
                       combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
                       eval = eval, split.data = split.data, split.percentage = split.percentage, split.method = split.method)
@@ -116,7 +117,7 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
   ##################
   if (bootstraps == 1){
     message("Carrying out unique EN model...")
-    EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,
+    EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,  relative.niche =  relative.niche,
                     extrapolate.niche = extrapolate.niche, sample.pseudoabsences = sample.pseudoabsences,
                     combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
                     eval = eval, split.data = split.data , split.percentage = split.percentage, split.method = split.method)

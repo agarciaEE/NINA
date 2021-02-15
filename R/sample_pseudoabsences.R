@@ -34,7 +34,7 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   # check spsNames argument
   if (is.null(spsNames)){spsNames = unique(Obs[,3])}
   # check predictors argument
-  if (class(predictors) == "NINA"){
+  if (class(predictors)[1] == "NINA"){
     pca_scores = predictors[,3:4]
     predictors = predictors[,1:2]
     if (is.null(res)){

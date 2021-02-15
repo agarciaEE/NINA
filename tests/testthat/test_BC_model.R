@@ -9,7 +9,7 @@ test_that("Succes", {
 
   g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
 
-  expect_equal(class(g2_BC), "NINA")
+  expect_equal(class(g2_BC), c("NINA", "BCmodel"))
 
   expect_equal(raster::nlayers(g2_BC$maps), length(levels(occ_data2$species)))
 

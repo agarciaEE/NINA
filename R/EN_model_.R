@@ -19,6 +19,7 @@
 #' @param split.method String indicating the method to split occurrence data. Default is kmeans
 #' @param res grid resolution of the spatial extent
 #' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
+#' @param relative.niche logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.
 #'
 #' @return List of elements
 #'
@@ -41,7 +42,7 @@
 #'
 EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
                                 extrapolate.niche = FALSE, nstart = 25, k.max = NULL, B = 100,
-                                combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100,
+                                combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, relative.niche = T,
                                 eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean")){
 
   split.method = split.method[1]
@@ -115,6 +116,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
       sp.scores <- sps.scores[[i]][,3:4]
       if (nrow(sp.scores) > 4) {
         z.mod[[i]] <- ecospat.grid.clim.dyn(env.scores[,3:4],env.scores[,3:4],sp.scores,R)
+        class(z.mod[[i]]) <- c("NINA", "niche")
         mod.Val[[i]] <- cbind(env.scores[,1:2], response = raster::extract(z.mod[[i]]$z, z.mod[[i]]$glob))
       }
       else {
@@ -173,7 +175,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
     }
     message("\t- Regions:")
     print(regions)
-    fail.m <- NULL
+    fail.m <- data.frame()
     for (e in regions) {
       message("\t- Carrying out species EN models in region ", e, "...")
       reg = rownames(clus.df)[which(clus.df[,3] == e)]
@@ -199,6 +201,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
           if (nrow(sp.scores) > 4) {
             message("\t\t- Estimating ", i, " niche response in region ", e, "...")
             z.mod[[e]][[i]] <- ecospat.grid.clim.dyn(env.scores.subset[,3:4],env.scores.subset[,3:4],sp.scores[,3:4],R )
+            class(z.mod[[e]][[i]]) <- c("NINA", "niche")
             mod.Val[[e]][[i]] <- cbind(env.scores.subset[,1:2], response = raster::extract(z.mod[[e]][[i]]$z, z.mod[[e]][[i]]$glob))
             sps.scores <- rbind(sps.scores, cbind(region = e, species = i, sp.scores))
           }
@@ -207,16 +210,35 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
             fail.m <- rbind(fail.m, cbind( region = e ,  species = i))
           }
         }
+        z.mod[[e]] <-  z.mod[[e]][unlist(lapply(z.mod[[e]], length) != 0)]
+        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
       }
       else {
         warning("There are no observations in region ", e, ".", immediate. = T)
       }
     }
+
+    if (relative.niche){
+      z.rev <- reverse_list(z.mod)
+      for (ii in names(z.rev)){
+        max.dens = max(sapply(z.rev[[ii]], function(i)  raster::cellStats(i$z, "max")))
+        for (jj in names(z.rev[[ii]])){
+          z = z.rev[[ii]][[jj]]
+          z$z.uncor = z$z / max.dens
+          z$z.uncor[is.na(z$z.uncor)] <- 0
+          z$w <- z$z.uncor
+          z$w[z$w > 0] <- 1
+          z$z.cor <- z$z/z$Z
+          z$z.cor[is.na(z$z.cor)] <- 0
+          z$z.cor <- z$z.cor/raster::cellStats(z$z.cor, "max")
+          z.rev[[ii]][[jj]] = z
+        }
+      }
+      z.mod <- reverse_list(z.rev)
+    }
     z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
-    z.mod <- lapply(z.mod, function(i) i[unlist(lapply(i, function(x) !is.null(x)))])
-    z.mod <- lapply(z.mod, function(i) i[unlist(lapply(i, function(x) !is.na(maxValue(x$z))))])
-    z.mod <- lapply(z.mod, function(i) i[unlist(lapply(i, function(x) length(x) > 0))])
+
     if (length(mod.Val) != 0) {
       if (combine.clusters == TRUE){
         message("\t- Assembling regions into global model...")
@@ -249,7 +271,11 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   ###############
   mod.Val <- spread(mod.Val, "species", "response")
   mod.Val[is.na(mod.Val)] = 0
-  mod.Val[,-c(1:2)] <- apply(mod.Val[,-c(1:2)], 2, function(i) i/max(i, na.rm = T))
+  if ( ncol(mod.Val) == 3){
+    mod.Val[,3] <- mod.Val[,3] / max(mod.Val[,3])
+  } else {
+    mod.Val[,-c(1:2)] <- apply(mod.Val[,-c(1:2)], 2, function(i) i/max(i, na.rm = T))
+  }
   output$pca <- pca.cal
   output$sp.scores <- sps.scores
   output$env.scores <- env.scores
@@ -266,8 +292,8 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   output$maps  = raster_projection(mod.Val, ras = env.stack[[1]], crs = crs)
   output$predictors = env.var
   output$crs = crs
-  output$type = "EN"
-  attr(output, "class") <- "NINA"
+  #output$type = "EN"
+  attr(output, "class") <- c("NINA", "ENmodel")
   message("Species EN models succesfully completed!")
   return(output)
 }

@@ -37,12 +37,12 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
                               res = NULL, plot = TRUE, rep = 100,
                               best.th = c("accuracy", "similarity") ){
 
-  if (class(Pred) == "NINA"){
+  if (sum(class(Pred) %in% c("NINA", "ENmodel", "BCmodel", "ECmodel")) == 2){
     Obs = Pred$obs
     predictors = Pred$env.scores
     pred.stack = Pred$maps
     clus.df = Pred$clus
-    if (Pred$type %in% c("BC", "EC")){
+    if (class(Pred)[2] %in% c("BCmodel", "ECmodel")){
       w = if(!is.null(Pred$clus)){reverse_list(Pred$w) } else {Pred$w}
       BioCons = sapply(w, function(x) niche_to_dis(predictors, x, cluster = Pred$clus, cor = FALSE)[,3])
       BioCons[is.na(BioCons)] = 0
@@ -78,7 +78,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   }
   # check spsNames argument
   if (is.null(spsNames)){ spsNames = colnames(Pred)[-c(1:2)]}
-  spsObs = levels(Obs[,3])
+  spsObs = unique(Obs[,3])
   if(any(!spsNames %in% spsObs)) {
     missing.sps <- spsNames[which(!spsNames %in% spsObs)]
     message("Following predicted species have no observations provided: ")
@@ -107,7 +107,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   threshold <- NULL
   message("Performing models evaluation...")
   for (i in spsNames){
-    message(paste("\t...Evaluating", i, "niche model..."))
+    message(paste("\t...Evaluating", i, "niche model..."), appendLF = F)
     Obs.sp <- Obs[Obs$species == i,]
     pred.i <- which(colnames(Pred) %in% i)
     Pred.sp <- ecospat.sample.envar(dfsp=Obs.sp,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= pred.i ,resolution= res)
@@ -137,8 +137,8 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
             axis.text.y = element_text(size=12,))
     print(p)
   }
-  out <- list(n = n, tab = tab, threshold = threshold, confusion = confusion, cases = occ.tab, type = "eval")
-  attr(out, "class") <- "NINA"
+  out <- list(n = n, tab = tab, threshold = threshold, confusion = confusion, cases = occ.tab)
+  attr(out, "class") <- c("NINA", "eval")
   message("Models evaluation performed.")
   return(out)
 }

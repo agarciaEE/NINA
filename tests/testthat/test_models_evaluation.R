@@ -11,7 +11,7 @@ test_that("Succes", {
 
   eval = models_evaluation(g1_EN$pred.dis, g1_EN$obs, env_data, plot = F)
 
-  expect_equal(class(eval), "NINA")
+  expect_equal(class(eval), c("NINA", "eval"))
 
   expect_equal(nrow(eval$tab), length(levels(occ_data1$species)))
 
@@ -23,7 +23,7 @@ test_that("Succes", {
 
   eval = models_evaluation(g2_BC, plot = F)
 
-  expect_equal(class(eval), "NINA")
+  expect_equal(class(eval), c("NINA", "eval"))
 
   expect_equal(nrow(eval$tab), length(levels(occ_data2$species)))
 

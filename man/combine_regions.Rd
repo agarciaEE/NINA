@@ -4,14 +4,12 @@
 \alias{combine_regions}
 \title{COMBIINE REGIONAL MODELS FUNCTION}
 \usage{
-combine_regions(z.list, env.scores, w.global, R = 100)
+combine_regions(z.list, env.scores, R = 100)
 }
 \arguments{
 \item{z.list}{List of regional niche models}
 
 \item{env.scores}{Environmental PCA scores}
-
-\item{w.global}{template for global niche space}
 
 \item{R}{niche grid}
 }

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# NINA
+# NINA package
 
 <!-- badges: start -->
 
@@ -54,6 +54,7 @@ g1_EN = EN_model(env_data, occ_data1)
 #>      - Modelling spB Environmental Niche...
 #>      - Modelling spC Environmental Niche...
 #>      - Modelling spD Environmental Niche...
+#>      - Modelling spE Environmental Niche...
 #> Species EN models succesfully completed!
 g2_EN = EN_model(env_data, occ_data2)
 #> Carrying out unique EN model...
@@ -73,16 +74,11 @@ Correct EN models by biotic interactions:
 
 ``` r
 g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix,  type = "global")
-#> Adding biotic constrains to sp1...
-#> Success!
-#> Adding biotic constrains to sp2...
-#> Success!
-#> Adding biotic constrains to sp3...
-#> Success!
-#> Adding biotic constrains to sp4...
-#> Success!
-#> Adding biotic constrains to sp5...
-#> Success!
+#>  Adding biotic constrains to sp1...  ...Success!
+#>  Adding biotic constrains to sp2...  ...Success!
+#>  Adding biotic constrains to sp3...  ...Success!
+#>  Adding biotic constrains to sp4...  ...Success!
+#>  Adding biotic constrains to sp5...  ...Success!
 #> Models successfully corrected!
 ```
 
@@ -91,16 +87,11 @@ Transform environmental niche space into ecological niche space
 
 ``` r
 g2_EC <- EC_model(g2_BC, type = "global")
-#>  Estimating ecological niche of sp1...
-#>  Success!
-#>  Estimating ecological niche of sp2...
-#>  Success!
-#>  Estimating ecological niche of sp3...
-#>  Success!
-#>  Estimating ecological niche of sp4...
-#>  Success!
-#>  Estimating ecological niche of sp5...
-#>  Success!
+#> Estimating ecological niche of sp1...    ...Success!
+#> Estimating ecological niche of sp2...    ...Success!
+#> Estimating ecological niche of sp3...    ...Success!
+#> Estimating ecological niche of sp4...    ...Success!
+#> Estimating ecological niche of sp5...    ...Success!
 #> Models successfully transformed!
 ```
 
@@ -114,8 +105,8 @@ summary(g1_EN)
 #> bio1 bio2 bio3 bio4 bio5 bio6
 #> 2 axis-components used
 #> Class: pca dudi
-#> Call: dudi.pca(df = na.exclude(env[, env.var]), center = T, scale = T, 
-#>     scannf = F, nf = 2)
+#> Call: dudi.pca(df = stats::na.exclude(env[, env.var]), center = T, 
+#>     scale = T, scannf = F, nf = 2)
 #> 
 #> Total inertia: 6
 #> 
@@ -138,8 +129,8 @@ summary(g1_EN)
 #> Geographical extents:
 #> 1
 #> 
-#> spA spB spC spD 
-#>   1   1   1   1 
+#> spA spB spC spD spE 
+#>   1   1   1   1   1 
 #> Ensemble of regional models:
 #> FALSE
 #> Failures or warnings:
@@ -183,12 +174,7 @@ eval <- models_evaluation(g2_BC, plot = F)
 #> Model predictions ... OK
 #> Sampling pseudo_absences...
 #> Performing models evaluation...
-#>  ...Evaluating sp1 niche model...
-#>  ...Evaluating sp2 niche model...
-#>  ...Evaluating sp3 niche model...
-#>  ...Evaluating sp4 niche model...
-#>  ...Evaluating sp5 niche model...
-#> Models evaluation performed.
+#>  ...Evaluating sp1 niche model...    ...Evaluating sp2 niche model...    ...Evaluating sp3 niche model...    ...Evaluating sp4 niche model...    ...Evaluating sp5 niche model...Models evaluation performed.
 plot(eval)
 ```
 

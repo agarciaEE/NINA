@@ -16,11 +16,6 @@
 #'
 #'@details Returns an error if \code{filename} does not exist.
 #'
-#' @examples
-#' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
-#' }
-#'
 #' @importFrom raster extent maxValue stack compareRaster
 #'
 #' @keywords internal
