@@ -4,12 +4,16 @@
 \alias{estimate_betas}
 \title{ESTIMATE BETAS}
 \usage{
-estimate_betas(y.list, C.matrix = NULL)
+estimate_betas(y.list, C.matrix = NULL, cor = F, K = NULL)
 }
 \arguments{
 \item{y.list}{List of niche models}
 
 \item{C.matrix}{Competition matrix}
+
+\item{cor}{Logical}
+
+\item{K}{= Carrying capacity of each environmental cell}
 }
 \value{
 list of lists

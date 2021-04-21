@@ -7,8 +7,12 @@
 EC_model(
   x,
   y,
-  D = 0,
+  D = 1,
   A.matrix = NULL,
+  cor = F,
+  K = NULL,
+  method = c("composition", "densities"),
+  relative.niche = T,
   C.matrix = NULL,
   type = c("region", "global")
 )
@@ -21,6 +25,14 @@ EC_model(
 \item{D}{Numeric value for independence of interactions}
 
 \item{A.matrix}{m by n matrix indicating the association coefficient (-1 to 1). m are species to be modeled as rows and n interactions as columns}
+
+\item{cor}{Logical}
+
+\item{K}{= Carrying capacity of each environmental cell}
+
+\item{method}{Method; abundances or composition}
+
+\item{relative.niche}{Logical}
 
 \item{C.matrix}{n by n matrix indicating the competition coefficient between interactions (0 to 1).}
 

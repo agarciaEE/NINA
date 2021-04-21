@@ -66,6 +66,12 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
     for (i in 1:rep){
       if (rand == 1){
         zrnd = ecospat::ecospat.grid.clim.dyn(x$glob, x$glob1, x$glob1[sample(1:nrow(x$glob1), nrow(x$sp), replace = F),], R = R)
+        if (raster::compareRaster(list(x$Z, zrnd$Z), stopiffalse = F) == F){
+          for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
+          zrnd[[ii]] <- raster::resample(zrnd[[ii]], x$Z, method = "ngb")
+          zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
+          }
+        }
         class(zrnd) <- c("NINA", "niche")
         Drnd = c(Drnd, niche_overlap(x, zrnd, cor = cor,
                                      centroid.w = centroid.w, type = np.type,
@@ -80,6 +86,12 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
       }
       if (rand == 2){
         zrnd = ecospat::ecospat.grid.clim.dyn(y$glob, y$glob1, y$glob1[sample(1:nrow(y$glob1), nrow(y$sp), replace = F),], R = R)
+        if (raster::compareRaster(list(y$Z, zrnd$Z), stopiffalse = F) == F){
+          for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
+            zrnd[[ii]] <- raster::resample(zrnd[[ii]], y$Z, method = "ngb")
+            zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
+          }
+        }
         class(zrnd) <- c("NINA", "niche")
         Drnd = c(Drnd, niche_overlap(y, zrnd, cor = cor,
                                      centroid.w = centroid.w, type = np.type,

@@ -10,7 +10,8 @@ test_that("Succes", {
   g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
 
   eval = models_evaluation(g1_EN$pred.dis, g1_EN$obs, env_data, plot = F)
-
+  print(eval)
+  plot(eval)
   expect_equal(class(eval), c("NINA", "eval"))
 
   expect_equal(nrow(eval$tab), length(levels(occ_data1$species)))
@@ -21,7 +22,7 @@ test_that("Succes", {
 
   expect_equal(rowSums(eval$cases[,2:3]), rowSums(eval$n))
 
-  eval = models_evaluation(g2_BC, plot = F)
+  eval = models_evaluation(g2_BC, plot = T, best.th = "similarity")
 
   expect_equal(class(eval), c("NINA", "eval"))
 

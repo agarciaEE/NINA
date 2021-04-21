@@ -54,7 +54,7 @@ cluster_regions <- function(x, plot = FALSE, n.clus = NULL, nstart = 25, K.max =
   }
   clus.df <- cbind(df[,1:2], cluster = stats::kmeans(df,n.clus)$cluster)
   if (plot){
-    x = raster::rasterize(clus.df[,1:2], x, field = clus.df[,3], fun = "last", na.rm = T)
+    x = raster::rasterize(clus.df[,1:2], x, field = clus.df[,3], na.rm = T)
     plot(x, col = viridis::viridis(n.clus))
   }
   return(clus.df)

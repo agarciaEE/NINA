@@ -21,7 +21,7 @@
 #' @keywords internal
 #' @noRd
 #'
-assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
+assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
                             bootstrap.eval = NULL, eval = F, threshold = 0.5,
                             cluster = F, method = "ACC"){
 
@@ -117,7 +117,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
           #sp.coords <- cbind(env.scores[,1:2], env.scores[,3:4])[rownames(z.mod[[e]][[sp]]$glob),]
           #mod.Val[[e]][[sp]] <-  cbind(sp.coords[,1:2], vals = raster::extract(z.mod[[e]][[sp]]$z.uncor, z.mod[[e]][[sp]]$glob))
         }
-        if(w) {
+        if(!is.null(z[[e]][[sp]][[1]]$betas)) {
           z.mod[[e]][[sp]]$betas <- z[[e]][[sp]][[1]]$betas
           z.mod[[e]][[sp]]$alpha <- z[[e]][[sp]][[1]]$alpha
         }
@@ -211,7 +211,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores, w = FALSE,
         #sp.coords <- cbind(env.scores[,1:2], env.scores[,3:4])[rownames(z.mod[[sp]]$glob),]
         #mod.Val[[sp]] <-  cbind(sp.coords[,1:2], vals = raster::extract(z.mod[[sp]]$z.uncor, z.mod[[sp]]$glob))
       }
-      if(w) {
+      if(!is.null(z[[sp]][[1]]$betas)) {
         z.mod[[sp]]$betas <- z[[sp]][[1]]$betas
         z.mod[[sp]]$alpha <- z[[sp]][[1]]$alpha
       }

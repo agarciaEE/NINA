@@ -23,7 +23,7 @@
 #' @importFrom plotrix addtable2plot
 #' @importFrom raster rasterize maxValue
 #' @importFrom sp SpatialPolygons Polygons Polygon SpatialPoints
-#' @importFrom stats cov.wt
+#' @importFrom stats cov.wt na.exclude
 #' @importFrom car dataEllipse
 #' @import gridExtra
 #' @importFrom graphics layout legend par plot.new
@@ -34,16 +34,17 @@ plot.NINA <- function(x, ...){
   type = class(x)[2]
 
   if (type %in% c("ENmodel", "BCmodel", "ECmodel")){
-    df = merge(x$env.scores, x$obs, by = c(1,2), all = T)
+    df.env = x$env.scores
+    df.sp = x$sp.scores
     pca = x$pca
     mode.region = if(!is.null(x$clus)){TRUE} else {FALSE}
     n.maps = raster::nlayers(x$maps)
     pos.maps = rep(1:n.maps, ceiling(4/n.maps))[1:4]
-    ellipse.env <- car::dataEllipse(df[,3], df[,4], levels = 0.9, xlab = "PC1", ylab = "PC2", draw = F)
-    center.env <- stats::cov.wt(df[,3:4])$center
+    ellipse.env <- car::dataEllipse(df.env[,3], df.env[,4], levels = 0.9, xlab = "PC1", ylab = "PC2", draw = F)
+    center.env <- stats::cov.wt(na.exclude(df.env[,3:4]))$center
     ellipse.env = sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(list(sp::SpatialPoints(ellipse.env)))), 1)))
-    ellipse.occ <- car::dataEllipse(df[!is.na(df[,5]),3], df[!is.na(df[,5]),4], levels = 0.9, xlab = "PC1", ylab = "PC2", draw = F)
-    center.occ <- stats::cov.wt(df[!is.na(df[,5]),3:4])$center
+    ellipse.occ <- car::dataEllipse(df.sp[,"Axis1"], df.sp[,"Axis2"], levels = 0.9, xlab = "PC1", ylab = "PC2", draw = F)
+    center.occ <- stats::cov.wt(na.exclude(df.sp[,c("Axis1", "Axis2")]))$center
     ellipse.occ = sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(list(sp::SpatialPoints(ellipse.occ)))), 1)))
 
     if (mode.region){
@@ -60,14 +61,14 @@ plot.NINA <- function(x, ...){
                       3,4,5,6), 3, 4, byrow = T))
     }
     par(mar=c(6,4,3,4))
-    plot(df[,3:4], col = "green2", pch = 19)
+    plot(df.env[,3:4], col = "green2", pch = 19)
     plot(ellipse.env, add = T,  border = "green4", lty = 2, lwd = 2)
     legend(center.env[1], center.env[2], "environment",
            xjust = 0.5,      # 0.5 means center adjusted
            yjust = 0.5,      # 0.5 means center adjusted
            x.intersp = -0.5, # adjust character interspacing as you like to effect box width
            y.intersp = 0.1)
-    points(df[,3:4], col = rep("blue")[df[,5]], pch = 4)
+    points(df.sp[,c("Axis1", "Axis2")], col = "blue", pch = 4)
     plot(ellipse.occ, add = T,  border = "blue4", lty = 2, lwd = 2)
     legend(center.occ[1], center.occ[2], "occurrences",
            xjust = 0.5,      # 0.5 means center adjusted

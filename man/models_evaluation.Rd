@@ -14,7 +14,7 @@ models_evaluation(
   int.matrix = NULL,
   sample.pseudoabsences = TRUE,
   res = NULL,
-  plot = TRUE,
+  plot = FALSE,
   rep = 100,
   best.th = c("accuracy", "similarity")
 )

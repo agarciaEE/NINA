@@ -10,6 +10,10 @@ BC_model(
   A.matrix = NULL,
   C.matrix = NULL,
   D = 0,
+  method = c("composition", "densities"),
+  relative.niche = T,
+  K = NULL,
+  cor = F,
   type = c("region", "global")
 )
 }
@@ -23,6 +27,14 @@ BC_model(
 \item{C.matrix}{n by n matrix indicating the competition coefficient between interactions (0 to 1).}
 
 \item{D}{Numeric value indicating independence from biotic associations. Value must be comprised between 0 and 1.}
+
+\item{method}{Method; abundances or composition}
+
+\item{relative.niche}{Logical}
+
+\item{K}{= Carrying capacity of each environmental cell}
+
+\item{cor}{Logical}
 
 \item{type}{String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error}
 }

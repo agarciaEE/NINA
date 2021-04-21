@@ -6,6 +6,10 @@
 #' @param y NINA EN model object for species group two
 #' @param type String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error
 #' @param D Numeric value indicating independence from biotic associations. Value must be comprised between 0 and 1.
+#' @param method Method; abundances or composition
+#' @param cor Logical
+#' @param relative.niche Logical
+#' @param K = Carrying capacity of each environmental cell
 #'
 #' @description Transforms environmental niche in base to species interactions
 #'
@@ -23,7 +27,10 @@
 #' @importFrom raster extract cellStats
 #'
 #' @export
-BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("region", "global")){
+BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
+                     D = 0,  method = c("composition", "densities"),
+                     relative.niche = T, K = NULL,
+                     cor = F, type = c("region", "global")){
 
   type = type[1]
   BC = x
@@ -60,8 +67,12 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
         for (i in names(x.mod[[e]])){
           message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
           z = x.mod[[e]][[i]]
-          bc <- BC_model_(z, y.mod[[e]], id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
-          mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z, bc$z$glob))
+          bc <- BC_model_(z, y.mod[[e]], id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor,  C.matrix = C.matrix)
+          if (cor){
+            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z/bc$z$Z, bc$z$glob))
+          } else {
+            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z, bc$z$glob))
+          }
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w
         }
@@ -69,6 +80,25 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
         z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
         z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) maxValue(x$z) != 0))]
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
+      }
+      if (relative.niche){
+        z.rev <- reverse_list(z.mod)
+        for (ii in names(z.rev)){
+          max.zdens = max(sapply(z.rev[[ii]], function(i)  raster::cellStats(i$z, "max")))
+          max.Zdens = max(sapply(z.rev[[ii]], function(i)  raster::cellStats(i$Z, "max")))
+          for (jj in names(z.rev[[ii]])){
+            z = z.rev[[ii]][[jj]]
+            z$z.uncor = z$z / max.zdens
+            z$z.uncor[is.na(z$z.uncor)] <- 0
+            z$w <- z$z.uncor
+            z$w[z$w > 0] <- 1
+            z$z.cor <- z$z/z$Z
+            z$z.cor[is.na(z$z.cor)] <- 0
+            z$z.cor <- z$z.cor/max.Zdens
+            z.rev[[ii]][[jj]] = z
+          }
+        }
+        z.mod <- reverse_list(z.rev)
       }
       z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
       tab = cbind(ldply(sapply(z.mod, function(x) names(x)), data.frame, .id = "region"), P = 1)
@@ -96,8 +126,12 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL, D = 0, type = c("re
     for (i in names(x.mod)){
       message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
       z = x.mod[[i]]
-      bc <- BC_model_(z, y.mod, id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
-      mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z, bc$z$glob))
+      bc <- BC_model_(z, y.mod, id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor, C.matrix = C.matrix)
+      if (cor) {
+        mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z, bc$z$glob))
+      } else {
+        mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z/bc$z$Z, bc$z$glob))
+      }
       z.mod[[i]] = bc$z
       w.list[[i]] = bc$w
     }

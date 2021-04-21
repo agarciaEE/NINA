@@ -34,7 +34,7 @@
 #'
 #' @export
 models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL, ras = NULL, int.matrix = NULL, sample.pseudoabsences = TRUE,
-                              res = NULL, plot = TRUE, rep = 100,
+                              res = NULL, plot = FALSE, rep = 100,
                               best.th = c("accuracy", "similarity") ){
 
   if (sum(class(Pred) %in% c("NINA", "ENmodel", "BCmodel", "ECmodel")) == 2){
@@ -107,7 +107,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   threshold <- NULL
   message("Performing models evaluation...")
   for (i in spsNames){
-    message(paste("\t...Evaluating", i, "niche model..."), appendLF = F)
+    message(paste("\t...Evaluating", i, "niche model..."))
     Obs.sp <- Obs[Obs$species == i,]
     pred.i <- which(colnames(Pred) %in% i)
     Pred.sp <- ecospat.sample.envar(dfsp=Obs.sp,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= pred.i ,resolution= res)

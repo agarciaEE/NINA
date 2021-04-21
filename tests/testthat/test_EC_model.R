@@ -4,9 +4,21 @@ test_that("Succes", {
 
   library(NINA)
 
-  g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5)
-  g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus)
+  g1_EN1 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = T, eval = T)
+  g1_EN2 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F, eval = T)
+  g1_EN3 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = T, eval = T)
+  g1_EN4 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = F, eval = T)
 
+  plot(g1_EN1$eval)
+  plot(g1_EN2$eval)
+  plot(g1_EN3$eval)
+  plot(g1_EN4$eval)
+
+  g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F)
+  g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus, relative.niche = F, cor = F)
+  summary(g1_EN)
+  print(g1_EN)
+  plot(g1_EN)
   g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
 
   g2_EC <- EC_model(g2_BC, type = "region")
@@ -24,18 +36,20 @@ test_that("Succes", {
 
   expect_equal(length(g2_EC$g), 5)
 
-#  g1_EN = EN_model(env_data, occ_data1)
-#  g2_EN = EN_model(env_data, occ_data2)
-#  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "global")
-#  g2_EC <- EC_model(g2_EN, g1_EN, D = 0, A.matrix = int_matrix, C.matrix = NULL, type = "global")
+  EN_sp1 = EN_model(raster::as.data.frame(env_data, xy = T), occ_data1, bootstraps = 5, save.bootstraps = F, save.model = F, assemble.models = T, split.data = T)$ensemble
+  EN_sp2 = EN_model(raster::as.data.frame(env_data, xy = T), occ_data2, bootstraps = 5, save.bootstraps = F, save.model = F, assemble.models = F, split.data = T)
 
-#  g2_NP <- niche_parameters(g2_BC, g2_EC, type = "global")
+  expect_equal(class(EN_sp2), c("NINA", "modelsList"))
 
- # expect_equal(class(g2_NP), "data.frame")
+  EC_sp2 <- lapply(EN_sp2, function(i) EC_model(i, EN_sp1, D = 0, A.matrix = int_matrix, C.matrix = NULL, type = "global"))
 
-#  expect_equal(all(names(g2_BC$maps) %in% g2_NP$species), TRUE)
+  expect_equal(class(EC_sp2), c("list"))
 
-#  expect_equal(length(g2_EC$z.mod), 5)
+  EC_sp2_ensemble = assemble_models(EC_sp2, method = "Jaccard Similarity")
 
-#  expect_equal(length(g2_EC$g), 5)
+  expect_equal(all(names(EC_sp2[[1]]$maps) %in% unique(occ_data2$species)), TRUE)
+
+  expect_equal(length(EC_sp2), 5)
+
+  expect_equal(class(EC_sp2_ensemble), c("NINA", "ECmodel"))
 })

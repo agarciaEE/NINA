@@ -4,7 +4,15 @@
 \alias{estimate_w}
 \title{ESTIMATE ENVIRONMENTAL ACCESSIBILITY}
 \usage{
-estimate_w(y.list, id, A.matrix = NULL, C.matrix = NULL)
+estimate_w(
+  y.list,
+  id,
+  A.matrix = NULL,
+  cor = F,
+  K = NULL,
+  method = c("composition", "densities"),
+  C.matrix = NULL
+)
 }
 \arguments{
 \item{y.list}{list of niche models}
@@ -12,6 +20,12 @@ estimate_w(y.list, id, A.matrix = NULL, C.matrix = NULL)
 \item{id}{species id}
 
 \item{A.matrix}{Association matrix}
+
+\item{cor}{Logical}
+
+\item{K}{= Carrying capacity of each environmental cell}
+
+\item{method}{Method; abundances or composition}
 
 \item{C.matrix}{Competition matrix}
 }

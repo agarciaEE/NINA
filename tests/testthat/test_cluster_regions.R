@@ -4,7 +4,7 @@ test_that("Succes", {
 
   library(NINA)
 
-  env_clus = cluster_regions(env_data, n.clus = 5, plot = T)
+  env_clus = cluster_regions(env_data, n.clus = 5)
 
   expect_equal(class(env_clus), "data.frame")
 

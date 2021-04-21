@@ -4,6 +4,8 @@
 #' @param W Weighting coefficients
 #' @param R Niche space grid
 #' @param D Numeric value for independence of interactions
+#' @param cor Logical
+#' @param method Method; abundances or composition
 #'
 #' @description Transform environmental niche space into ecological niche space
 #'
@@ -11,49 +13,76 @@
 #'
 #'@details Returns an error if \code{filename} does not exist.
 #'
-#'
 #' @importFrom raster maxValue rasterize stack
 #' @importFrom spatialEco raster.gaussian.smooth
 #'
 #' @keywords internal
 #' @noRd
 #'
-EC_model_ <- function(en, W, R = 100, D = 0){
+EC_model_ <- function(en, W, R = 100, D = 1, cor = F, method = c("composition", "densities")){
 
   if(is.na(raster::maxValue(W$z.uncor)) || raster::maxValue(W$z.uncor) ==  0
      || is.na(raster::maxValue(en$z.uncor)) || raster::maxValue(en$z.uncor) ==  0){
 
-    ec = en
-    g = W
+    ec = NULL
+    g = NULL
     message("\t...Empty niche.")
   }
   else{
-
+    ec = en
+    g = W
     b = raster::as.data.frame(en$z, xy = T)
-    w = raster::as.data.frame(W$z.uncor, xy = T)
-    betas = raster::as.data.frame(W$betas, xy = T)
-    D = 0
-    b[,1:2] =  b[,1:2] * D + b[,1:2] * w[,3]
-    w[,1:2] = w[,1:2] * w[,3]
-    if( D == 0){
-      b = b[w[,3] != 0,]
+    if (cor) {
+      w = raster::as.data.frame(W$z.cor, xy = T)
+    } else {
+      w = raster::as.data.frame(W$z.uncor, xy = T)
     }
-    ras = c(min(c(w[w[,3] != 0,1],b[b[,3] != 0, 1]), na.rm = T),
-            max(c(w[w[,3] != 0,1],b[b[,3] != 0, 1]), na.rm = T),
-            min(c(w[w[,3] != 0,2],b[b[,3] != 0, 2]), na.rm = T),
-            max(c(w[w[,3] != 0,2],b[b[,3] != 0, 2]), na.rm = T))
+    betas = raster::as.data.frame(W$betas, xy = T)
+    if (method == "composition") {
+      b[,1:2] =  b[,1:2] - b[,1:2] * D * (1-w[,3])
+      w[,1:2] = w[,1:2] - w[,1:2] * (1-w[,3])
+      #if( D == 0){
+      #  b = b[w[,3] != 0,]
+      #}
+      if (cor) {
+        ec$glob = en$glob * D + en$glob * raster::extract(W$z.cor, en$glob)
+        ec$glob1 = en$glob1 * D + en$glob1 * raster::extract(W$z.cor, en$glob1)
+        ec$sp = en$sp* D + en$sp * raster::extract(W$z.cor, en$sp)
+      } else {
+        ec$glob = en$glob * D + en$glob * raster::extract(W$z.uncor, en$glob)
+        ec$glob1 = en$glob1 * D + en$glob1 * raster::extract(W$z.uncor, en$glob1)
+        ec$sp = en$sp* D + en$sp * raster::extract(W$z.uncor, en$sp)
+      }
+    }
+    if (method == "densities"){
+      if( D > 0){
+        b[,1:2] =  b[,1:2] * w[,3] / D
+      }
+      w[,1:2] = w[,1:2] * w[,3]
+
+      if (cor) {
+        ec$glob = en$glob * raster::extract(W$z.cor, en$glob) / D
+        ec$glob1 = en$glob1 * raster::extract(W$z.cor, en$glob1) / D
+        ec$sp = en$sp * raster::extract(W$z.cor, en$sp) / D
+      } else {
+        ec$glob = en$glob * raster::extract(W$z.uncor, en$glob) / D
+        ec$glob1 = en$glob1 * raster::extract(W$z.uncor, en$glob1) / D
+        ec$sp = en$sp * raster::extract(W$z.cor, en$sp) / D
+      }
+    }
+    ras <- raster::extent(en$Z)
+    ras = c(min(c(w[w[,3] != 0,1], ras[1]), na.rm = T),
+            max(c(w[w[,3] != 0,1], ras[2]), na.rm = T),
+            min(c(w[w[,3] != 0,2], ras[3]), na.rm = T),
+            max(c(w[w[,3] != 0,2], ras[4]), na.rm = T))
     rasterEx <- raster::extent(ras)
     ras.template <- raster::raster(nrow=R,ncol=R)
     raster::extent(ras.template) <- rasterEx
-    ec = en
-    g = W
+
     g$x = seq(ras[1], ras[2], length.out = R)
     g$y = seq(ras[3], ras[4], length.out = R)
     g$betas = raster::resample(g$betas, ras.template, method = "ngb")
 
-    ec$glob = en$glob * D + en$glob * raster::extract(W$z.uncor, en$glob)
-    ec$glob1 = en$glob1 * D + en$glob1 * raster::extract(W$z.uncor, en$glob1)
-    ec$sp = en$sp* D + en$sp * raster::extract(W$z.uncor, en$sp)
     ec$x = seq(ras[1], ras[2], length.out = R)
     ec$y = seq(ras[3], ras[4], length.out = R)
 
@@ -77,6 +106,7 @@ EC_model_ <- function(en, W, R = 100, D = 0){
       ec$z = spatialEco::raster.gaussian.smooth(ec$z, n = 5,type = mean)
       ec$z = ec$z * maxV / raster::maxValue(ec$z)
     }
+
     g$z[is.na(g$z)] <- 0
     g$Z[is.na(g$Z)] <- 0
     g$z.uncor = g$z * raster::cellStats(en$z, "max")

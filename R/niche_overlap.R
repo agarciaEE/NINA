@@ -43,18 +43,34 @@ niche_overlap <- function(x, y, cor = F, centroid.w = F, type = "unimodal", meth
     p2 <- t(raster::as.matrix(y$z.uncor)/sum(raster::as.matrix(y$z.uncor)))
   }
 
-  if (centroid.w) {
-    Cp = niche_position(x,  type = type, method = method, quantile = quantile, cor = cor)
-    ## Compute Euclidean distances to the niche Centroid
-    pos = raster::xyFromCell(x$Z, 1:R^2)
-    dist = apply(Cp[1,], 1, function(ii) unlist(sqrt((ii[1]-pos[,1])^2 + (ii[2]-pos[,2])^2)))
-    if(ncol(dist)> 1) {dist = rowSums(dist)} else {dist = dist[,1]}
-    dist = 1 - dist / max(dist)
+  if (centroid.w) {pos1 = raster::xyFromCell(x$Z, 1:R^2)
+    cells <- which(values(x$Z) > 0)
+    pos1 = raster::xyFromCell(x$Z, cells)
+    pos1 <- pos1[order(rank(p1[cells]), decreasing = T),]
+    pos1 <- apply(pos1, 2, function(i) scales::rescale(i, t = c(0,1)))
+    pos2 = raster::xyFromCell(y$Z, cells)
+    pos2 <- apply(pos2, 2, function(i) scales::rescale(i, t = c(0,1)))
+    pos2 <- pos2[order(rank(p2[cells]), decreasing = T),]
 
-    D <- 1 - (0.5 * (sum(abs(p1 - p2)*dist)))
+    dist = sapply(1:length(cells), function(ii) unlist(sqrt((pos1[ii,1]-pos2[ii,1])^2 + (pos1[ii,2]-pos2[ii,2])^2)))
+
+    p1 <- p1[order(rank(p1[cells]), decreasing = T)]
+    p2 <- p2[order(rank(p2[cells]), decreasing = T)]
+    D <- median(sqrt(((p1 - p2)^2+dist^2)/2))
+  #  Cp = niche_position(x,  type = type, method = method, quantile = quantile, cor = cor)
+    ## Compute Euclidean distances to the niche Centroid
+  #  pos = raster::xyFromCell(x$Z, 1:R^2)
+  #  cells <- which(values(x$Z) > 0)
+  #  pos <- pos[cells,]
+  #  dist = apply(Cp, 1, function(ii) unlist(sqrt((as.numeric(ii[1])-pos[,1])^2 + (as.numeric(ii[2])-pos[,2])^2)))
+  #  if(ncol(dist)> 1) {dist = rowSums(dist)} else {dist = dist[,1]}
+  #  dist = 1 - dist / max(dist)
+
+  #  D <- 1 - (0.5 * (sum(abs(p1[cells] - p2[cells])*dist)))
   } else {
     D <- 1 - (0.5 * (sum(abs(p1 - p2))))
   }
 
   return(D)
 }
+

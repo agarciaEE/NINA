@@ -6,6 +6,10 @@
 #' @param D Numeric value for independence of interactions
 #' @param A.matrix m by n matrix indicating the association coefficient (-1 to 1). m are species to be modeled as rows and n interactions as columns
 #' @param C.matrix n by n matrix indicating the competition coefficient between interactions (0 to 1).
+#' @param cor Logical
+#' @param method Method; abundances or composition
+#' @param relative.niche Logical
+#' @param K = Carrying capacity of each environmental cell
 #'
 #' @description Transform environmental niche space into ecological niche space
 #'
@@ -22,7 +26,9 @@
 #' @importFrom spatialEco raster.gaussian.smooth
 #'
 #' @export
-EC_model <- function(x, y,  D = 0,  A.matrix = NULL, C.matrix = NULL, type = c("region", "global")){
+EC_model <- function(x, y,  D = 1,  A.matrix = NULL,  cor = F, K = NULL,
+                     method = c("composition", "densities"), relative.niche = T,
+                     C.matrix = NULL, type = c("region", "global")){
 
   w = F
   clus = F
@@ -77,19 +83,48 @@ EC_model <- function(x, y,  D = 0,  A.matrix = NULL, C.matrix = NULL, type = c("
           R = length(en$x)
           if (w) { W = w.mod[[e]][[i]] } else{
             message(paste0("\tComputing biotic constrains of ", i, "..."), appendLF = F)
-            bc <- BC_model_(en, y.mod[[e]], id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
+            bc <- BC_model_(en, y.mod[[e]], id = i, D = D, K = K, cor = cor, method = method, method = method,
+                            A.matrix = A.matrix, method = method,  C.matrix = C.matrix)
             W = bc$w
           }
-          ec.mod = EC_model_(en, W, R = R, D = D)
-          t.mod[[e]][[i]] = ec.mod$ec
-          g.mod[[e]][[i]] = ec.mod$g
+          if(!is.null(W)){
+            if(!is.na(raster::maxValue(en$z.uncor)) && raster::maxValue(en$z.uncor) >  0){
+              ec.mod = EC_model_(en, W, R = R, D = D, cor = cor, method = method)
+              t.mod[[e]][[i]] = ec.mod$ec
+              g.mod[[e]][[i]] = ec.mod$g
 
-          mod.Val[[e]][[i]] <- cbind(env.scores[rownames(t.mod[[e]][[i]]$glob),1:2], vals = raster::extract(t.mod[[e]][[i]]$z, t.mod[[e]][[i]]$glob))
+              if (cor){
+                mod.Val[[e]][[i]] <- cbind(env.scores[rownames(t.mod[[e]][[i]]$glob),1:2], vals = raster::extract(t.mod[[e]][[i]]$z/t.mod[[e]][[i]]$Z, t.mod[[e]][[i]]$glob))
+              } else {
+                mod.Val[[e]][[i]] <- cbind(env.scores[rownames(t.mod[[e]][[i]]$glob),1:2], vals = raster::extract(t.mod[[e]][[i]]$z, t.mod[[e]][[i]]$glob))
+              }
+            }
+          }
         }
+
         t.mod[[e]] <-  t.mod[[e]][unlist(lapply(t.mod[[e]], length) != 0)]
         t.mod[[e]] <- t.mod[[e]][unlist(lapply(t.mod[[e]], function(x) !is.na(maxValue(x$z))))]
         t.mod[[e]] <- t.mod[[e]][unlist(lapply(t.mod[[e]], function(x) maxValue(x$z) != 0))]
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
+      }
+      if (relative.niche){
+        z.rev <- reverse_list(t.mod)
+        for (ii in names(z.rev)){
+          max.zdens = max(sapply(z.rev[[ii]], function(i)  raster::cellStats(i$z, "max")))
+          max.Zdens = max(sapply(z.rev[[ii]], function(i)  raster::cellStats(i$Z, "max")))
+          for (jj in names(z.rev[[ii]])){
+            z = z.rev[[ii]][[jj]]
+            z$z.uncor = z$z / max.zdens
+            z$z.uncor[is.na(z$z.uncor)] <- 0
+            z$w <- z$z.uncor
+            z$w[z$w > 0] <- 1
+            z$z.cor <- z$z/z$Z
+            z$z.cor[is.na(z$z.cor)] <- 0
+            z$z.cor <- z$z.cor/max.Zdens
+            z.rev[[ii]][[jj]] = z
+          }
+        }
+        t.mod <- reverse_list(z.rev)
       }
       t.mod <-  t.mod[unlist(lapply(t.mod, length) != 0)]
       mod.Val <- ldply(mod.Val, data.frame, .id = "region")
@@ -121,15 +156,21 @@ EC_model <- function(x, y,  D = 0,  A.matrix = NULL, C.matrix = NULL, type = c("
       R = length(en$x)
       if (w) { W = w.mod[[i]] } else{
         message(paste0("\tComputing biotic constrains of ", i, "..."), appendLF = F)
-        bc <- BC_model_(en, y.mod, id = i, D = D, A.matrix = A.matrix, C.matrix = C.matrix)
+        bc <- BC_model_(en, y.mod, id = i, D = D, K = K, A.matrix = A.matrix, C.matrix = C.matrix)
         W = bc$w
       }
-      if( !is.na(raster::maxValue(en$z.uncor)) && raster::maxValue(en$z.uncor) >  0){
-        ec.mod = EC_model_(en, W, R = R, D = D)
-        t.mod[[i]] = ec.mod$ec
-        g.mod[[i]] = ec.mod$g
+      if(!is.null(W)){
+        if(!is.na(raster::maxValue(en$z.uncor)) && raster::maxValue(en$z.uncor) >  0){
+          ec.mod = EC_model_(en, W, R = R, D = D, cor = cor, method = method)
+          t.mod[[i]] = ec.mod$ec
+          g.mod[[i]] = ec.mod$g
 
-        mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(t.mod[[i]]$z, t.mod[[i]]$glob))
+          if (cor) {
+            mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(t.mod[[i]]$z/t.mod[[i]]$Z, t.mod[[i]]$glob))
+          } else {
+            mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(t.mod[[i]]$z, t.mod[[i]]$glob))
+          }
+        }
       }
     }
     t.mod <-  t.mod[unlist(lapply(t.mod, length) != 0)]
