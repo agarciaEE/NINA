@@ -41,7 +41,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
           w$z.cor = betas[[Xvar]]*A.matrix[id,Xvar]
           w$z.cor[is.na(w$z.cor)] <- 0
         } else {
-          w$sp <- plyr::ldply(sapply(y.list[Xvar], function(i) i$sp), .id = "species")[,c(2:3,1)]
+          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) i$sp))
           w$z = sum(stack(lapply(y.list[Xvar], function(i) i$z)), na.rm = T)
           w$z.cor = sum(stack(lapply(names(y.list), function(i) betas[[i]]*as.numeric(A.matrix[id,i]))), na.rm = T)
           w$z.cor[is.na(w$z.cor)] <- 0
@@ -57,7 +57,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
           w$sp <- as.data.frame(cbind(y.list[[Xvar]]$sp, species = Xvar))
           w$z.uncor = betas[[Xvar]]*A.matrix[id,Xvar]
         } else {
-          w$sp <- plyr::ldply(sapply(y.list[Xvar], function(i) i$sp), .id = "species")[,c(2:3,1)]
+          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) i$sp))
           w$z = sum(stack(lapply(y.list[Xvar], function(i) i$z)), na.rm = T)
           w$z.uncor = sum(stack(lapply(names(y.list), function(i) betas[[i]]*as.numeric(A.matrix[id,i]))), na.rm = T)
         }
@@ -100,7 +100,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
       if(length(Pvar) == 1){
         Pz$sp <- as.data.frame(cbind(y.list[[Pvar]]$sp, species = Pvar))
       } else {
-        Pz$sp <- plyr::ldply(sapply(y.list[Pvar], function(i) i$sp), .id = "species")[,c(2:3,1)]
+        Pz$sp <- do.call(rbind, lapply(y.list[Pvar], function(i) i$sp))
       }
       Pz$Z <- sum(stack(sapply(y.list[Pvar], function(i) i$Z)))
       if (cor){

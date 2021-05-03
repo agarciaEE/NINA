@@ -28,7 +28,7 @@
 #'
 #' @export
 BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
-                     D = 0,  method = c("composition", "densities"),
+                     D = 1,  method = c("composition", "densities"),
                      relative.niche = T, K = NULL,
                      cor = F, type = c("region", "global")){
 

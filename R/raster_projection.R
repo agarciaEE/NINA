@@ -28,7 +28,19 @@ raster_projection <- function(df, spsNames = NULL, ras = NULL, crs = "+proj=long
   if (!is.null(ras)){
     sp.rasdis <- sapply(spsNames, function(i) raster::rasterize(df[,1:2], ras, field = df[,i], fun = mean, na.rm = T))
   } else{
-    sp.rasdis <- raster::rasterFromXYZ(df, crs = crs)
+    x <- sort(unique(df[, 1]))
+    y <- sort(unique(df[, 2]))
+    dx <- x[-1] - x[-length(x)]
+    dy <- y[-1] - y[-length(y)]
+    rx <- sum(round(dx/min(dx), 5)%% 1)
+    ry <- sum(round(dy/min(dy), 5)%% 1)
+    if (rx > 0 || ry > 0){
+      e <- extent(df[,1:2])
+      ras <- raster(xmn = e[1], xmx = e[2], ymn = e[3], ymx = e[4])
+      sp.rasdis <- sapply(spsNames, function(i) raster::rasterize(df[,1:2], ras, field = df[,i], fun = mean, na.rm = T))
+    } else {
+      sp.rasdis <- raster::rasterFromXYZ(df, crs = crs)
+    }
   }
   sp.rasdis <- stack(sp.rasdis)
 

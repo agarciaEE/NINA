@@ -105,17 +105,17 @@ assemble_models <- function(modelsList,
       w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$w = w$z.mod
+      model$w = w
     }
     if(type == "ECmodel"){
       t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$t.mod = t$z.mod
+      model$t.mod = t
       g <- assemble_snm_bootstraps(g, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$g = g$z.mod
+      model$g = g
     }
     z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
@@ -125,10 +125,9 @@ assemble_models <- function(modelsList,
     rownames(tab) <- tab[,1]
     tab <- tab[,-1]
     tab[is.na(tab)] = 0
-    z = reverse_list(z)
-    mod.Val = sapply(names(z), function(i) niche_to_dis(env.scores, z[[i]], cluster = clus.df, cor = FALSE)[,3])
+    mod.Val = sapply(names(reverse_list(z)), function(i) niche_to_dis(env.scores, reverse_list(z)[[i]], cor = FALSE, cluster = clus.df)[,3])
     mod.Val[is.na(mod.Val)] = 0
-    model$pred.dis = cbind(env.scores[,1:2], mod.Val)
+    #model$pred.dis = cbind(env.scores[,1:2], mod.Val)
     model$tab = tab
     model$clus = clus.df
     if(!is.null(bootstrap.eval)){
@@ -140,17 +139,17 @@ assemble_models <- function(modelsList,
       w <- assemble_snm_bootstraps(w, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$w = w$z.mod
+      model$w = w
     }
     if(type == "ECmodel"){
       t <- assemble_snm_bootstraps(t, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$t.mod = t$z.mod
+      model$t.mod = t
       g <- assemble_snm_bootstraps(g, env.scores, sp.scores = sp.scores,
                            bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,
                            cluster = cluster, method = method)
-      model$g = g$z.mod
+      model$g = g
     }
     z <- assemble_snm_bootstraps(z, env.scores,sp.scores = sp.scores,
                          bootstrap.eval = bootstrap.eval, eval = eval, threshold = threshold,

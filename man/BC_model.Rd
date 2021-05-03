@@ -9,7 +9,7 @@ BC_model(
   y,
   A.matrix = NULL,
   C.matrix = NULL,
-  D = 0,
+  D = 1,
   method = c("composition", "densities"),
   relative.niche = T,
   K = NULL,

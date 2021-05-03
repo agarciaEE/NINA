@@ -41,7 +41,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
         R = length(z[[e]][[sp]][[1]]$x)
         #mod.Val[[e]][[sp]] <- list()
         sc.vec <- NULL
-        for (i in 1:length(z[[e]][[sp]])){
+        for (i in names(z[[e]][[sp]])){
           if(eval){score = bootstrap.eval[[i]][sp,method]}
           if(score > threshold){
             sc.vec <- c(sc.vec, score)
@@ -49,7 +49,9 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
             Z.l[[i]] <- z[[e]][[sp]][[i]]$Z
           }
         }
+        zz.l <-  zz.l[unlist(lapply(zz.l, length) != 0)]
         zz.l = zz.l[which(sapply(zz.l, "maxValue") > 0)]
+        Z.l <-  Z.l[unlist(lapply(Z.l, length) != 0)]
         Z.l = Z.l[which(sapply(Z.l, "maxValue") > 0)]
         if (length(zz.l) == 0){
           warning(paste("No partition of", sp, "in", e, "fits the assembling threshold standards."), immediate. = T)
@@ -135,7 +137,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
       R = length(z[[sp]][[1]]$x)
       #mod.Val[[sp]] <- list()
       sc.vec <- NULL
-      for (i in 1:length(z[[sp]])){
+      for (i in names(z[[sp]])){
         if(eval){score = bootstrap.eval[[i]][sp,method]}
         if(score > threshold){
           sc.vec <- c(sc.vec, score)
@@ -143,7 +145,9 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
           Z.l[[i]] <- z[[sp]][[i]]$Z
         }
       }
+      zz.l <-  zz.l[unlist(lapply(zz.l, length) != 0)]
       zz.l = zz.l[which(sapply(zz.l, "maxValue") > 0)]
+      Z.l <-  Z.l[unlist(lapply(Z.l, length) != 0)]
       Z.l = Z.l[which(sapply(Z.l, "maxValue") > 0)]
       if (length(zz.l) == 0){
         warning(paste("No partition of", sp, "in", e, "fits the assembling threshold standards."), immediate. = T)

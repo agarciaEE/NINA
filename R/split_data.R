@@ -26,7 +26,7 @@ split_data <- function(Obs, spsNames = NULL, method = c("Euclidean", "kmeans"), 
   pres_train <- NULL
   pres_test <- NULL
   for (i in spsNames){
-    df <- Obs[Obs$species == i,]
+    df <- Obs[Obs[,3] == i,]
     ddf <- df[,c(1:2,4)]
     nr <- nrow(ddf)
     tr.p <- 1/split.percentage - 1
