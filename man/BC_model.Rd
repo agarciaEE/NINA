@@ -11,8 +11,18 @@ BC_model(
   C.matrix = NULL,
   D = 1,
   method = c("composition", "densities"),
+  eval = TRUE,
   relative.niche = T,
   K = NULL,
+  sample.pseudoabsences = TRUE,
+  R = 100,
+  res = NULL,
+  plot.eval = FALSE,
+  rep = 100,
+  th = NULL,
+  ras = NULL,
+  best.th = c("accuracy", "similarity"),
+  combine.regions = F,
   cor = F,
   type = c("region", "global")
 )
@@ -30,26 +40,44 @@ BC_model(
 
 \item{method}{Method; abundances or composition}
 
+\item{eval}{Boolean whether to evaluate the model}
+
 \item{relative.niche}{Logical}
 
 \item{K}{= Carrying capacity of each environmental cell}
+
+\item{sample.pseudoabsences}{Boolean to whether sample pseudo-absences}
+
+\item{res}{spatial resolution}
+
+\item{plot.eval}{Logical to whether plot the evaluation}
+
+\item{rep}{number of randomzation tests}
+
+\item{th}{threshold to perform cut off for model evaluation}
+
+\item{ras}{raster to constrain pseudoabsences sampling in model evalluation}
+
+\item{best.th}{method to select the best thresholt. Default is "similarity"}
 
 \item{cor}{Logical}
 
 \item{type}{String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error}
 }
 \value{
-Data frame.
+NINA model
 }
 \description{
 Transforms environmental niche in base to species interactions
 }
 \details{
-Returns an error if \code{filename} does not exist.
+
 }
 \examples{
 \dontrun{
-accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+EN2 <- EN_model(env_data, occ_data2, cluster = "env", n.clus = 5)
+BC <- BC_model(EN1, EN2, A.matrix = int_matrix)
 }
 
 }

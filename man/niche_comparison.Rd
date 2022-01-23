@@ -9,6 +9,7 @@ niche_comparison(
   y,
   centroid.w = F,
   rnd.test = F,
+  Z_space = F,
   quantile = 0.75,
   np.type = c("unimodal", "multimodal"),
   np.metric = c("median", "mean", "max"),
@@ -26,6 +27,8 @@ niche_comparison(
 \item{centroid.w}{logical whether to weight niche overlap by distance to niche centroid}
 
 \item{rnd.test}{Logical to indicate if randomization tests are to be estimated}
+
+\item{Z_space}{lLogical. Whether to compute USE parameters accounting for the environmental space (Z)}
 
 \item{quantile}{If \code{centroid.w} is TRUE, quantle threshold to filter niche densities. Default is 0.5. See \code{\link[NINA]{niche_position}}}
 

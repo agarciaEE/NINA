@@ -28,7 +28,7 @@ models_evaluation(
 
 \item{spsNames}{species names to evaluate}
 
-\item{th}{threshol to perform cut off}
+\item{th}{threshold to perform cut off}
 
 \item{ras}{raster to constrain pseudoabsences sampling}
 

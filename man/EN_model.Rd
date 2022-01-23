@@ -19,6 +19,11 @@ EN_model(
   save.model = F,
   cor = F,
   relative.niche = T,
+  h = "href",
+  mask = NULL,
+  th.o = NULL,
+  th.s = NULL,
+  density.method = c("epa", "bivnorm"),
   combine.clusters = FALSE,
   cluster = NULL,
   n.clus = NULL,
@@ -28,6 +33,12 @@ EN_model(
   split.data = FALSE,
   split.percentage = 0.25,
   split.method = c("kmeans", "Euclidean"),
+  plot.eval = FALSE,
+  rep = 100,
+  th = NULL,
+  ras = NULL,
+  int_matrix = NULL,
+  best.th = c("accuracy", "similarity"),
   bootstraps = 1,
   assemble.models = TRUE,
   assemble.method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa")
@@ -62,6 +73,16 @@ EN_model(
 
 \item{relative.niche}{logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.}
 
+\item{h}{smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value}
+
+\item{mask}{raster mask to resample the created kernel densiity grid raster}
+
+\item{th.o}{numeric threshold to filter density values of occurrences}
+
+\item{th.s}{numeric threshold to filter density values of environment}
+
+\item{density.method}{"epanechnikov" or "bivnorm"}
+
 \item{combine.clusters}{Boolean whether to combine regions into global models}
 
 \item{cluster}{data frame with clustered regions as levels}
@@ -70,7 +91,7 @@ EN_model(
 
 \item{R}{niche space grid}
 
-\item{sample.pseudoabsences}{Boolean to indicate if pseudoabsences are to be sampled}
+\item{sample.pseudoabsences}{Boolean to whether sample pseudo-absences}
 
 \item{eval}{Boolean whether to evaluate the model}
 
@@ -80,11 +101,23 @@ EN_model(
 
 \item{split.method}{String indicating the method to split occurrence data. Default is kmeans}
 
+\item{plot.eval}{Logical to whether plot the evaluation}
+
+\item{rep}{number of randomzation tests}
+
+\item{th}{threshold to perform cut off for model evaluation}
+
+\item{ras}{raster to constrain pseudoabsences sampling in model evalluation}
+
+\item{best.th}{method to select the best thresholt. Default is "similarity"}
+
 \item{bootstraps}{Integer indicating number of partitions to perform. Default is 1}
 
 \item{assemble.models}{Boolean whether to assemble all partitions into ensemble model}
 
 \item{assemble.method}{String indicating the evaluation parameter to weight and compute the assembling. Default is "ACC"}
+
+\item{int.matrix}{interaction matrix between species and interactors}
 }
 \value{
 List of elements

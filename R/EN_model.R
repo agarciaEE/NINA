@@ -28,6 +28,18 @@
 #' @param save.model Boolean whether to save the model
 #' @param relative.niche logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.
 #' @param cor Logical
+#' @param h smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value
+#' @param mask raster mask to resample the created kernel densiity grid raster
+#' @param th.o numeric threshold to filter density values of occurrences
+#' @param th.s numeric threshold to filter density values of environment
+#' @param density.method "epanechnikov" or "bivnorm"
+#' @param th threshold to perform cut off for model evaluation
+#' @param int.matrix interaction matrix between species and interactors
+#' @param ras raster to constrain pseudoabsences sampling in model evalluation
+#' @param plot.eval Logical to whether plot the evaluation
+#' @param sample.pseudoabsences Boolean to whether sample pseudo-absences
+#' @param rep number of randomzation tests
+#' @param best.th method to select the best thresholt. Default is "similarity"
 #'
 #' @return List of elements
 #'
@@ -54,8 +66,11 @@
 EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN",
                      nstart = 25, k.max = NULL, B = 100, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
                      extrapolate.niche = FALSE, save.bootstraps = F, save.model = F,  cor = F,  relative.niche = T,
+                     h = "href", mask = NULL,  th.o = NULL, th.s = NULL, density.method = c("epa", "bivnorm"),
                      combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, sample.pseudoabsences = TRUE,
                      eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean"),
+                     plot.eval = FALSE, rep = 100, th = NULL, ras = NULL, int_matrix = NULL,
+                     best.th = c("accuracy", "similarity"),
                      bootstraps = 1, assemble.models = TRUE, assemble.method = c("ACC", "Jaccard Similarity", "TSS", "AUC", "kappa")){
 
   split.method = split.method[1]
@@ -78,7 +93,9 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
       message("Carrying out EN model bootstrap n", n, "...")
       EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,  relative.niche =  relative.niche,
                       extrapolate.niche = extrapolate.niche, cor = cor, sample.pseudoabsences = sample.pseudoabsences,
-                      combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
+                      combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R, h = h, mask = mask,
+                      th.o = th.o, th.s = th.s, density.method = density.method,  plot.eval = plot.eval, rep = rep, th = th, ras = ras, int_matrix = int_matrix,
+                      best.th = best.th,
                       eval = eval, split.data = split.data, split.percentage = split.percentage, split.method = split.method)
       pca = EN$pca
       crs = EN$crs
@@ -89,7 +106,7 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
         saveRDS(EN, file = paste0(path, project.name , "_bootstrap", n, ".RDS"))
       }
       else {
-        modelsList[[n]]<- EN
+        modelsList[[paste0("b_", n)]]<- EN
       }
       rm(EN)
     }
@@ -130,7 +147,9 @@ EN_model <- function(env, occ, res = NULL, path = "./", project.name	= "NINA_EN"
     message("Carrying out unique EN model...")
     EN <- EN_model_(env, occ, res = res, nstart = nstart, k.max = k.max, B = B,  relative.niche =  relative.niche,
                     extrapolate.niche = extrapolate.niche, cor = cor, sample.pseudoabsences = sample.pseudoabsences,
-                    combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R,
+                    combine.clusters = combine.clusters, cluster = cluster, n.clus = n.clus, R = R, h = h, mask = mask,
+                    th.o = th.o, th.s = th.s, density.method = density.method, plot.eval = plot.eval, rep = rep, th = th, ras = ras, int_matrix = int_matrix,
+                    best.th = best.th,
                     eval = eval, split.data = split.data , split.percentage = split.percentage, split.method = split.method)
     EN$obs = occ
     if (save.model){

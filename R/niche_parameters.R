@@ -105,434 +105,473 @@ niche_parameters <- function(x, y, type = c("region", "global"), centroid.w = F,
         for (i in names(X[[1]][[e]])){
           message(paste("Computing niche metrics of", i, "..."), appendLF = F)
           if (xmod == "BC" && is.null(ymod)){
-            message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
-            ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], X$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
-            np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$CS$weights, ncomp$USE$obs)),
-                              comparison = "Env2Acc")
-            if (rnd.test){
-              simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Acc")
+            if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(X$EnvAcc[[e]][[i]])){
+              message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
+              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], X$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$CS$weights, ncomp$USE$obs)),
+                                comparison = "Env2Acc")
+              if (rnd.test){
+                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Acc")
 
-              p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Acc")
-              p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Acc")
+                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+              }
+              message("...done.")
             }
-            message("...done.")
           }
           else if (xmod == "EC" && is.null(ymod)){
-            message("\n\t...between environmental niche and ecological niche...", appendLF = F)
-            ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], X$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
-            np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                              comparison = "Env2Eco")
+            if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(X$EcoSuit[[e]][[i]])){
+              message("\n\t...between environmental niche and ecological niche...", appendLF = F)
+              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], X$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                comparison = "Env2Eco")
 
-            if (rnd.test){
-              simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Eco")
+              if (rnd.test){
+                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Eco")
 
-              p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Eco")
+                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Eco")
+              }
+              message("...done.")
             }
-            message("...done.")
-            message("\n\t...between ecological niche and ecological accessibillity....", appendLF = F)
-            ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], X$EcoAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            if(!is.null(X$EcoSuit[[e]][[i]]) &&  !is.null(X$EcoAcc[[e]][[i]])){
+              message("\n\t...between ecological niche and ecological accessibillity....", appendLF = F)
+              ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], X$EcoAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-            np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                  comparison = "Eco2Acc"))
-            if (rnd.test){
-              simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Eco2Acc"))
-
-              p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                    comparison = "Eco2Acc"))
+              if (rnd.test){
+                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Eco2Acc"))
-              p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Eco2Acc"))
+                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+              }
+              message("...done.")
             }
-            message("...done.")
           }
           else if (!is.null(Y[[1]][[e]][[i]])){
             if (xmod == "EN" && ymod == "EN"){
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
-
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
 
             }
             else if (xmod == "EN" && ymod == "BC"){
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
-
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvAcc[[e]][[i]])){
+                message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Env2Acc"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Env2Acc"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, CS = ncomp$CS$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Env2Acc"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Env2Acc"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, CS = ncomp$CS$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Env2Acc"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "EN" && ymod == "EC"){
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
-
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "BC" && ymod == "BC"){
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between environmental accessibilities...", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvAcc[[e]][[i]])){
+                message("\n\t...between environmental accessibilities...", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Acc2Acc"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Acc2Acc"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Acc2Acc"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Acc2Acc"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Acc2Acc"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "BC" && ymod == "EC"){
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+
+                message("...done.")
               }
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EcoSuit[[e]][[i]])){
+                message("\n\t...between environmental niche and ecological niche...", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              message("...done.")
-              message("\n\t...between environmental niche and ecological niche...", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Env2Eco"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Env2Eco"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Env2Eco"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Env2Eco"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Env2Eco"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between environmental accessibility and ecological accessibility", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EcoAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EnvAcc[[e]][[i]]) &&  !is.null(Y$EcoAcc[[e]][[i]])){
+                message("\n\t...between environmental accessibility and ecological accessibility", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EcoAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Acc2Acc"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Acc2Acc"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Acc2Acc"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Acc2Acc"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Acc2Acc"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "EC" && ymod == "EC"){
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between ecological niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], Y$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EcoSuit[[e]][[i]]) &&  !is.null(Y$EcoSuit[[e]][[i]])){
+                message("\n\t...between ecological niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], Y$EcoSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Eco2Eco"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Eco2Eco"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Eco2Eco"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Eco2Eco"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Eco2Eco"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between environmental acessibilities...", appendLF = F)
-              ncomp <-  niche_comparison(X$EcoAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EcoAcc[[e]][[i]]) &&  !is.null(Y$EnvAcc[[e]][[i]])){
+                message("\n\t...between environmental acessibilities...", appendLF = F)
+                ncomp <-  niche_comparison(X$EcoAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Acc2Acc"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Acc2Acc"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Acc2Acc"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Acc2Acc"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Acc2Acc"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "BC" && ymod == "EN"){
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between environmental acccessiibiliity and environmental niche....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EnvAcc[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental acccessiibiliity and environmental niche....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvAcc[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Acc2Env"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Acc2Env"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Acc2Env"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Acc2Env"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Acc2Env"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
             else if (xmod == "EC" && ymod == "EN"){
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
-
             }
             else if (xmod == "EC" && ymod == "BC"){
-              message("\n\t...between environmental niches....", appendLF = F)
-              ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
-              np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                comparison = "Env2Env")
+              if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between environmental niches....", appendLF = F)
+                ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
+                np[[e]][[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                  comparison = "Env2Env")
 
-              if (rnd.test){
-                simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                         ER = ncomp$ER$sim, ncomp$USE$sim,
-                                         comparison = "Env2Env")
+                if (rnd.test){
+                  simList[[e]][[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                           ER = ncomp$ER$sim, ncomp$USE$sim,
+                                           comparison = "Env2Env")
 
-                p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                          ncomp$USE$pvalue, comparison = "Env2Env")
+                  p.values[[e]][[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                            CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                            ncomp$USE$pvalue, comparison = "Env2Env")
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between ecological niche and environmental niche....", appendLF = F)
-              ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EcoSuit[[e]][[i]]) &&  !is.null(Y$EnvSuit[[e]][[i]])){
+                message("\n\t...between ecological niche and environmental niche....", appendLF = F)
+                ncomp <-  niche_comparison(X$EcoSuit[[e]][[i]], Y$EnvSuit[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Eco2Env"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Eco2Env"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Eco2Env"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Eco2Env"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Eco2Env"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
-              message("\n\t...between ecological accessibillity and environmental accessibillity....", appendLF = F)
-              ncomp <-  niche_comparison(X$EcoAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                         quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                         cor = cor, rep = rep, rand = rand, alternative = alternative)
+              if(!is.null(X$EcoAcc[[e]][[i]]) &&  !is.null(Y$EnvAcc[[e]][[i]])){
+                message("\n\t...between ecological accessibillity and environmental accessibillity....", appendLF = F)
+                ncomp <-  niche_comparison(X$EcoAcc[[e]][[i]], Y$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                           quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                           cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-              np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                             ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                    comparison = "Acc2Acc"))
-              if (rnd.test){
-                simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                  comparison = "Acc2Acc"))
-
-                p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
-                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                np[[e]][[i]] <- rbind(np[[e]][[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                               ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                      comparison = "Acc2Acc"))
+                if (rnd.test){
+                  simList[[e]][[i]] <- rbind(simList[[e]][[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                    ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                     comparison = "Acc2Acc"))
-                p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+
+                  p.values[[e]][[i]] <- rbind(p.values[[e]][[i]], cbind(alternative = alternative,
+                                                                      D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                      ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                      comparison = "Acc2Acc"))
+                  p.values[[e]][[i]] <- as.data.frame(p.values[[e]][[i]], row.names = rep("", nrow(p.values[[e]][[i]])))
+                }
+                message("...done.")
               }
-              message("...done.")
             }
           }
           else{
@@ -592,434 +631,473 @@ niche_parameters <- function(x, y, type = c("region", "global"), centroid.w = F,
     for (i in names(X[[1]])){
       message(paste("Computing niche metrics of", i, "..."), appendLF = F)
       if (xmod == "BC" && is.null(ymod)){
-        message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
-        ncomp <-  niche_comparison(X$EnvSuit[[i]], X$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                   quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                   cor = cor, rep = rep, rand = rand, alternative = alternative)
-        np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                   ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                          comparison = "Env2Acc")
-        if (rnd.test){
-          simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                     ER = ncomp$ER$sim, ncomp$USE$sim,
-                                     comparison = "Env2Acc")
+        if(!is.null(X$EnvSuit[[i]]) &&  !is.null(X$EnvAcc[[i]])){
+          message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
+          ncomp <-  niche_comparison(X$EnvSuit[[i]], X$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$CS$weights, ncomp$USE$obs)),
+                            comparison = "Env2Acc")
+          if (rnd.test){
+            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                       ER = ncomp$ER$sim, ncomp$USE$sim,
+                                       comparison = "Env2Acc")
 
-          p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                      CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                      ncomp$USE$pvalue, comparison = "Env2Acc")
-          p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                        ncomp$USE$pvalue, comparison = "Env2Acc")
+            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+          }
+          message("...done.")
         }
-        message("...done.")
       }
       else if (xmod == "EC" && is.null(ymod)){
-        message("\n\t...between environmental niche and ecological niche...", appendLF = F)
-        ncomp <-  niche_comparison(X$EnvSuit[[i]], X$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                   quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                   cor = cor, rep = rep, rand = rand, alternative = alternative)
-        np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                   ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                          comparison = "Env2Eco")
+        if(!is.null(X$EnvSuit[[i]]) &&  !is.null(X$EcoSuit[[i]])){
+          message("\n\t...between environmental niche and ecological niche...", appendLF = F)
+          ncomp <-  niche_comparison(X$EnvSuit[[i]], X$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                            comparison = "Env2Eco")
 
-        if (rnd.test){
-          simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                     ER = ncomp$ER$sim, ncomp$USE$sim,
-                                     comparison = "Env2Eco")
+          if (rnd.test){
+            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                       ER = ncomp$ER$sim, ncomp$USE$sim,
+                                       comparison = "Env2Eco")
 
-          p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                      CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                      ncomp$USE$pvalue, comparison = "Env2Eco")
+            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                        ncomp$USE$pvalue, comparison = "Env2Eco")
+          }
+          message("...done.")
         }
-        message("...done.")
-        message("\n\t...between ecological niche and ecological accessibillity....", appendLF = F)
-        ncomp <-  niche_comparison(X$EcoSuit[[i]], X$EcoAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                   quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                   cor = cor, rep = rep, rand = rand, alternative = alternative)
+        if(!is.null(X$EcoSuit[[i]]) &&  !is.null(X$EcoAcc[[i]])){
+          message("\n\t...between ecological niche and ecological accessibillity....", appendLF = F)
+          ncomp <-  niche_comparison(X$EcoSuit[[i]], X$EcoAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-        np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                              comparison = "Eco2Acc"))
-        if (rnd.test){
-          simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                              ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                              comparison = "Eco2Acc"))
-
-          p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                comparison = "Eco2Acc"))
+          if (rnd.test){
+            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                 comparison = "Eco2Acc"))
-          p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                  comparison = "Eco2Acc"))
+            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+          }
+          message("...done.")
         }
-        message("...done.")
       }
       else if (!is.null(Y[[1]][[i]])){
         if (xmod == "EN" && ymod == "EN"){
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
-
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
 
         }
         else if (xmod == "EN" && ymod == "BC"){
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
-
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvAcc[[i]])){
+            message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Env2Acc"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Env2Acc"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, CS = ncomp$CS$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Env2Acc"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Env2Acc"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, CS = ncomp$CS$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Env2Acc"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "EN" && ymod == "EC"){
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
-
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "BC" && ymod == "BC"){
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between environmental accessibilities...", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvAcc[[i]])){
+            message("\n\t...between environmental accessibilities...", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Acc2Acc"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Acc2Acc"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Acc2Acc"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Acc2Acc"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Acc2Acc"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "BC" && ymod == "EC"){
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+
+            message("...done.")
           }
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EcoSuit[[i]])){
+            message("\n\t...between environmental niche and ecological niche...", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          message("...done.")
-          message("\n\t...between environmental niche and ecological niche...", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Env2Eco"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Env2Eco"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Env2Eco"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Env2Eco"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Env2Eco"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between environmental accessibility and ecological accessibility", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EcoAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EnvAcc[[i]]) &&  !is.null(Y$EcoAcc[[i]])){
+            message("\n\t...between environmental accessibility and ecological accessibility", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EcoAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Acc2Acc"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Acc2Acc"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Acc2Acc"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Acc2Acc"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Acc2Acc"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "EC" && ymod == "EC"){
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between ecological niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EcoSuit[[i]], Y$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EcoSuit[[i]]) &&  !is.null(Y$EcoSuit[[i]])){
+            message("\n\t...between ecological niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EcoSuit[[i]], Y$EcoSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Eco2Eco"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Eco2Eco"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Eco2Eco"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Eco2Eco"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Eco2Eco"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between environmental acessibilities...", appendLF = F)
-          ncomp <-  niche_comparison(X$EcoAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EcoAcc[[i]]) &&  !is.null(Y$EnvAcc[[i]])){
+            message("\n\t...between environmental acessibilities...", appendLF = F)
+            ncomp <-  niche_comparison(X$EcoAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Acc2Acc"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Acc2Acc"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Acc2Acc"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Acc2Acc"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Acc2Acc"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "BC" && ymod == "EN"){
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between environmental acccessiibiliity and environmental niche....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EnvAcc[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental acccessiibiliity and environmental niche....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvAcc[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Acc2Env"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Acc2Env"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Acc2Env"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Acc2Env"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Acc2Env"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
         else if (xmod == "EC" && ymod == "EN"){
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
-
         }
         else if (xmod == "EC" && ymod == "BC"){
-          message("\n\t...between environmental niches....", appendLF = F)
-          ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
-          np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                     ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                            comparison = "Env2Env")
+          if(!is.null(X$EnvSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between environmental niches....", appendLF = F)
+            ncomp <-  niche_comparison(X$EnvSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
+            np[[i]] <- c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                       ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                              comparison = "Env2Env")
 
-          if (rnd.test){
-            simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                       ER = ncomp$ER$sim, ncomp$USE$sim,
-                                       comparison = "Env2Env")
+            if (rnd.test){
+              simList[[i]] <- cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                         ER = ncomp$ER$sim, ncomp$USE$sim,
+                                         comparison = "Env2Env")
 
-            p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
-                                        CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
-                                        ncomp$USE$pvalue, comparison = "Env2Env")
+              p.values[[i]] <- cbind(alternative = alternative, D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue,
+                                          CS = ncomp$CS$pvalue, ER = ncomp$ER$pvalue,
+                                          ncomp$USE$pvalue, comparison = "Env2Env")
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between ecological niche and environmental niche....", appendLF = F)
-          ncomp <-  niche_comparison(X$EcoSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EcoSuit[[i]]) &&  !is.null(Y$EnvSuit[[i]])){
+            message("\n\t...between ecological niche and environmental niche....", appendLF = F)
+            ncomp <-  niche_comparison(X$EcoSuit[[i]], Y$EnvSuit[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Eco2Env"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Eco2Env"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Eco2Env"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Eco2Env"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Eco2Env"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
-          message("\n\t...between ecological accessibillity and environmental accessibillity....", appendLF = F)
-          ncomp <-  niche_comparison(X$EcoAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
-                                     quantile = quantile, np.type = np.type,  np.metric = np.metric,
-                                     cor = cor, rep = rep, rand = rand, alternative = alternative)
+          if(!is.null(X$EcoAcc[[i]]) &&  !is.null(Y$EnvAcc[[i]])){
+            message("\n\t...between ecological accessibillity and environmental accessibillity....", appendLF = F)
+            ncomp <-  niche_comparison(X$EcoAcc[[i]], Y$EnvAcc[[i]], centroid.w = centroid.w, rnd.test = rnd.test,
+                                       quantile = quantile, np.type = np.type,  np.metric = np.metric,
+                                       cor = cor, rep = rep, rand = rand, alternative = alternative)
 
-          np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
-                                                         ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
-                                                comparison = "Acc2Acc"))
-          if (rnd.test){
-            simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
-                                                                ER = ncomp$ER$sim, ncomp$USE$sim,
-                                                                comparison = "Acc2Acc"))
-
-            p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
-                                                                  D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
-                                                                  ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+            np[[i]] <- rbind(np[[i]], c(unlist(c(D = ncomp$D$obs, breadth.diff = ncomp$breadth.diff$obs, CS = ncomp$CS$obs,
+                                                           ER = ncomp$ER$obs, ncomp$CS$weights, ncomp$USE$obs)),
+                                                  comparison = "Acc2Acc"))
+            if (rnd.test){
+              simList[[i]] <- rbind(simList[[i]], cbind(D  = ncomp$D$sim, breadth.diff = ncomp$breadth.diff$sim, CS = ncomp$CS$sim,
+                                                                  ER = ncomp$ER$sim, ncomp$USE$sim,
                                                                   comparison = "Acc2Acc"))
-            p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+
+              p.values[[i]] <- rbind(p.values[[i]], cbind(alternative = alternative,
+                                                                    D = ncomp$D$pvalue, breadth.diff = ncomp$breadth.diff$pvalue, CS = ncomp$CS$pvalue,
+                                                                    ER = ncomp$ER$pvalue, ncomp$USE$pvalue,
+                                                                    comparison = "Acc2Acc"))
+              p.values[[i]] <- as.data.frame(p.values[[i]], row.names = rep("", nrow(p.values[[i]])))
+            }
+            message("...done.")
           }
-          message("...done.")
         }
       }
       else{

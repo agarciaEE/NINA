@@ -26,15 +26,19 @@ estimate_betas <- function(y.list, C.matrix = NULL, cor = F, K = NULL){
   betas <- list()
   for (n in names(y.list)){
     if (cor){
+      if (is.null(K)){
+        #K <- length(y.list) # K equals to the nnumber of species predicted to be present in each cell
+        K <- sum(stack(sapply(names(y.list), function(i) y.list[[i]]$z.cor))) # environment is compartmentalize by the species and is considered fully occupied
+      }
       z <- y.list[[n]]$z.cor
       sum.co <- sum(stack(sapply(names(y.list), function(i) C.matrix[n, i]*y.list[[i]]$z.cor)))
     } else {
+      if (is.null(K)){
+        #K <- length(y.list) # K equals to the nnumber of species predicted to be present in each cell
+        K <- sum(stack(sapply(names(y.list), function(i) y.list[[i]]$z.uncor))) # environment is compartmentalize by the species and is considered fully occupied
+      }
       z <- y.list[[n]]$z.uncor
       sum.co <- sum(stack(sapply(names(y.list), function(i) C.matrix[n, i]*y.list[[i]]$z.uncor)))
-    }
-    if (is.null(K)){
-      #K <- length(y.list) # K equals to the nnumber of species predicted to be present in each cell
-      K <- sum(stack(sapply(names(y.list), function(i) y.list[[i]]$z.uncor))) # environment is compartmentalize by the species and is considered fully occupied
     }
     betas[[n]] <- z * (1 - sum.co/K)
   }

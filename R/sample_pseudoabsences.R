@@ -28,6 +28,7 @@
 #' @importFrom graphics points
 #'
 #' @export
+#'
 sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
                                        ras = NULL, int.matrix, res = NULL, plot = F){
 
@@ -126,13 +127,12 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
     dist.p[which(rownames(predictors) %in% inn_coord)] <- 0
     pred.out <- predictors[!rownames(predictors) %in% occ.inn,1:2]
     dist.p <- dist.p[which(!rownames(predictors) %in% occ.inn)]
-    if (length(occ.inn)/nrow(pred.inn) == 1) {
-      def[i,3] = round(length(occ.inn)/nrow(pred.inn) * nrow(pred.out),0)
-      abs =  as.data.frame(pred.out[sample(nrow(pred.out), def[i,3], replace = T, prob = dist.p),1:2])
-      abs = abs[!duplicated(abs),]
+    dist.p <- dist.p + 0.00001
+    def[i,3] = round(length(occ.inn)/nrow(pred.inn) * nrow(pred.out),0)
+    if ( def[i,3] >= nrow(pred.out)) {
+      abs =  as.data.frame(pred.out[sample(nrow(pred.out), nrow(pred.out)*def[i,1], replace = F, prob = dist.p),1:2])
     }
     else {
-      def[i,3] = round(length(occ.inn)/nrow(pred.inn) * nrow(predictors),0)
       abs =  as.data.frame(pred.out[sample(nrow(pred.out), def[i,3], replace = F, prob = dist.p),1:2])
     }
     occ.A <- rbind(occ.A, cbind(abs, species = sp, PA = 0))

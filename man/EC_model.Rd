@@ -49,7 +49,10 @@ Returns an error if \code{filename} does not exist.
 }
 \examples{
 \dontrun{
-accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+  g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F)
+  g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus, relative.niche = F, cor = F)
+  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
+  g2_EC <- EC_model(g2_BC, type = "region")
 }
 
 }

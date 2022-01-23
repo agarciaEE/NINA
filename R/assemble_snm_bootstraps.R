@@ -150,7 +150,7 @@ assemble_snm_bootstraps <- function(z, env.scores, sp.scores,
       Z.l <-  Z.l[unlist(lapply(Z.l, length) != 0)]
       Z.l = Z.l[which(sapply(Z.l, "maxValue") > 0)]
       if (length(zz.l) == 0){
-        warning(paste("No partition of", sp, "in", e, "fits the assembling threshold standards."), immediate. = T)
+        warning(paste("No partition of", sp, "fits the assembling threshold standards."), immediate. = T)
         next()
       }
       if (length(zz.l) > 1){

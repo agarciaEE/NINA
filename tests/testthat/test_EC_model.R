@@ -6,19 +6,15 @@ test_that("Succes", {
 
   g1_EN1 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = T, eval = T)
   g1_EN2 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F, eval = T)
-  g1_EN3 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = T, eval = T)
-  g1_EN4 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = F, eval = T)
-
-  plot(g1_EN1$eval)
-  plot(g1_EN2$eval)
-  plot(g1_EN3$eval)
-  plot(g1_EN4$eval)
+  g1_EN3 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = T, eval = F)
+  g1_EN4 = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = T, cor = F, eval = F)
 
   g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F)
   g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus, relative.niche = F, cor = F)
+
   summary(g1_EN)
   print(g1_EN)
-  plot(g1_EN)
+
   g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
 
   g2_EC <- EC_model(g2_BC, type = "region")

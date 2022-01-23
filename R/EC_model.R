@@ -19,7 +19,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#'   g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5, relative.niche = F, cor = F)
+#'   g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus, relative.niche = F, cor = F)
+#'   g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
+#'   g2_EC <- EC_model(g2_BC, type = "region")
 #' }
 #'
 #' @importFrom raster maxValue rasterize stack
@@ -32,6 +35,7 @@ EC_model <- function(x, y,  D = 1,  A.matrix = NULL,  cor = F, K = NULL,
 
   w = F
   clus = F
+  method = method[1]
   type = type[1]
   if(!is.null(x$clus)){clus = T}
   if (all(class(x) == c("NINA", "BCmodel"))) {
@@ -44,7 +48,7 @@ EC_model <- function(x, y,  D = 1,  A.matrix = NULL,  cor = F, K = NULL,
     EC = x
     z.mod = x$z.mod
     if(missing(y)){ stop("Environmental-only model requires another Environmental-only or Environmental-constrained model as argument 'y'") }
-    if (class(y) != "NINA") { stop("Argument 'y' is not a NINA model") }
+    if (class(y)[1] != "NINA" | !class(y)[2] %in% c("ENmodel", "BCmodel", "ECmodel")) { stop("Argument 'y' is not a NINA model") }
     if (is.null(A.matrix)) { stop("Argument 'A.matrix' needed")}
     else {
       if(any(!names(x$maps) %in% rownames(A.matrix))){ stop("Some species in models 'x' are not present in argument 'A.matrix")}
@@ -83,8 +87,8 @@ EC_model <- function(x, y,  D = 1,  A.matrix = NULL,  cor = F, K = NULL,
           R = length(en$x)
           if (w) { W = w.mod[[e]][[i]] } else{
             message(paste0("\tComputing biotic constrains of ", i, "..."), appendLF = F)
-            bc <- BC_model_(en, y.mod[[e]], id = i, D = D, K = K, cor = cor, method = method, method = method,
-                            A.matrix = A.matrix, method = method,  C.matrix = C.matrix)
+            bc <- BC_model_(en, y.mod[[e]], id = i, D = D, K = K, cor = cor, method = method,
+                            A.matrix = A.matrix, C.matrix = C.matrix)
             W = bc$w
           }
           if(!is.null(W)){
@@ -156,7 +160,7 @@ EC_model <- function(x, y,  D = 1,  A.matrix = NULL,  cor = F, K = NULL,
       R = length(en$x)
       if (w) { W = w.mod[[i]] } else{
         message(paste0("\tComputing biotic constrains of ", i, "..."), appendLF = F)
-        bc <- BC_model_(en, y.mod, id = i, D = D, K = K, A.matrix = A.matrix, C.matrix = C.matrix)
+        bc <- BC_model_(en, y.mod, id = i, D = D, K = K, method = method, A.matrix = A.matrix, C.matrix = C.matrix)
         W = bc$w
       }
       if(!is.null(W)){

@@ -25,42 +25,35 @@ combine_regions <- function(z.list, env.scores,  R = 100){
 
   z.comb= list()
   if(!missing(env.scores)){
-    ras = c(min(env.scores[,3]),
-            max(env.scores[,3]),
-            min(env.scores[,4]),
-            max(env.scores[,4]))
-    rasterEx <- raster::extent(ras)
-    ras.template <- raster::raster(nrow=R,ncol=R)
-    raster::extent(ras.template) <- rasterEx
+    Z <- NINA:::kernel_density_grid(env.scores, ext = NULL, R = R)
+    ras.template <- Z
+    ras.template[ras.template > 0] = 1
+    ext <- extent(ras.template)
   } else {
-    ras = c(min(sapply(z.list, function(x) { raster::extent(x[[1]]$Z)[1] })),
-            max(sapply(z.list, function(x) { raster::extent(x[[1]]$Z)[2] })),
-            min(sapply(z.list, function(x) { raster::extent(x[[1]]$Z)[3] })),
-            max(sapply(z.list, function(x) { raster::extent(x[[1]]$Z)[4] })))
-    rasterEx <- raster::extent(ras)
-    ras.template <- raster::raster(nrow=R,ncol=R)
-    raster::extent(ras.template) <- rasterEx
+    ext = extent(Reduce(extend, sapply(z.list, function(x) x[[1]]$Z)))
+    ras.template <- raster::raster(nrow=R,ncol=R, ext = ext)
   }
-
   z = reverse_list(z.list)
   for (s in names(z)){
     if (length(z[[s]]) > 1){
       z.comb[[s]]$glob <- na.exclude(do.call(rbind, lapply(z[[s]], function(X) X$glob)))
       z.comb[[s]]$glob1 = na.exclude(do.call(rbind, lapply(z[[s]], function(X) X$glob1)))
       z.comb[[s]]$sp <- na.exclude(do.call(rbind, lapply(z[[s]], function(X) X$sp)))
-#      z.comb[[s]] <- ecospat.grid.clim.dyn(glob, glob, sp, R)
+      #      z.comb[[s]] <- ecospat.grid.clim.dyn(glob, glob, sp, R)
     }
     else {
       z.comb[[s]]$glob <- na.exclude(as.data.frame(lapply(z[[s]], function(X) X$glob)))
       z.comb[[s]]$glob1 = na.exclude(as.data.frame(lapply(z[[s]], function(X) X$glob1)))
       z.comb[[s]]$sp <- na.exclude(as.data.frame(lapply(z[[s]], function(X) X$sp)))
-#      z.comb[[s]] <- ecospat.grid.clim.dyn(glob, glob, sp, R)
+      #      z.comb[[s]] <- ecospat.grid.clim.dyn(glob, glob, sp, R)
     }
-
-    z.comb[[s]]$x <- seq(ras[1], ras[2], length.out = R)
-    z.comb[[s]]$y <- seq(ras[3], ras[4], length.out = R)
-    z.comb[[s]]$Z = sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$Z, ras.template, method = "ngb"))))
-    z.comb[[s]]$z = sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$z, ras.template, method = "ngb"))))
+    z.comb[[s]]$x <- seq(ext[1], ext[2], length.out = R)
+    z.comb[[s]]$y <- seq(ext[3], ext[4], length.out = R)
+    z.comb[[s]]$Z = sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$Z, ras.template, method = "ngb"))), na.rm = T)[[1]]
+    z.kernel <- sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$z, ras.template, method = "ngb"))), na.rm = T)
+    #z.kernel  <-  NINA:::kernel_density_grid(z.comb[[s]]$sp, ext = extent(Z), R = R)
+    z.kernel <- z.kernel * ras.template
+    z.comb[[s]]$z <- z.kernel
     z.comb[[s]]$Z[is.na(z.comb[[s]]$Z)] = 0
     z.comb[[s]]$z[is.na(z.comb[[s]]$z)] = 0
     z.comb[[s]]$z.uncor = z.comb[[s]]$z/cellStats(z.comb[[s]]$z, "max")

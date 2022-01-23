@@ -29,6 +29,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
     A.matrix =  matrix(1, nrow = 1, ncol = length(y.list))
     rownames(A.matrix) = id ; colnames(A.matrix) = names(y.list)
   }
+  w <- NULL
   if (method == "composition"){
     betas <- estimate_betas(y.list, C.matrix = C.matrix, cor = cor, K = K)
     Xvar = colnames(A.matrix)[A.matrix[id,]  != 0]
@@ -75,7 +76,6 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
     }
   }
   if (method == "densities"){
-    Pz <- 0
     if(cor){
       betas <- sapply(y.list, function(i) i$z.cor) # probabilities of occurring in the environment based on occ density over environment density proportion
     } else {
@@ -86,7 +86,10 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
     Pvar = colnames(A.matrix)[A.matrix[id,]  > 0]
     Pvar <- Pvar[Pvar %in% names(y.list)]
     PPA <- 1
-    for (i in Pvar)  PPA <- (1-betas[[i]] * A.matrix[id, i]) * PPA #Pvar represent positive interactions, A.matrix weights the effect of the interaction (TO CHECK)
+    for (i in Pvar)  {
+      betas[[i]][is.na(betas[[i]])] = 0
+      PPA <- (1-betas[[i]] * A.matrix[id, i]) * PPA #Pvar represent positive interactions, A.matrix weights the effect of the interaction (TO CHECK)
+    }
     # PPA equals to Probability of all Positive species Absence
     PPP <- 1-PPA # PPP equals to Probability of at least one Positive species Presence
     ## Make positive effects output
@@ -96,34 +99,35 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
       r <- raster::cellStats(PPP, "max") / sum(stack(Pw))
       r[!is.finite(r)] = 0
       Pw <-  stack(Pw) * r
-      Pz <- y.list[[Pvar[1]]]
+      w <- y.list[[Pvar[1]]]
       if(length(Pvar) == 1){
-        Pz$sp <- as.data.frame(cbind(y.list[[Pvar]]$sp, species = Pvar))
+        w$sp <- as.data.frame(cbind(y.list[[Pvar]]$sp, species = Pvar))
       } else {
-        Pz$sp <- do.call(rbind, lapply(y.list[Pvar], function(i) i$sp))
+        w$sp <- do.call(rbind, lapply(y.list[Pvar], function(i) i$sp))
       }
-      Pz$Z <- sum(stack(sapply(y.list[Pvar], function(i) i$Z)))
+      w$Z <- sum(stack(sapply(y.list[Pvar], function(i) i$Z)))[[1]]
       if (cor){
-        Pz$z <- PPP * Pz$Z
-        Pz$z.uncor <- Pz$z/raster::cellStats(Pz$z, "max")
-        Pz$z.uncor[is.na(Pz$z.uncor)] <- 0
-        Pz$w <- Pz$z.uncor
-        Pz$w[Pz$w > 0] <- 1
-        Pz$z.cor <- PPP
-        Pz$z.cor[is.na(Pz$z.cor)] <- 0
-        Pz$z.cor <- Pz$z.cor/raster::cellStats(Pz$z.cor, "max")
+        w$z <- PPP * w$Z
+        w$z.uncor <- w$z/raster::cellStats(w$z, "max")
+        w$z.uncor[is.na(w$z.uncor)] <- 0
+        w$w <- w$z.uncor
+        w$w[w$w > 0] <- 1
+        w$z.cor <- PPP
+        w$z.cor[is.na(w$z.cor)] <- 0
+        w$z.cor <- w$z.cor/raster::cellStats(w$z.cor, "max")
       } else{
-        Pz$z <- PPP * raster::cellStats(sum(stack(sapply(y.list[Pvar], function(i) i$z))), "max")
-        Pz$z.uncor <- PPP
-        Pz$z.uncor[is.na(Pz$z.uncor)] <- 0
-        Pz$w <- Pz$z.uncor
-        Pz$w[Pz$w > 0] <- 1
-        Pz$z.cor <- Pz$z/Pz$Z
-        Pz$z.cor[is.na(Pz$z.cor)] <- 0
-        Pz$z.cor <- Pz$z.cor/raster::cellStats(Pz$z.cor, "max")
+        w$z <- PPP * raster::cellStats(sum(stack(sapply(y.list[Pvar], function(i) i$z))), "max")
+        w$z.uncor <- PPP
+        w$z.uncor[is.na(w$z.uncor)] <- 0
+        w$w <- w$z.uncor
+        w$w[w$w > 0] <- 1
+        w$z.cor <- w$z/w$Z
+        w$z.cor[is.na(w$z.cor)] <- 0
+        w$z.cor <- w$z.cor/raster::cellStats(w$z.cor, "max")
       }
-      Pz$betas <- Pw # species specific weights on omega to keep track
-      Pz$alpha <- length(Pvar)/length(y.list) # proportion of positive interactions over total possible interactions
+      w$Z <- w$Z / length(Pvar)
+      w$betas <- Pw # species specific weights on omega to keep track
+      w$alpha <- length(Pvar)/length(y.list) # proportion of positive interactions over total possible interactions
     }
     if(FALSE) { # Not yet implemented
       #### NEGATIVE INTERACTIONS
@@ -156,7 +160,6 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
         Nz$alpha <- length(Pvar)/length(y.list) # proportion of negative interactions over total possible interactions
       }
     }
-    w <- Pz
   }
   return(w)
 }

@@ -39,11 +39,13 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
   if(length(Xvar) > 0){
     out$w <- estimate_w(y.list, id = id, A.matrix = A.matrix, cor = cor,
                         K = K, method = method, C.matrix = C.matrix)
-    if (cor) {
-      wc <- out$w$z.cor
-    } else {
-      wc <- out$w$z.uncor
-    }
+    if (!is.null(out$w)){
+      if (cor) {
+        wc <- out$w$z.cor
+      } else {
+        wc <- out$w$z.uncor
+      }
+    } else{ wc = 0}
   }
   else{ wc = 0}
   if (method == "composition"){

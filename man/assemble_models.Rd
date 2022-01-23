@@ -19,8 +19,6 @@ assemble_models(
 \item{threshold}{Threshold to select models cut-off. Default is 0.5}
 
 \item{modelspath}{File path to the folder where bootstrap models can be found}
-
-\item{type}{String indicating the type of niche model}
 }
 \value{
 Ensemble NINA model

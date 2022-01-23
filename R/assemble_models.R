@@ -1,7 +1,6 @@
 #' @title ASSEMBLING MODELS FUNCTION
 #'
 #' @param modelsList List of bootstrap niche models
-#' @param type String indicating the type of niche model
 #' @param method String indicating method to weight bootstrap performance. Default "ACC"
 #' @param threshold Threshold to select models cut-off. Default is 0.5
 #' @param modelspath File path to the folder where bootstrap models can be found

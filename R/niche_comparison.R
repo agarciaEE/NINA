@@ -11,6 +11,7 @@
 #' @param rand Directions of the comparisons. 1 performs all tests with argument 'x' as base of all comparisons. 2 uses argument 'y'. Default is 1.
 #' @param alternative String indicating the alternative hypothesis. Default is "greater".
 #' @param rnd.test Logical to indicate if randomization tests are to be estimated
+#' @param Z_space lLogical. Whether to compute USE parameters accounting for the environmental space (Z)
 #'
 #' @description Computes different metrics to analyze differences between two  niches
 #'
@@ -19,7 +20,7 @@
 #' @importFrom raster extent resample xyFromCell as.matrix raster
 #'
 #' @export
-niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
+niche_comparison <- function(x, y, centroid.w = F, rnd.test = F, Z_space = F,
                              quantile = 0.75, np.type = c("unimodal", "multimodal"), np.metric = c("median", "mean", "max"),
                              cor = F, rep = 100, rand = 1, alternative = c("greater", "lower")){
 
@@ -63,15 +64,17 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
     USE.sim = data.frame()
     breadth.sim <- NULL
     Drnd = NULL
+    Crnd <- NULL
     for (i in 1:rep){
       if (rand == 1){
-        zrnd = ecospat::ecospat.grid.clim.dyn(x$glob, x$glob1, x$glob1[sample(1:nrow(x$glob1), nrow(x$sp), replace = F),], R = R)
-        if (raster::compareRaster(list(x$Z, zrnd$Z), stopiffalse = F) == F){
-          for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
-          zrnd[[ii]] <- raster::resample(zrnd[[ii]], x$Z, method = "ngb")
-          zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
-          }
-        }
+        #zrnd = ecospat::ecospat.grid.clim.dyn(x$glob, x$glob1, x$glob1[sample(1:nrow(x$glob1), nrow(x$sp), replace = T),], R = R)
+        zrnd <- simulate_niche(x)
+        #if (raster::compareRaster(list(x$Z, zrnd$Z), stopiffalse = F) == F){
+        #  for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
+        #  zrnd[[ii]] <- raster::resample(zrnd[[ii]], x$Z, method = "ngb")
+        #  zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
+        #  }
+        #}
         class(zrnd) <- c("NINA", "niche")
         Drnd = c(Drnd, niche_overlap(x, zrnd, cor = cor,
                                      centroid.w = centroid.w, type = np.type,
@@ -82,16 +85,18 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
         A = sum(raster::values(z) > 0)
         B = sum(raster::values(zrnd$w) > 0)
         AB = sum(raster::values(zab) > 0)
-
+        ## niche position
+        Crnd = rbind(Crnd, as.numeric(niche_position(zrnd,  type = "unimodal", method = np.metric, quantile = quantile, cor = cor)))
       }
       if (rand == 2){
-        zrnd = ecospat::ecospat.grid.clim.dyn(y$glob, y$glob1, y$glob1[sample(1:nrow(y$glob1), nrow(y$sp), replace = F),], R = R)
-        if (raster::compareRaster(list(y$Z, zrnd$Z), stopiffalse = F) == F){
-          for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
-            zrnd[[ii]] <- raster::resample(zrnd[[ii]], y$Z, method = "ngb")
-            zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
-          }
-        }
+        #zrnd = ecospat::ecospat.grid.clim.dyn(y$glob, y$glob1, y$glob1[sample(1:nrow(y$glob1), nrow(y$sp), replace = T),], R = R)
+        zrnd <- simulate_niche(y)
+        #if (raster::compareRaster(list(y$Z, zrnd$Z), stopiffalse = F) == F){
+        #  for (ii in c("Z", "z", "z.uncor", "z.cor", "w")) {
+        #    zrnd[[ii]] <- raster::resample(zrnd[[ii]], y$Z, method = "ngb")
+        #    zrnd[[ii]][is.na(zrnd[[ii]])] <- 0
+        #  }
+        #}
         class(zrnd) <- c("NINA", "niche")
         Drnd = c(Drnd, niche_overlap(y, zrnd, cor = cor,
                                      centroid.w = centroid.w, type = np.type,
@@ -102,14 +107,22 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
         A = sum(raster::values(zrnd$w) > 0)
         B = sum(raster::values(z) > 0)
         AB = sum(raster::values(zab) > 0)
+        ## niche position
+        Crnd = rbind(Crnd, as.numeric(niche_position(zrnd,  type = "unimodal", method = np.metric, quantile = quantile, cor = cor)))
       }
 
-      U = 1 - AB/A
-      E = 1 - AB/B
-      S = AB / (A+B-AB)
+      if (Z_space){
+        Z = sum(raster::values(x$Z) > 0)
+        U = (A-AB) / Z
+        E = (B-AB) / Z
+        S = AB / Z
+      } else {
+        U = 1 - AB/A
+        E = 1 - AB/B
+        S = AB / (A+B-AB)
+      }
 
       USE.sim <- rbind(USE.sim, cbind(U, S, E))
-
       breadth.sim = c(breadth.sim, sum(raster::values(zrnd$z.uncor) > 0)/sum(raster::values(zrnd$Z) > 0))
     }
     message("...OK")
@@ -177,44 +190,45 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
   if (rnd.test){
 
     ## Compute random niche centroids
-    rep.warning = F
-    message(paste("\t-Computing", rep, "random niche centroids..."), appendLF = F)
-    if (rand == 1){
-      if (cor) {rndf = raster::as.data.frame(x$z.cor, xy = T)}
-      else{rndf = raster::as.data.frame(x$z.uncor, xy = T)}
-      rndf = rndf[rndf[,3] != 0,]
-      rndf = rndf[rndf[,3] >= quantile(rndf[,3], quantile, na.rm = T),]
-      if (rep > nrow(rndf)){
-        rep = nrow(rndf)
-        message(paste0("\nWARNING: Number of randomzations exceed the number of environments available.\n\t ...All environments (", rep, ") will be considered instead.\n\t ...To avoid this, either decrease the number of randomizations or lower the quantile threshold"))
-        rep.warning = T
-      }
-      Crnd = rndf[sample(1:nrow(rndf), rep, prob = rndf[,3], replace = T),1:2]
-      drnd = unlist(sqrt((Cx[1]-Crnd[1])^2 + (Cx[2]-Crnd[2])^2))
-      ## Compute random alpha values within the selected niche
-      Arnd = apply(Crnd[,1:2], 1, function(i) Morpho::angle.calc(Cx, i) / pi)
-    }
-    if (rand == 2){
-      if (cor) {rndf = raster::as.data.frame(y$z.cor, xy = T)}
-      else{rndf = raster::as.data.frame(y$z.uncor, xy = T)}
-      rndf = rndf[rndf[,3] != 0,]
-      rndf = rndf[rndf[,3] >= quantile(rndf[,3], quantile, na.rm = T),]
-      if (rep > nrow(rndf)){
-        rep = nrow(rndf)
-        message(paste0("\nWARNING: Number of randomzations exceed the number of environments available.\n\t ...All environments (", rep, ") will be considered instead.\n\t ...To avoid this, either decrease the number of randomizations or lower the quantile threshold"))
-        rep.warning = T
-      }
-      Crnd = rndf[sample(1:nrow(rndf), rep, prob = rndf[,3], replace = T),1:2]
-      drnd = unlist(sqrt((Cy[1]-Crnd[1])^2 + (Cy[2]-Crnd[2])^2))
-      ## Compute random alpha values within the selected niche
-      Arnd = apply(Crnd[,1:2], 1, function(i) Morpho::angle.calc(Cy, i) / pi)
-    }
-    if(rep.warning){message("\n\t...OK")}
-    else {message("...OK")}
-
+    #rep.warning = F
+    #message(paste("\t-Computing", rep, "random niche centroids..."), appendLF = F)
+    #if (rand == 1){
+    #  if (cor) {rndf = raster::as.data.frame(x$z.cor, xy = T)}
+    #  else{rndf = raster::as.data.frame(x$z.uncor, xy = T)}
+    #  rndf = rndf[rndf[,3] != 0,]
+    #  rndf = rndf[rndf[,3] >= quantile(rndf[,3], quantile, na.rm = T),]
+    #  if (rep > nrow(rndf)){
+    #    rep = nrow(rndf)
+    #    message(paste0("\nWARNING: Number of randomzations exceed the number of environments available.\n\t ...All environments (", rep, ") will be considered instead.\n\t ...To avoid this, either decrease the number of randomizations or lower the quantile threshold"))
+    #    rep.warning = T
+    #  }
+    #  Crnd = rndf[sample(1:nrow(rndf), rep, prob = rndf[,3], replace = T),1:2]
+    #  drnd = unlist(sqrt((Cx[1]-Crnd[1])^2 + (Cx[2]-Crnd[2])^2))
+    #  ## Compute random alpha values within the selected niche
+    #  Arnd = apply(Crnd[,1:2], 1, function(i) Morpho::angle.calc(Cx, i) / pi)
+    #}
+    #if (rand == 2){
+    #  if (cor) {rndf = raster::as.data.frame(y$z.cor, xy = T)}
+    #  else{rndf = raster::as.data.frame(y$z.uncor, xy = T)}
+    #  rndf = rndf[rndf[,3] != 0,]
+    #  rndf = rndf[rndf[,3] >= quantile(rndf[,3], quantile, na.rm = T),]
+    #  if (rep > nrow(rndf)){
+    #    rep = nrow(rndf)
+    #    message(paste0("\nWARNING: Number of randomzations exceed the number of environments available.\n\t ...All environments (", rep, ") will be considered instead.\n\t ...To avoid this, either decrease the number of randomizations or lower the quantile threshold"))
+    #    rep.warning = T
+    #  }
+    #  Crnd = rndf[sample(1:nrow(rndf), rep, prob = rndf[,3], replace = T),1:2]
+    #  drnd = unlist(sqrt((Cy[1]-Crnd[1])^2 + (Cy[2]-Crnd[2])^2))
+    #  ## Compute random alpha values within the selected niche
+    #  Arnd = apply(Crnd[,1:2], 1, function(i) Morpho::angle.calc(Cy, i) / pi)
+    #}
+    #if(rep.warning){message("\n\t...OK")}
+    #else {message("...OK")}
+    drnd = unlist(sqrt((Cx[1]-Crnd[,1])^2 + (Cx[2]-Crnd[,2])^2))
+    Arnd = apply(Crnd[,1:2], 1, function(i) Morpho::angle.calc(Cy, i) / pi)
     ## Niche position output
     out$np$sim = cbind(Crnd, rand)
-    out$np$rep = data.frame(rep = rep, warning = rep.warning, row.names = "")
+    #out$np$rep = data.frame(rep = rep, warning = rep.warning, row.names = "")
   }
   ####            ####
   ## Centroid Shift ##
@@ -244,17 +258,21 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
   message(paste("\t-Computing Centroid Shift Axes weights..."), appendLF = F)
   dA1 = abs(Cx[1]-Cy[1])
   dA2 = abs(Cx[2]-Cy[2])
+  pAx1 = 100
+  pAx2 = 100
+  if (dA1 == 0){pAx1 <- 0 }
+  if (dA2 == 0){pAx2 <- 0 }
+  if(dA1 != 0 && dA2 != 0) {
+    ##
+    Sp = (dA1 + dA2 + CS) / 2
+    Area = sqrt(Sp*(Sp-dA1)*(Sp-dA2)*(Sp-CS))
+    h = Area*2/CS
 
-  ##
-  Sp = (dA1 + dA2 + CS) / 2
-  Area = sqrt(Sp*(Sp-dA1)*(Sp-dA2)*(Sp-CS))
-  h = Area*2/CS
-
-  Area1 = dA1*h*sin(45*pi/180) / 2
-  Area2 = dA2*h*sin(45*pi/180) / 2
-  pAx1 <- Area1 / Area
-  pAx2 <- Area2 / Area
-
+    Area1 = dA1*h*sin(45*pi/180) / 2
+    Area2 = dA2*h*sin(45*pi/180) / 2
+    pAx1 <- Area1 / Area
+    pAx2 <- Area2 / Area
+  }
   out$CS$weights <- c(w = pAx1, w = pAx2)
   message("...OK")
 
@@ -302,9 +320,16 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
   B = sum(raster::values(yb) > 0)
   AB = sum(raster::values(xyb) > 0)
 
-  U = 1 - AB/A
-  E = 1 - AB/B
-  S = AB / (A+B-AB)
+  if (Z_space){
+    Z = sum(raster::values(x$Z) > 0)
+    U = (A-AB) / Z
+    E = (B-AB) / Z
+    S = AB / Z
+  } else {
+    U = 1 - AB/A
+    E = 1 - AB/B
+    S = AB / (A+B-AB)
+  }
   out$USE$obs <- c(Unfilling = U, Stability = S, Expansion = E)
   message("...OK")
 
@@ -319,11 +344,10 @@ niche_comparison <- function(x, y, centroid.w = F, rnd.test = F,
     if ("lower" %in% alternative){
       USE.pval["lower", ] =  sapply(1:3, function(i) (sum(USE.sim[,i] <= c(U,S,E)[i]) + 1)/(nrow(USE.sim) + 1))
     }
-    message("...OK")
-
     ## USE output
     out$USE$sim <- USE.sim
     out$USE$pvalue <- USE.pval
+    message("...OK")
   }
 
   attr(out, "class") <- c("NINA", "metrics")

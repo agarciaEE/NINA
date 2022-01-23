@@ -7,7 +7,7 @@ test_that("Succes", {
   g1_EN = EN_model(env_data, occ_data1,  cluster = "env", n.clus = 5)
   g2_EN = EN_model(env_data, occ_data2,  cluster = g1_EN$clus)
 
-  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, type = "region")
+  g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, C.matrix = NULL, method = "densities", type = "region")
 
   eval = models_evaluation(g1_EN$pred.dis, g1_EN$obs, env_data, plot = F)
   print(eval)

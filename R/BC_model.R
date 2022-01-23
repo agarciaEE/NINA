@@ -9,17 +9,27 @@
 #' @param method Method; abundances or composition
 #' @param cor Logical
 #' @param relative.niche Logical
+#' @param eval Boolean whether to evaluate the model
 #' @param K = Carrying capacity of each environmental cell
+#' @param th threshold to perform cut off for model evaluation
+#' @param ras raster to constrain pseudoabsences sampling in model evalluation
+#' @param res spatial resolution
+#' @param plot.eval Logical to whether plot the evaluation
+#' @param sample.pseudoabsences Boolean to whether sample pseudo-absences
+#' @param rep number of randomzation tests
+#' @param best.th method to select the best thresholt. Default is "similarity"
 #'
 #' @description Transforms environmental niche in base to species interactions
 #'
-#' @return Data frame.
+#' @return NINA model
 #'
-#' @details Returns an error if \code{filename} does not exist.
+#' @details
 #'
 #' @examples
 #' \dontrun{
-#' accident_2015 <- fars_read("Project/data/accident_2015.csv.bz2")
+#' EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+#' EN2 <- EN_model(env_data, occ_data2, cluster = "env", n.clus = 5)
+#' BC <- BC_model(EN1, EN2, A.matrix = int_matrix)
 #' }
 #'
 #' @importFrom plyr ldply
@@ -28,11 +38,14 @@
 #'
 #' @export
 BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
-                     D = 1,  method = c("composition", "densities"),
-                     relative.niche = T, K = NULL,
+                     D = 1,  method = c("composition", "densities"), eval = TRUE,
+                     relative.niche = T, K = NULL, sample.pseudoabsences = TRUE, R = 100,
+                     res = NULL, plot.eval = FALSE, rep = 100, th = NULL, ras = NULL,
+                     best.th = c("accuracy", "similarity"), combine.regions = F,
                      cor = F, type = c("region", "global")){
 
   type = type[1]
+  method = method[1]
   BC = x
   w = F
   clus = F
@@ -112,6 +125,10 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
       mod.Val[,-c(1:2)] = apply(mod.Val[,-c(1:2)], 2, function(i) i/max(i, na.rm = T))
       BC$tab = t(tab)
       BC$pred.dis = mod.Val
+      if (!is.null(amph_EN$z.mod.global) && combine.regions){
+        message("\t- Assembling regions into global model...")
+        BC$z.mod.global = combine_regions(z.mod, env.scores = env.scores[,3:4], R = R)
+      }
     }
     else {
       stop("Regional models not found")
@@ -147,6 +164,11 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
   BC$z.mod = z.mod
   BC$w = w.list
   BC$maps  = raster_projection(mod.Val, ras = x$maps[[1]])
+  if (eval == TRUE){
+    message("\t- Carrying out models evaluations...")
+    BC$eval <- models_evaluation(BC, sample.pseudoabsences = sample.pseudoabsences, res = res, plot = plot.eval,
+                                int.matrix = A.matrix , rep = rep, th = th, best.th = best.th)
+  }
   #BC$type = "BC"
   message("Models successfully corrected!")
   attr(BC, "class") <- c("NINA", "BCmodel")

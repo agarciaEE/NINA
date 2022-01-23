@@ -21,14 +21,26 @@
 #' @param crs CRS object or a character string describing a projection and datum in PROJ.4 format
 #' @param relative.niche logical. Only in case of using clustering method. If TRUE, computes the relative species niche density over the overall species niche clusters.
 #' @param cor Logical
+#' @param h smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value
+#' @param mask raster mask to resample the created kernel densiity grid raster
+#' @param th.o numeric threshold to filter density values of occurrences
+#' @param th.s numeric threshold to filter density values of environment
+#' @param density.method "epanechnikov" or "bivnorm"
+#' @param th threshold to perform cut off for model evaluation
+#' @param int.matrix interaction matrix between species and interactors
+#' @param ras raster to constrain pseudoabsences sampling in model evalluation
+#' @param plot.eval Logical to whether plot the evaluation
+#' @param sample.pseudoabsences Boolean to whether sample pseudo-absences
+#' @param rep number of randomzation tests
+#' @param best.th method to select the best thresholt. Default is "similarity"
 #'
 #' @return List of elements
 #'
-#' @details Returns an error if \code{filename} does not exist.
+#' @details
 #'
 #' @examples
 #' \dontrun{
-#' EN<- EN_model_(env_data, occ_data2, cluster = "env", n.clus = 5)
+#' EN <- EN_model_(env_data, occ_data2, cluster = "env", n.clus = 5)
 #' }
 #'
 #' @importFrom raster stack rasterFromXYZ maxValue res crs
@@ -42,11 +54,15 @@
 #' @noRd
 #'
 EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0",
-                                extrapolate.niche = FALSE, nstart = 25, k.max = NULL, B = 100, cor = T,
+                                extrapolate.niche = FALSE, nstart = 25, k.max = NULL, B = 100, cor = T, h = "href", mask = NULL,
+                                th.o = NULL, th.s = NULL, density.method = c("epa", "bivnorm"),
                                 combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, relative.niche = T,
-                                eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean")){
+                                eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean"),
+                                plot.eval = FALSE, rep = 100, th = NULL, ras = NULL, int_matrix = NULL,
+                                best.th = c("accuracy", "similarity") ){
 
   split.method = split.method[1]
+  method = density.method[1]
   # check if there are enough occurrences per species
   ###################
   rm.sp = names(table(occ[,3]))[table(occ[,3]) < 4]
@@ -116,7 +132,9 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
       message("\t\t- Modelling ", i, " Environmental Niche...")
       sp.scores <- sps.scores[[i]][,3:4]
       if (nrow(sp.scores) > 4) {
-        z.mod[[i]] <- ecospat::ecospat.grid.clim.dyn(env.scores[,3:4],env.scores[,3:4],sp.scores,R)
+        z.mod[[i]] <- estimate_niche(env.scores[,3:4],env.scores[,3:4],sp.scores,R,
+                                     h = h, mask = mask,
+                                     th.o = th.o, th.s = th.s, method = method)
         class(z.mod[[i]]) <- c("NINA", "niche")
         if (cor) {
           mod.Val[[i]] <- cbind(env.scores[,1:2], response = raster::extract(z.mod[[i]]$z/z.mod[[i]]$Z, z.mod[[i]]$glob))
@@ -205,7 +223,9 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
           }
           if (nrow(sp.scores) > 4) {
             message("\t\t- Estimating ", i, " niche response in region ", e, "...")
-            z.mod[[e]][[i]] <- ecospat::ecospat.grid.clim.dyn(env.scores.subset[,3:4],env.scores.subset[,3:4],sp.scores[,3:4],R )
+            z.mod[[e]][[i]] <- estimate_niche(env.scores.subset[,3:4],env.scores.subset[,3:4],sp.scores[,3:4], R,
+                                              h = h, mask = mask,
+                                              th.o = th.o, th.s = th.s, method = method)
             class(z.mod[[e]][[i]]) <- c("NINA", "niche")
             sps.scores <- rbind(sps.scores, cbind(region = e, species = i, sp.scores))
             if (cor) {
@@ -253,7 +273,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
     if (length(mod.Val) != 0) {
       if (combine.clusters == TRUE){
         message("\t- Assembling regions into global model...")
-        output$z.mod.global = combine_regions(z.mod, R = R)
+        output$z.mod.global = combine_regions(z.mod, env.scores = env.scores[,3:4], R = R)
       }
       tab = cbind(ldply(sapply(z.mod, function(x) names(x)), data.frame, .id = "region"), P = 1)
       tab =  spread(tab, "region", "P")
@@ -297,7 +317,8 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   ###############
   if (eval == TRUE){
     message("\t- Carrying out models evaluations...")
-    output$eval <- models_evaluation(mod.Val, if (split.data == TRUE){occ.test} else {occ}, predictors = env, sample.pseudoabsences = sample.pseudoabsences, res = res)
+    output$eval <- models_evaluation(mod.Val, if (split.data == TRUE){occ.test} else {occ}, predictors = env, sample.pseudoabsences = sample.pseudoabsences, res = res, plot = plot.eval,
+                                     int.matrix = int.matrix , rep = rep, th = th, best.th = best.th)
   }
   ###############
   output$maps  = raster_projection(mod.Val, ras = env.stack[[1]], crs = crs)

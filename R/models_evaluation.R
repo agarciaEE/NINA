@@ -6,7 +6,7 @@
 #' @param Obs Occurrence dataset
 #' @param predictors Environmental predictors
 #' @param spsNames species names to evaluate
-#' @param th threshol to perform cut off
+#' @param th threshold to perform cut off
 #' @param ras raster to constrain pseudoabsences sampling
 #' @param int.matrix interaction matrix between species and interactors
 #' @param res spatial resolution
@@ -38,7 +38,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
                               best.th = c("accuracy", "similarity") ){
 
   if (sum(class(Pred) %in% c("NINA", "ENmodel", "BCmodel", "ECmodel")) == 2){
-    Obs = Pred$obs
+    if(!is.data.frame(Pred$obs)){Obs = Pred$obs$test} else {Obs = Pred$obs}
     predictors = Pred$env.scores
     pred.stack = Pred$maps
     clus.df = Pred$clus
