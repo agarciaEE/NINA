@@ -14,6 +14,11 @@ load_model(project.name, path = "~")
 \description{
 Saves NINA niche model into the disk
 }
-\details{
+\examples{
+\dontrun{
+EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+save_model(EN1, path = "~/Desktop", project.name = "NINA1")
+load_model("NINA1", path = "~/Desktop")
+}
 
 }

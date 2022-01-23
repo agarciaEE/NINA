@@ -6,7 +6,6 @@
 #'
 #' @description Saves NINA niche model into the disk
 #'
-#' @details
 #'
 #' @examples
 #' \dontrun{

@@ -6,7 +6,6 @@
 #'
 #' @description Writes a species NINA niche into the disk
 #'
-#' @details
 #'
 #' @examples
 #' \dontrun{

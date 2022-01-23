@@ -1,27 +1,26 @@
 #' @title Spatial Abundance Density Index
 #'
-#' @description Estimates the occurrence density index of a set of occurrences over a 2-D gridded space
+#' @description Estimates the occurrence density index of a set of occurrences over a 2-D grid space
 #'
-#' @param S 2-D coordinates matrix
-#' @param Sc smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value
-#' @param So  the size of the square raster map to be created i.e. number of rows/columns
+#' @param glob 2-column coordinates matrix of the environmental space
+#' @param glob1 2-column coordinates matrix of the subset environmental space
+#' @param sp  2-column coordinates matrix of the species occurrences position on the environmental space
 #' @param R extent of the raster to be created
-#' @param h smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value
-#' @param mask raster mask to resample the created kernel densiity grid raster
+#' @param h smoothing parameter for the kernel estimation. Default is 'href'. Alternatively can be set to 'LSCV' or any given numeric value
+#' @param mask raster mask to resample the created kernel density grid raster
 #' @param th.o numeric threshold to filter density values of occurrences
 #' @param th.s numeric threshold to filter density values of environment
 #' @param method "epanechnikov" or "bivnorm"
 #'
 #' @return list object class niche
 #'
-#' @details
 #'
 #' @examples
 #' \dontrun{
 #' env <- cbind(runif(1000, -1, 5), runif(1000, -2, 10))
 #' sp <- cbind(runif(10, -1, 5), runif(10, -2, 10))
 #' niche<- estimate_niche(sp, ext = c(-1,5,-2,10))
-#' ecospat::ecospat.plot.niiche(kdg)
+#' ecospat::ecospat.plot.niiche(niche)
 #' }
 #'
 #' @importFrom adehabitatMA ascgen
@@ -48,8 +47,8 @@ estimate_niche <- function(glob, glob1, sp, R,  h = "href", mask = NULL,
   }
   else {
     ext <- c(range(glob[,1]), range(glob[,2]))
-    glob1.dens <- NINA:::kernel_density_grid(glob1, R = R, h = h, method = method, th = th.s, env.mask = mask, ext = ext)
-    sp.dens <-  NINA:::kernel_density_grid(sp, R = R, h = h, method = method, th = th.o, env.mask = mask, ext = ext)
+    glob1.dens <- kernel_density_grid(glob1, R = R, h = h, method = method, th = th.s, env.mask = mask, ext = ext)
+    sp.dens <-  kernel_density_grid(sp, R = R, h = h, method = method, th = th.o, env.mask = mask, ext = ext)
     l$x <- seq(from = ext[1], to = ext[2], length.out = R)
     l$y <- seq(from = ext[3], to = ext[4], length.out = R)
     l$glob <- glob

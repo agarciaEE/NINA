@@ -8,6 +8,8 @@
 #' @param D Numeric value indicating independence from biotic associations. Value must be comprised between 0 and 1.
 #' @param method Method; abundances or composition
 #' @param cor Logical
+#' @param R Integer. size of the grid for the niche space estimate. R represents number of columns and rows
+#' @param combine.regions Logical. Whether to combine regional niche models into a global one
 #' @param relative.niche Logical
 #' @param eval Boolean whether to evaluate the model
 #' @param K = Carrying capacity of each environmental cell
@@ -23,7 +25,6 @@
 #'
 #' @return NINA model
 #'
-#' @details
 #'
 #' @examples
 #' \dontrun{
@@ -125,7 +126,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
       mod.Val[,-c(1:2)] = apply(mod.Val[,-c(1:2)], 2, function(i) i/max(i, na.rm = T))
       BC$tab = t(tab)
       BC$pred.dis = mod.Val
-      if (!is.null(amph_EN$z.mod.global) && combine.regions){
+      if (!is.null(BC$z.mod.global) && combine.regions){
         message("\t- Assembling regions into global model...")
         BC$z.mod.global = combine_regions(z.mod, env.scores = env.scores[,3:4], R = R)
       }

@@ -17,7 +17,7 @@
 #' }
 #'
 #' @importFrom stats na.exclude
-#' @importFrom raster compareRaster
+#' @importFrom raster compareRaster extend
 #' @importFrom ecospat ecospat.grid.clim.dyn
 #'
 #' @export
@@ -25,12 +25,12 @@ combine_regions <- function(z.list, env.scores,  R = 100){
 
   z.comb= list()
   if(!missing(env.scores)){
-    Z <- NINA:::kernel_density_grid(env.scores, ext = NULL, R = R)
+    Z <- kernel_density_grid(env.scores, ext = NULL, R = R)
     ras.template <- Z
     ras.template[ras.template > 0] = 1
     ext <- extent(ras.template)
   } else {
-    ext = extent(Reduce(extend, sapply(z.list, function(x) x[[1]]$Z)))
+    ext = extent(Reduce(raster::extend, sapply(z.list, function(x) x[["Z"]])))
     ras.template <- raster::raster(nrow=R,ncol=R, ext = ext)
   }
   z = reverse_list(z.list)
@@ -51,7 +51,7 @@ combine_regions <- function(z.list, env.scores,  R = 100){
     z.comb[[s]]$y <- seq(ext[3], ext[4], length.out = R)
     z.comb[[s]]$Z = sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$Z, ras.template, method = "ngb"))), na.rm = T)[[1]]
     z.kernel <- sum(raster::stack(sapply(z[[s]], function(i) raster::resample(i$z, ras.template, method = "ngb"))), na.rm = T)
-    #z.kernel  <-  NINA:::kernel_density_grid(z.comb[[s]]$sp, ext = extent(Z), R = R)
+    #z.kernel  <-  kernel_density_grid(z.comb[[s]]$sp, ext = extent(Z), R = R)
     z.kernel <- z.kernel * ras.template
     z.comb[[s]]$z <- z.kernel
     z.comb[[s]]$Z[is.na(z.comb[[s]]$Z)] = 0

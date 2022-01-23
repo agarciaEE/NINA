@@ -16,9 +16,6 @@ write_niche(x, path = "~", file = "niche")
 \description{
 Writes a species NINA niche into the disk
 }
-\details{
-
-}
 \examples{
 \dontrun{
 EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)

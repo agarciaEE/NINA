@@ -27,7 +27,6 @@
 #' @param th.s numeric threshold to filter density values of environment
 #' @param density.method "epanechnikov" or "bivnorm"
 #' @param th threshold to perform cut off for model evaluation
-#' @param int.matrix interaction matrix between species and interactors
 #' @param ras raster to constrain pseudoabsences sampling in model evalluation
 #' @param plot.eval Logical to whether plot the evaluation
 #' @param sample.pseudoabsences Boolean to whether sample pseudo-absences
@@ -58,7 +57,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
                                 th.o = NULL, th.s = NULL, density.method = c("epa", "bivnorm"),
                                 combine.clusters = FALSE, cluster = NULL, n.clus = NULL, R = 100, relative.niche = T,
                                 eval = FALSE, split.data = FALSE, split.percentage = 0.25, split.method  = c("kmeans", "Euclidean"),
-                                plot.eval = FALSE, rep = 100, th = NULL, ras = NULL, int_matrix = NULL,
+                                plot.eval = FALSE, rep = 100, th = NULL, ras = NULL,
                                 best.th = c("accuracy", "similarity") ){
 
   split.method = split.method[1]
@@ -318,7 +317,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
   if (eval == TRUE){
     message("\t- Carrying out models evaluations...")
     output$eval <- models_evaluation(mod.Val, if (split.data == TRUE){occ.test} else {occ}, predictors = env, sample.pseudoabsences = sample.pseudoabsences, res = res, plot = plot.eval,
-                                     int.matrix = int.matrix , rep = rep, th = th, best.th = best.th)
+                                     rep = rep, th = th, best.th = best.th)
   }
   ###############
   output$maps  = raster_projection(mod.Val, ras = env.stack[[1]], crs = crs)

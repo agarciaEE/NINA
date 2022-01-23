@@ -17,39 +17,36 @@ estimate_niche(
 )
 }
 \arguments{
+\item{glob}{2-column coordinates matrix of the environmental space}
+
+\item{glob1}{2-column coordinates matrix of the subset environmental space}
+
+\item{sp}{2-column coordinates matrix of the species occurrences position on the environmental space}
+
 \item{R}{extent of the raster to be created}
 
-\item{h}{smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value}
+\item{h}{smoothing parameter for the kernel estimation. Default is 'href'. Alternatively can be set to 'LSCV' or any given numeric value}
 
-\item{mask}{raster mask to resample the created kernel densiity grid raster}
+\item{mask}{raster mask to resample the created kernel density grid raster}
 
 \item{th.o}{numeric threshold to filter density values of occurrences}
 
 \item{th.s}{numeric threshold to filter density values of environment}
 
 \item{method}{"epanechnikov" or "bivnorm"}
-
-\item{S}{2-D coordinates matrix}
-
-\item{Sc}{smoothing parameter for the kernel estimation. Default is 'href'. Altenrtanively can be set to 'LSCV' or any given numeric value}
-
-\item{So}{the size of the square raster map to be created i.e. number of rows/columns}
 }
 \value{
 list object class niche
 }
 \description{
-Estimates the occurrence density index of a set of occurrences over a 2-D gridded space
-}
-\details{
-
+Estimates the occurrence density index of a set of occurrences over a 2-D grid space
 }
 \examples{
 \dontrun{
 env <- cbind(runif(1000, -1, 5), runif(1000, -2, 10))
 sp <- cbind(runif(10, -1, 5), runif(10, -2, 10))
 niche<- estimate_niche(sp, ext = c(-1,5,-2,10))
-ecospat::ecospat.plot.niiche(kdg)
+ecospat::ecospat.plot.niiche(niche)
 }
 
 }

@@ -12,9 +12,6 @@ read_niche(filepath)
 \description{
 reads a species NINA niche into from disk
 }
-\details{
-
-}
 \examples{
 \dontrun{
 EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)

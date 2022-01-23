@@ -4,7 +4,6 @@
 #'
 #' @description reads a species NINA niche into from disk
 #'
-#' @details
 #'
 #' @examples
 #' \dontrun{
@@ -14,11 +13,12 @@
 #' }
 #'
 #' @importFrom raster raster extent
+#' @importFrom utils read.table
 #'
 #' @export
 read_niche <- function(filepath){
 
-  x <- read.table(filepath, header = F)
+  x <- utils::read.table(filepath, header = F)
 
   l <- list()
   elements_idx <- which(grepl("\\/[a-z]*", x$V1))
@@ -40,7 +40,7 @@ read_niche <- function(filepath){
   nc = length(l$x)
   for (m in elements_nms[6:10]){
     r <- raster::raster(t(matrix(l[[m]], nc, nr)))
-    extent(r) = ext
+    raster::extent(r)  <-  ext
     l[[m]] <- r
   }
 

@@ -48,6 +48,8 @@ BC_model(
 
 \item{sample.pseudoabsences}{Boolean to whether sample pseudo-absences}
 
+\item{R}{Integer. size of the grid for the niche space estimate. R represents number of columns and rows}
+
 \item{res}{spatial resolution}
 
 \item{plot.eval}{Logical to whether plot the evaluation}
@@ -60,6 +62,8 @@ BC_model(
 
 \item{best.th}{method to select the best thresholt. Default is "similarity"}
 
+\item{combine.regions}{Logical. Whether to combine regional niche models into a global one}
+
 \item{cor}{Logical}
 
 \item{type}{String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error}
@@ -69,9 +73,6 @@ NINA model
 }
 \description{
 Transforms environmental niche in base to species interactions
-}
-\details{
-
 }
 \examples{
 \dontrun{

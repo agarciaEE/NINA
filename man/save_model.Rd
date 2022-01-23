@@ -16,9 +16,6 @@ save_model(m, path = "~", project.name = "NINA1")
 \description{
 Saves NINA niche model into the disk
 }
-\details{
-
-}
 \examples{
 \dontrun{
 EN1 <- EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)

@@ -37,7 +37,6 @@ EN_model(
   rep = 100,
   th = NULL,
   ras = NULL,
-  int_matrix = NULL,
   best.th = c("accuracy", "similarity"),
   bootstraps = 1,
   assemble.models = TRUE,
@@ -116,8 +115,6 @@ EN_model(
 \item{assemble.models}{Boolean whether to assemble all partitions into ensemble model}
 
 \item{assemble.method}{String indicating the evaluation parameter to weight and compute the assembling. Default is "ACC"}
-
-\item{int.matrix}{interaction matrix between species and interactors}
 }
 \value{
 List of elements
