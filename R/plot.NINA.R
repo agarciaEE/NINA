@@ -22,7 +22,7 @@
 #' @importFrom ecospat ecospat.plot.contrib
 #' @importFrom plotrix addtable2plot
 #' @importFrom raster rasterize maxValue
-#' @importFrom sp SpatialPolygons Polygons Polygon SpatialPoints
+#' @importFrom sp SpatialPolygons Polygons Polygon SpatialPoints plot
 #' @importFrom stats cov.wt na.exclude
 #' @importFrom car dataEllipse
 #' @import gridExtra
@@ -51,8 +51,8 @@ plot.NINA <- function(x, ...){
       layout(matrix(c(1,1,2,2,
                       1,1,3,4,
                       5,6,7,8), 3, 4, byrow = T))
-      clus = raster::rasterize(x$clus[,1:2], x$maps[[1]], field = as.numeric(x$clus[,3]), fun = "last", na.rm = T)
-      clusNames =levels(x$clus[,3])
+      clus = raster::rasterize(x$clus[,1:2], x$maps[[1]], field = as.numeric(as.factor(x$clus[,3])), fun = "last", na.rm = T)
+      clusNames = levels(as.factor(x$clus[,3]))
       n.clus = length(clusNames)
       tab = x$tab
     } else{
@@ -62,14 +62,14 @@ plot.NINA <- function(x, ...){
     }
     par(mar=c(6,4,3,4))
     plot(df.env[,3:4], col = "green2", pch = 19)
-    plot(ellipse.env, add = T,  border = "green4", lty = 2, lwd = 2)
+    sp::plot(ellipse.env, add = T,  border = "green4", lty = 2, lwd = 2)
     legend(center.env[1], center.env[2], "environment",
            xjust = 0.5,      # 0.5 means center adjusted
            yjust = 0.5,      # 0.5 means center adjusted
            x.intersp = -0.5, # adjust character interspacing as you like to effect box width
            y.intersp = 0.1)
     points(df.sp[,c("Axis1", "Axis2")], col = "blue", pch = 4)
-    plot(ellipse.occ, add = T,  border = "blue4", lty = 2, lwd = 2)
+    sp::plot(ellipse.occ, add = T,  border = "blue4", lty = 2, lwd = 2)
     legend(center.occ[1], center.occ[2], "occurrences",
            xjust = 0.5,      # 0.5 means center adjusted
            yjust = 0.5,      # 0.5 means center adjusted

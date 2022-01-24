@@ -71,6 +71,7 @@ load_model <- function(project.name, path = "~"){
   m$pred.dis <- utils::read.table(file.path(npath, "species_distributions.txt"))
   map.files <- list.files(npath, pattern = ".tif")
   m$maps <- stack(sapply(map.files , function(s) raster::raster(file.path(npath, map.files[1]))))
+  names(m$maps) <- gsub(".tif", "", names(m$maps))
   ####
   #### info
   npath = file.path(mpath, "info")
@@ -85,8 +86,8 @@ load_model <- function(project.name, path = "~"){
     m$clus <- utils::read.table(file.path(npath, "regions.txt"))
   }
   m$obs <- utils::read.table(file.path(npath, "occurrences.txt"))
-  m$sp_scores <- utils::read.table(file.path(npath, "sp_scores.txt"))
-  m$env_scores <- utils::read.table(file.path(npath, "env_scores.txt"))
+  m$sp.scores <- utils::read.table(file.path(npath, "sp_scores.txt"))
+  m$env.scores <- utils::read.table(file.path(npath, "env_scores.txt"))
   m$pca <- readRDS(file.path(npath, "pca.RDS"))
 
   ####
