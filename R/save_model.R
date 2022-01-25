@@ -32,7 +32,7 @@ save_model <- function(m, path = "~", project.name = "NINA1"){
   #              data = file.path(path, "data"),
   #              eval = file.path(path, "eval"))
   #sapply(paths, dir.create)
-  write.table(class(m), file = paste0(path, "/class"), row.names = F, col.names = F)
+  write.table(class(m), file = paste0(path, "/class.txt"), row.names = F, col.names = F)
   #### zmod
   zmod = m$z.mod
   npath = file.path(path, "z")

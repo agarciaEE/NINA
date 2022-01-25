@@ -23,7 +23,7 @@ load_model <- function(project.name, path = "~"){
   mpath = file.path(path, project.name)
   m <- list()
   f <- list.files(mpath)
-  class(m) <- utils::read.table(file.path(mpath, "class"))[,1]
+  class(m) <- utils::read.table(file.path(mpath, "class.txt"))[,1]
   #### zmod
   if ("z" %in% f){
     m$z.mod = list()
@@ -70,8 +70,8 @@ load_model <- function(project.name, path = "~"){
   npath = file.path(mpath, "sd")
   m$pred.dis <- utils::read.table(file.path(npath, "species_distributions.txt"))
   map.files <- list.files(npath, pattern = ".tif")
-  m$maps <- stack(sapply(map.files , function(s) raster::raster(file.path(npath, map.files[1]))))
-  names(m$maps) <- gsub(".tif", "", names(m$maps))
+  m$maps <- stack(sapply(map.files , function(s) raster::raster(file.path(npath, s))))
+  names(m$maps) <- gsub("\\.tif", "", names(m$maps))
   ####
   #### info
   npath = file.path(mpath, "info")
