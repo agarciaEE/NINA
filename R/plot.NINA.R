@@ -46,62 +46,64 @@ plot.NINA <- function(x, ...){
     ellipse.occ <- car::dataEllipse(df.sp[,"Axis1"], df.sp[,"Axis2"], levels = 0.9, xlab = "PC1", ylab = "PC2", draw = F)
     center.occ <- stats::cov.wt(na.exclude(df.sp[,c("Axis1", "Axis2")]))$center
     ellipse.occ = sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(list(sp::SpatialPoints(ellipse.occ)))), 1)))
-
     if (mode.region){
-      layout(matrix(c(1,1,2,2,
-                      1,1,3,4,
-                      5,6,7,8), 3, 4, byrow = T))
+      layout(matrix(c(5,5,6,6,
+                      5,5,6,6,
+                      1,2,3,4), 3, 4, byrow = T))
       clus = raster::rasterize(x$clus[,1:2], x$maps[[1]], field = as.numeric(as.factor(x$clus[,3])), fun = "last", na.rm = T)
       clusNames = levels(as.factor(x$clus[,3]))
       n.clus = length(clusNames)
       tab = x$tab
+      df.env <- merge(df.env, x$clus, by = c("x", "y"))
+      reg.cols <- colorspace::lighten(viridis::viridis(n.clus), 0.4)
+      pca.cols <- rep(reg.cols)[as.factor(df.env[,5])]
     } else{
-      layout(matrix(c(1,1,2,2,
-                      1,1,2,2,
-                      3,4,5,6), 3, 4, byrow = T))
+      layout(matrix(c(5,5,5,5,
+                      5,5,5,5,
+                      1,2,3,4), 3, 4, byrow = T))
+      pca.cols = "#00EE0080"
     }
-    par(mar=c(6,4,3,4))
-    plot(df.env[,3:4], col = "green2", pch = 19)
-    sp::plot(ellipse.env, add = T,  border = "green4", lty = 2, lwd = 2)
-    legend(center.env[1], center.env[2], "environment",
-           xjust = 0.5,      # 0.5 means center adjusted
-           yjust = 0.5,      # 0.5 means center adjusted
-           x.intersp = -0.5, # adjust character interspacing as you like to effect box width
-           y.intersp = 0.1)
-    points(df.sp[,c("Axis1", "Axis2")], col = "blue", pch = 4)
-    sp::plot(ellipse.occ, add = T,  border = "blue4", lty = 2, lwd = 2)
-    legend(center.occ[1], center.occ[2], "occurrences",
-           xjust = 0.5,      # 0.5 means center adjusted
-           yjust = 0.5,      # 0.5 means center adjusted
-           x.intersp = -0.5, # adjust character interspacing as you like to effect box width
-           y.intersp = 0.1)
-    par(mar=c(6,4,3,4))
-    ecospat::ecospat.plot.contrib(pca$co, pca$eig)
-    if (mode.region){
-      par(mar=c(1,1,1,1))
-      plot(clus, col = viridis::viridis(n.clus), legend = F)
-      plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
-           axis.args=list(at = 1:raster::maxValue(clus),labels=clusNames))
-      par(mar=c(4,4,4,4))
-      plot.new()
-      plotrix::addtable2plot(0,0,tab,bty="o",display.rownames=T,hlines=F, cex=1.5)
-    }
-    par(mar=c(10,8,8,8))
     if(n.maps <= 4) {
       for (i in 1:n.maps) {
-        plot(x$maps[[i]], sub  = names(x$maps[[i]]))
+        image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "")
         par(mar=c(5,4,4,4))
       }
     }
     else {
-     for (i in 1:4) {
-        plot(x$maps[[i]], sub  = names(x$maps[[i]]) )
-       par(mar=c(5,4,4,4))
-     }
+      for (i in 1:4) {
+        image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "" )
+        par(mar=c(5,4,4,4))
+      }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }
+    par(mar=c(6,4,3,4))
+    ## env
+    plot(df.env[,3:4], col = pca.cols, pch = 20,
+         xlab = paste0("Axis1 (", round(pca$eig[1]/sum(pca$eig) * 100, 2), "%)"),
+         ylab = paste0("Axis2 (", round(pca$eig[2]/sum(pca$eig) * 100, 2), "%)"))
+    sp::plot(ellipse.env, add = T,  border = "#089908", lty = 2, lwd = 2)
+    ## occs
+    points(df.sp[,c("Axis1", "Axis2")], col = "grey20", pch = 4)
+    sp::plot(ellipse.occ, add = T,  border = "grey20", lty = 2, lwd = 2)
+    ## env contributions
+    co.mp <- floor(min(apply(apply(pca$li, 2, range), 2, diff))/max(apply(apply(pca$co, 2, range), 2, diff)))
+    ade4::s.corcircle(pca$co*co.mp, clabel = 1.5,
+                      box = F,  grid = F, fullcircle = F, add.plot = T)
+    legend(center.env[1], center.env[2], "environment", box.lty = 0 , bg = "#089908", text.col = "white",
+           xjust = 0.5, yjust = 0.5, x.intersp = -0.5, y.intersp = 0.1)
+    legend(center.occ[1], center.occ[2], "occurrences", box.lty = 0 , bg = "grey20", text.col = "white",
+           xjust = 0.5, yjust = 0.5, x.intersp = -0.5, y.intersp = 0.1)
+    if (mode.region){
+      #par(mar=c(1,1,1,1))
+      image(clus, col = reg.cols, ylab = "lat", xlab = "lon")
+      points(df.sp[,c("x", "y")], col = "grey20", pch = 4)
+      plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
+           axis.args=list(at = 1:raster::maxValue(clus),labels=clusNames))
+      #par(mar=c(4,4,4,4))
+      #plot.new()
+      #plotrix::addtable2plot(0,0,tab,bty="o",display.rownames=T,hlines=F, cex=1.5)
+    }
   }
-
   else if (type == "eval"){
       grobList = list()
       for (i in unique(x$confusion$species)){

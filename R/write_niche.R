@@ -17,7 +17,7 @@
 #' @export
 write_niche <- function(x, path = "~", file = "niche"){
 
-  extension = ".txt"
+  extension = ".snm"
   file = paste0(file, extension)
   write.table("NINA niche", file.path(path, file), col.names = F, row.names = F)
 

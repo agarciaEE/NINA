@@ -80,12 +80,13 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
         mod.Val[[e]] = list()
         for (i in names(x.mod[[e]])){
           message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
+          sp.scores = subset(x$sp.scores, region == e & species == i, 3:6)
           z = x.mod[[e]][[i]]
-          bc <- BC_model_(z, y.mod[[e]], id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor,  C.matrix = C.matrix)
+          bc <- NINA:::BC_model_(z, y.mod[[e]], id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor,  C.matrix = C.matrix)
           if (cor){
-            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z/bc$z$Z, bc$z$glob))
+            mod.Val[[e]][[i]] <- cbind(sp.scores[,1:2], vals = raster::extract(bc$z$z/bc$z$Z, sp.scores[,3:4]))
           } else {
-            mod.Val[[e]][[i]] <- cbind(env.scores[rownames(bc$z$glob),1:2], vals = raster::extract(bc$z$z, bc$z$glob))
+            mod.Val[[e]][[i]] <- cbind(sp.scores[,1:2], vals = raster::extract(bc$z$z, sp.scores[,3:4]))
           }
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w

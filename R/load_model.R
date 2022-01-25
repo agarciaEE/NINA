@@ -29,19 +29,21 @@ load_model <- function(project.name, path = "~"){
     m$z.mod = list()
     npath = file.path(mpath, "z")
     fn <- list.files(npath)
-    if (all(stringr::str_detect(fn, ".txt"))){
+    if (all(stringr::str_detect(fn, ".snm"))){
       for (r in fn){
-        m$z.mod[[r]] = read_niche(filepath = file.path(npath,r))
+        rn <- gsub("\\.snm", "", r)
+        m$z.mod[[rn]] = read_niche(filepath = file.path(npath,r))
       }
     }
     else {
       for (r in fn){
         rpath = file.path(npath, r)
         rn <- list.files(rpath)
-        if (all(stringr::str_detect(rn, ".txt"))){
+        if (all(stringr::str_detect(rn, ".snm"))){
           m$z.mod[[r]] = list()
           for (s in rn){
-            m$z.mod[[r]][[s]] = read_niche(filepath = file.path(rpath,s))
+            sn <- gsub("\\.snm", "", s)
+            m$z.mod[[r]][[sn]] = read_niche(filepath = file.path(rpath,s))
           }
         }
         else {
@@ -56,8 +58,9 @@ load_model <- function(project.name, path = "~"){
     m$z.mod.global = list()
     npath = file.path(mpath, "zglobal")
     fn <- list.files(npath)
-    if (all(stringr::str_detect(fn, ".txt"))){
+    if (all(stringr::str_detect(fn, ".snm"))){
       for (r in fn){
+        rn <- gsub("\\.snm", "", r)
         m$z.mod.global[[r]] = read_niche(filepath = file.path(npath,r))
       }
     }
