@@ -26,24 +26,21 @@ The goal of NINA is the the analysis and implementation of biotic interactions i
 
 ## Installation
 
-You can install the released version of NINA from [CRAN](https://CRAN.R-project.org) with:
+You can install NINA from github repository with:
 
 ``` r
-install.packages("NINA")
+devtools::install_github("agarciaEE/NINA")
+
 ```
 
 ## Example
 
 This is a basic example which shows you how to use NINA's functions:
 
-```{r load}
-library(NINA)
-## basic example code
-```
-
 Estimate Environmental Niche Models:
 
-```{r ENmodels}
+```{r ENmodels, include = F}
+library(NINA)
 g1_EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
 g2_EN = EN_model(env_data, occ_data2, cluster = g1_EN$clus)
 ```
@@ -69,10 +66,9 @@ print(g2_BC)
 
 You can also plot a summary of the output model using `plot` function:
 
-```{r plot, echo = FALSE}
+```{r plot}
 plot(g2_EN)
 ```
 
 Models can be evaluated using NINA's function `models_evaluation` and visualize it by plotting the output.
-
 
