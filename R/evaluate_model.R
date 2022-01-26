@@ -20,8 +20,7 @@
 #' }
 #'
 #' @importFrom stats cor.test rbinom
-#' @importFrom ggplot2 ggplot stat_density_2d aes scale_y_continuous scale_x_reverse geom_tile scale_color_gradient geom_path geom_point annotate theme_classic element_blank element_text labs theme
-#'
+#' @import ggplot2
 #' @keywords internal
 #' @noRd
 #'
@@ -167,34 +166,34 @@ evaluate_model <- function(Fit., Obs., th = NULL, rep = 1000, best.th = c("simil
 
     plot.eval <- function() {
 
-      ggplot(res.n, aes(TNR, TPR)) +
-      scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
-      scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
-      geom_tile(fill = "#132B42") +
-      stat_density_2d(aes_string(fill = "..level..", col = "..level.."), geom = "polygon",
+      ggplot2::ggplot(res.n, ggplot2::aes(TNR, TPR)) +
+        ggplot2::scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
+        ggplot2::scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
+        ggplot2::geom_tile(fill = "#132B42") +
+        ggplot2::stat_density_2d(aes_string(fill = "..level..", col = "..level.."), geom = "polygon",
                       alpha = 0.1, bins = 10) +
       #geom_density_2d(col = "#E69F00" ) +
       #stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE, n = 100) +
-      scale_color_gradient(low = "#132B42", high =  "#96B3C9") +
-      geom_path(data = res., aes(TNR, TPR), col = "#E69F00", size = 1) +
-      geom_point(data = data.frame(x = TNR, y = TPR), aes_string(x = "x", y = "y"), col = "#E69F00", shape = 18, size = 4) +
-      annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 4, hjust = -0.15, vjust = 1)+
-      theme_classic() +
-      coord_fixed() +
-      labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
-      theme(legend.position='none',
+        ggplot2::scale_color_gradient(low = "#132B42", high =  "#96B3C9") +
+        ggplot2::geom_path(data = res., aes(TNR, TPR), col = "#E69F00", size = 1) +
+        ggplot2::geom_point(data = data.frame(x = TNR, y = TPR), aes_string(x = "x", y = "y"), col = "#E69F00", shape = 18, size = 4) +
+        ggplot2::annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 4, hjust = -0.15, vjust = 1)+
+        ggplot2::theme_classic() +
+        ggplot2::coord_fixed() +
+        ggplot2::labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
+        ggplot2::theme(legend.position='none',
             #panel.background = element_rect(fill = "#132B42",
             #                                colour = "#132B42",
             #                                size = 0.5, linetype = "solid"),
-            panel.border=element_blank(),
-            panel.grid.major=element_blank(),
-            panel.grid.minor=element_blank(),
-            title = element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
-            axis.title.x = element_text(color = "black", size = 15, vjust = 0.5, hjust = 0.5),
-            axis.title.y = element_text(color = "black", size = 15, vjust = 1, hjust = 0.5),
-            axis.text.x = element_text(color = "black", size = 12),
-            axis.text.y = element_text(color = "black", size = 12 ),
-            axis.line = element_blank())
+            panel.border=ggplot2::element_blank(),
+            panel.grid.major=ggplot2::element_blank(),
+            panel.grid.minor=ggplot2::element_blank(),
+            title = ggplot2::element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
+            axis.title.x = ggplot2::element_text(color = "black", size = 15, vjust = 0.5, hjust = 0.5),
+            axis.title.y = ggplot2::element_text(color = "black", size = 15, vjust = 1, hjust = 0.5),
+            axis.text.x = ggplot2::element_text(color = "black", size = 12),
+            axis.text.y = ggplot2::element_text(color = "black", size = 12 ),
+            axis.line = ggplot2::element_blank())
     }
 
     print(plot.eval())

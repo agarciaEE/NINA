@@ -22,13 +22,14 @@
 #' @examples
 #' \dontrun{
 #' EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
-#' eval = models_evaluation(EN$pred.dis, EN$obs, env_data)
+#' eval = models_evaluation(EN)
 #' print(eval)
 #' }
 #'
 #' @importFrom raster stack rasterFromXYZ maxValue
 #' @importFrom stats na.exclude
 #' @importFrom ecospat ecospat.sample.envar
+#' @import ggplot2
 #' @importFrom tidyr gather
 #' @import ggplot2
 #'
@@ -93,7 +94,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     occ.tab <- Abs.samp$tab
   }
   else{
-    Obs <- na.exclude(ecospat.sample.envar(dfsp=predictors,colspxy=1:2,colspkept=1:2,dfvar=Obs,colvarxy=1:2,colvar= 3:4 ,resolution= res))
+    Obs <- na.exclude(ecospat::ecospat.sample.envar(dfsp=predictors,colspxy=1:2,colspkept=1:2,dfvar=Obs,colvarxy=1:2,colvar= 3:4 ,resolution= res))
     Obs[,3] = as.factor(Obs[,3])
     levels(Obs[,3]) <- spsObs
     occ.tab <- t(sapply(spsObs, function(x) cbind(sum(Obs[,3] == x & Obs[,4] == 1),
@@ -110,7 +111,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     message(paste("\t...Evaluating", i, "niche model..."))
     Obs.sp <- Obs[Obs$species == i,]
     pred.i <- which(colnames(Pred) %in% i)
-    Pred.sp <- ecospat.sample.envar(dfsp=Obs.sp,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= pred.i ,resolution= res)
+    Pred.sp <- ecospat::ecospat.sample.envar(dfsp=Obs.sp,colspxy=1:2,colspkept=1:2,dfvar=Pred,colvarxy=1:2,colvar= pred.i ,resolution= res)
     Obs. <- Obs.sp[,4]
     Fit. <- Pred.sp[,3]
     Fit.[is.na(Fit.)] = 0
@@ -126,14 +127,14 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
     z <- tidyr::gather(tab, "test", "value", -c(2,12) )
     z$test <- factor(z$test,levels = c("Pearson's correlation",  "Jaccard Similarity",
                                        "TPR" ,  "TNR", "TSS","ACC", "AUC", "kappa", "PPV", "NPV"))
-    p <- ggplot(z, aes_string(x = "test", y = "value", group = "test")) +
-      geom_boxplot(fill = "#E69F00") +
-      ylim(0,1) +
-      scale_x_discrete(labels = gsub('\\s','\n',levels(z$test))) +
-      labs(title= "All models" ,x="", y = "Score") + theme_classic() +
-      theme(axis.title.x = element_text( size=14, ),
+    p <- ggplot2::ggplot(z, aes_string(x = "test", y = "value", group = "test")) +
+      ggplot2::geom_boxplot(fill = "#E69F00") +
+      ggplot2::ylim(0,1) +
+      ggplot2::scale_x_discrete(labels = gsub('\\s','\n',levels(z$test))) +
+      ggplot2::labs(title= "All models" ,x="", y = "Score") + theme_classic() +
+      ggplot2::theme(axis.title.x = element_text( size=14, ),
             axis.title.y = element_text( size=14, ),
-            axis.text.x =element_text( size=12, ),
+            axis.text.x = element_text( size=12, ),
             axis.text.y = element_text(size=12,))
     print(p)
   }

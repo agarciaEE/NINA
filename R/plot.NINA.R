@@ -21,11 +21,12 @@
 #'
 #' @importFrom ecospat ecospat.plot.contrib
 #' @importFrom plotrix addtable2plot
-#' @importFrom raster rasterize maxValue
+#' @importFrom raster rasterize maxValue image
 #' @importFrom sp SpatialPolygons Polygons Polygon SpatialPoints plot
 #' @importFrom stats cov.wt na.exclude
 #' @importFrom car dataEllipse
 #' @import gridExtra
+#' @import ggplot2
 #' @importFrom graphics layout legend par plot.new
 #'
 #' @export
@@ -65,17 +66,18 @@ plot.NINA <- function(x, ...){
     }
     if(n.maps <= 4) {
       for (i in 1:n.maps) {
-        image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "")
+        raster::image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "")
         par(mar=c(5,4,4,4))
       }
     }
     else {
       for (i in 1:4) {
-        image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "" )
+        raster::image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "" )
         par(mar=c(5,4,4,4))
       }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }
+    dev.off()
     par(mar=c(6,4,3,4))
     ## env
     plot(df.env[,3:4], col = pca.cols, pch = 20,
@@ -95,7 +97,7 @@ plot.NINA <- function(x, ...){
            xjust = 0.5, yjust = 0.5, x.intersp = -0.5, y.intersp = 0.1)
     if (mode.region){
       #par(mar=c(1,1,1,1))
-      image(clus, col = reg.cols, ylab = "lat", xlab = "lon")
+      raster::image(clus, col = reg.cols, ylab = "lat", xlab = "lon")
       points(df.sp[,c("x", "y")], col = "grey20", pch = 4)
       plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
            axis.args=list(at = 1:raster::maxValue(clus),labels=clusNames))
@@ -114,58 +116,58 @@ plot.NINA <- function(x, ...){
         AUC = x$tab[i, "AUC"]
         main = i
         p.value = x$threshold[i,"p.value"]
-        grobList[[i]] <- ggplot(res.n, aes(TNR, TPR)) +
-                scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
-                scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
-                geom_tile(fill = "#132B42") +
-                stat_density_2d(aes_string(fill = "..level..", col = "..level.."), geom = "polygon",
+        grobList[[i]] <- ggplot2::ggplot(res.n, ggplot2::aes(TNR, TPR)) +
+          ggplot2::scale_y_continuous("sensitivity", limits = c(0,1), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
+          ggplot2::scale_x_reverse("specificity", limits = c(1,0), breaks = seq(0,1,0.25), expand = c(0.01,0.01)) +
+          ggplot2::geom_tile(fill = "#132B42") +
+          ggplot2::stat_density_2d(aes_string(fill = "..level..", col = "..level.."), geom = "polygon",
                                 alpha = 0.1, bins = 10) +
                 #geom_density_2d(col = "#E69F00" ) +
                 #stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE, n = 100) +
-                scale_color_gradient(low = "#132B42", high =  "#96B3C9") +
-                geom_path(data = res., aes(TNR, TPR), col = "#E69F00", size = 1) +
-                geom_point(data = data.frame(x = TNR, y = TPR), aes_string("x", "y"), col = "#E69F00", shape = 18, size = 4) +
-                annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 2, hjust = -0.15, vjust = 1)+
-                theme_classic() +
-                coord_fixed() +
-                labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
-                theme(legend.position='none',
+          ggplot2::scale_color_gradient(low = "#132B42", high =  "#96B3C9") +
+          ggplot2::geom_path(data = res., ggplot2::aes(TNR, TPR), col = "#E69F00", size = 1) +
+          ggplot2::geom_point(data = data.frame(x = TNR, y = TPR), aes_string("x", "y"), col = "#E69F00", shape = 18, size = 4) +
+          ggplot2::annotate("text", x = TNR, y = TPR, label =  paste("italic(p)==", format.pval(p.value)), parse = T, size = 2, hjust = -0.15, vjust = 1)+
+          ggplot2::theme_classic() +
+          ggplot2::coord_fixed() +
+          ggplot2::labs(title= gsub("\\s\\s", "\n", paste0(gsub('\\.', ' ', main), "  AUC=", round(AUC,2))), parse = T) +
+          ggplot2::theme(legend.position='none',
                       plot.margin = unit(c(1,1,1,1), "lines"),
-                      panel.border=element_blank(),
-                      panel.grid.major=element_blank(),
-                      panel.grid.minor=element_blank(),
-                      plot.title = element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
-                      axis.title.x = element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
-                      axis.title.y = element_text(color = "black", size = 10, vjust = 1, hjust = 0.5),
-                      axis.text.x = element_text(color = "black", size = 8),
-                      axis.text.y = element_text(color = "black", size = 8 ),
-                      axis.line = element_blank())
+                      panel.border=ggplot2::element_blank(),
+                      panel.grid.major=ggplot2::element_blank(),
+                      panel.grid.minor=ggplot2::element_blank(),
+                      plot.title = ggplot2::element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
+                      axis.title.x = ggplot2::element_text(color = "black", size = 10, vjust = 0.5, hjust = 0.5),
+                      axis.title.y = ggplot2::element_text(color = "black", size = 10, vjust = 1, hjust = 0.5),
+                      axis.text.x = ggplot2::element_text(color = "black", size = 8),
+                      axis.text.y = ggplot2::element_text(color = "black", size = 8 ),
+                      axis.line = ggplot2::element_blank())
       }
       tab <- tidyr::gather(x$tab, "test", "value", -c(2,12) )
       tab$test <- factor(tab$test,levels = c("Pearson's correlation",  "Jaccard Similarity",
                                          "TPR" ,  "TNR", "TSS","ACC", "AUC", "kappa", "PPV", "NPV"))
-      bplot <- ggplot(x$tab, aes_string(x = 1, y = "AUC")) +
-        geom_violin(fill = "#E69F00") +
-        geom_boxplot(fill = "#E69F00", width = 0.05) +
-        scale_y_continuous("Score", breaks = seq(0,1,0.25), expand = c(0,0), limits = c(-0.05,1.05)) +
-        scale_x_discrete("AUC", breaks = c(0.5,1.5), expand = c(0,0)) +
-        labs(title= "All models") + theme_classic() +
-        coord_cartesian(xlim=c(0,2), ylim=c(-0.05,1.05)) +
-        annotate(x=0, xend=0, y=0, yend=1, lwd = 0.75, colour="black", geom="segment") +
-        annotate(x=0.5, xend=1.5, y=-0.05, yend=-0.05,  colour="black", lwd=1, geom="segment") +
-        theme(panel.border=element_blank(),
-              panel.grid.major=element_blank(),
-              panel.grid.minor=element_blank(),
-              axis.line = element_blank(),
-              axis.ticks = element_line(size = 0.75),
+      bplot <- ggplot2::ggplot(x$tab, aes_string(x = 1, y = "AUC")) +
+        ggplot2::geom_violin(fill = "#E69F00") +
+        ggplot2::geom_boxplot(fill = "#E69F00", width = 0.05) +
+        ggplot2::scale_y_continuous("Score", breaks = seq(0,1,0.25), expand = c(0,0), limits = c(-0.05,1.05)) +
+        ggplot2::scale_x_discrete("AUC", breaks = c(0.5,1.5), expand = c(0,0)) +
+        ggplot2::labs(title= "All models") + theme_classic() +
+        ggplot2::coord_cartesian(xlim=c(0,2), ylim=c(-0.05,1.05)) +
+        ggplot2::annotate(x=0, xend=0, y=0, yend=1, lwd = 0.75, colour="black", geom="segment") +
+        ggplot2::annotate(x=0.5, xend=1.5, y=-0.05, yend=-0.05,  colour="black", lwd=1, geom="segment") +
+        ggplot2::theme(panel.border=ggplot2::element_blank(),
+              panel.grid.major=ggplot2::element_blank(),
+              panel.grid.minor=ggplot2::element_blank(),
+              axis.line = ggplot2::element_blank(),
+              axis.ticks = ggplot2::element_line(size = 0.75),
               axis.ticks.length=unit(.2, "cm"),
               plot.margin = unit(c(2, 0, 2, 0), "lines"),
-              axis.title.x = element_text( size=14, ),
-              axis.title.y = element_text( size=14, ),
-              axis.text.x =element_text( size=12, ),
-              axis.text.y = element_text(size=12,))
-      grobList <- arrangeGrob(grobs = grobList, ncol=ceiling(sqrt(length(grobList))))
-      grid.arrange(grobList, bplot, ncol=2, widths=c(3,1))
+              axis.title.x = ggplot2::element_text( size=14, ),
+              axis.title.y = ggplot2::element_text( size=14, ),
+              axis.text.x =ggplot2::element_text( size=12, ),
+              axis.text.y = ggplot2::element_text(size=12,))
+      grobList <- gridExtra::arrangeGrob(grobs = grobList, ncol=ceiling(sqrt(length(grobList))))
+          gridExtra::grid.arrange(grobList, bplot, ncol=2, widths=c(3,1))
   }
   par(mfrow=c(1,1))
 
