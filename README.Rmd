@@ -87,7 +87,7 @@ g2_EC <- EC_model(g2_BC, type = "region")
 ```
 
 You can summarize the output by using `summary` function or `print`:
-```{r summary}
+```{r summary, collapse=TRUE, output.lines=4}
 summary(g1_EN)
 print(g2_BC)
 ```
