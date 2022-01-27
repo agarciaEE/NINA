@@ -77,7 +77,6 @@ plot.NINA <- function(x, ...){
       }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }
-    dev.off()
     par(mar=c(6,4,3,4))
     ## env
     plot(df.env[,3:4], col = pca.cols, pch = 20,
@@ -99,7 +98,7 @@ plot.NINA <- function(x, ...){
       #par(mar=c(1,1,1,1))
       raster::image(clus, col = reg.cols, ylab = "lat", xlab = "lon")
       points(df.sp[,c("x", "y")], col = "grey20", pch = 4)
-      plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
+      raster::plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
            axis.args=list(at = 1:raster::maxValue(clus),labels=clusNames))
       #par(mar=c(4,4,4,4))
       #plot.new()

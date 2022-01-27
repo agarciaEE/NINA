@@ -30,17 +30,19 @@ You can install NINA from github repository with:
 
 ``` r
 devtools::install_github("agarciaEE/NINA")
-
 ```
 
 ## Example
 
 This is a basic example which shows you how to use NINA's functions:
 
+```{r load}
+library(NINA)
+```
+
 Estimate Environmental Niche Models:
 
-```{r ENmodels, include = F}
-library(NINA)
+```{r ENmodels}
 g1_EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
 g2_EN = EN_model(env_data, occ_data2, cluster = g1_EN$clus)
 ```
@@ -70,5 +72,10 @@ You can also plot a summary of the output model using `plot` function:
 plot(g2_EN)
 ```
 
-Models can be evaluated using NINA's function `models_evaluation` and visualize it by plotting the output.
+Models can be evaluated using `models_evaluation` function and visualize it by plotting the output.
+
+```{r eval}
+eval <- models_evaluation(g2_EN)
+plot(eval)
+```
 
