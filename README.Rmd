@@ -11,6 +11,27 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines)==1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
 ```
 
 # NINA package
@@ -42,7 +63,7 @@ library(NINA)
 
 Estimate Environmental Niche Models:
 
-```{r ENmodels}
+```{r ENmodels, output.lines=4}
 g1_EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
 g2_EN = EN_model(env_data, occ_data2, cluster = g1_EN$clus)
 ```
@@ -75,7 +96,7 @@ plot(g2_EN)
 Models can be evaluated using `models_evaluation` function and visualize it by plotting the output.
 
 ```{r eval}
-eval <- models_evaluation(g2_EN)
+eval <- models_evaluation(g2_BC)
 plot(eval)
 ```
 
