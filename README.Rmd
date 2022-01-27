@@ -63,21 +63,26 @@ library(NINA)
 
 Estimate Environmental Niche Models:
 
-```{r ENmodels, output.lines=4}
+First group of species
+```{r ENmodels1, collapse=TRUE, output.lines=4}
 g1_EN = EN_model(env_data, occ_data1, cluster = "env", n.clus = 5)
+```
+
+2nd group of species
+```{r ENmodels2, collapse=TRUE, output.lines=4}
 g2_EN = EN_model(env_data, occ_data2, cluster = g1_EN$clus)
 ```
 
 Correct EN models by biotic interactions:
 
-```{r BCmodels}
+```{r BCmodels, collapse=TRUE, output.lines=4}
 g2_BC <- BC_model(g2_EN, g1_EN, A.matrix = int_matrix, type = "region")
 
 ```
 
 Transform environmental niche space into ecological niche space (prioritizing the effect of biotic interactions).
 
-```{r ECmodels}
+```{r ECmodels, collapse=TRUE, output.lines=4}
 g2_EC <- EC_model(g2_BC, type = "region")
 ```
 
@@ -90,7 +95,7 @@ print(g2_BC)
 You can also plot a summary of the output model using `plot` function:
 
 ```{r plot}
-plot(g2_EN)
+plot(g2_BC)
 ```
 
 Models can be evaluated using `models_evaluation` function and visualize it by plotting the output.
