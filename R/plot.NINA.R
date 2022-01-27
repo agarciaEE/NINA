@@ -66,14 +66,14 @@ plot.NINA <- function(x, ...){
     }
     if(n.maps <= 4) {
       for (i in 1:n.maps) {
+        par(mar=c(2,2,2,2))
         raster::image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "")
-        par(mar=c(5,4,4,4))
       }
     }
     else {
       for (i in 1:4) {
+        par(mar=c(2,2,2,2))
         raster::image(x$maps[[i]], xlab  = names(x$maps[[i]]), ylab = "" )
-        par(mar=c(5,4,4,4))
       }
       message(paste("Ploting only the first four species maps of a total of", n.maps))
     }
@@ -97,7 +97,6 @@ plot.NINA <- function(x, ...){
     if (mode.region){
       #par(mar=c(1,1,1,1))
       raster::image(clus, col = reg.cols, ylab = "lat", xlab = "lon")
-      points(df.sp[,c("x", "y")], col = "grey20", pch = 4)
       raster::plot(clus, legend.only = T, breaks = seq(0.5,raster::maxValue(clus)+0.5,1), col = viridis::viridis(n.clus),
            axis.args=list(at = 1:raster::maxValue(clus),labels=clusNames))
       #par(mar=c(4,4,4,4))
