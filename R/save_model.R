@@ -75,6 +75,28 @@ save_model <- function(m, path = "~", project.name = "NINA1"){
     }
   }
   ####
+  #### w
+  if(!is.null(m$w)){
+    wmod = m$w
+    npath = file.path(path, "w")
+    dir.create(npath)
+    if (is.list(m$w)){
+      for (r in names(m$w)){
+        if (all(class(m$w[[r]]) == c("NINA", "niche"))){
+          write_niche(m$w[[r]], path = npath, file = gsub("\\/", " ", r))
+        }
+        else if (is.list(m$w[[r]])){
+          dir.create(path = file.path(npath, sub("\\/", " ", r)))
+          for (s in names(m$w[[r]])){
+            if (all(class(m$w[[r]][[s]]) == c("NINA", "niche"))){
+              write_niche(m$w[[r]][[s]], path = file.path(npath,sub("\\/", " ", r)), file = s)
+            }
+          }
+        }
+      }
+    }
+  }
+  ####
   #### species distribution
   sd <- m$pred.dis
   npath = file.path(path, "sd")
