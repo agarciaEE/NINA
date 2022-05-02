@@ -78,7 +78,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
         z.mod[[e]] = list()
         w.list[[e]] = list()
         mod.Val[[e]] = list()
-        reg.env.scores <- env.scores[g2_EN$clus$cluster == e,]
+        reg.env.scores <- env.scores[x$clus[,3] == e,]
         for (i in names(x.mod[[e]])){
           message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
           z = x.mod[[e]][[i]]
