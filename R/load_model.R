@@ -70,13 +70,13 @@ load_model <- function(project.name, path = "./"){
   }
   #### w
   if ("w" %in% f){
-    m$z.mod = list()
+    m$w = list()
     npath = file.path(mpath, "w")
     fn <- list.files(npath)
     if (all(stringr::str_detect(fn, ".snm"))){
       for (r in fn){
         rn <- gsub("\\.snm", "", r)
-        m$z.mod[[rn]] = read_niche(filepath = file.path(npath,r))
+        m$w[[rn]] = read_niche(filepath = file.path(npath,r))
       }
     }
     else {
@@ -84,10 +84,10 @@ load_model <- function(project.name, path = "./"){
         rpath = file.path(npath, r)
         rn <- list.files(rpath)
         if (all(stringr::str_detect(rn, ".snm"))){
-          m$z.mod[[r]] = list()
+          m$w[[r]] = list()
           for (s in rn){
             sn <- gsub("\\.snm", "", s)
-            m$z.mod[[r]][[sn]] = read_niche(filepath = file.path(rpath,s))
+            m$w[[r]][[sn]] = read_niche(filepath = file.path(rpath,s))
           }
         }
         else {

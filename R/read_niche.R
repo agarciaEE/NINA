@@ -23,7 +23,7 @@ read_niche <- function(filepath){
   l <- list()
   elements_idx <- which(grepl("\\/[a-z]*", x$V1))
   elements_nms <- gsub("\\/", "", x$V1[grepl("\\/[a-z]*", x$V1)])
-
+i = 5
   for (i in 1:length(elements_idx)){
     idx = elements_idx[i]
     start = as.integer(idx+1)

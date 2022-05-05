@@ -38,15 +38,16 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
       w <- y.list[[Xvar[1]]]
       if (cor){
         if(length(Xvar) == 1){
-          w$sp <- as.data.frame(cbind(y.list[[Xvar]]$sp, species = Xvar))
+          w$sp <- y.list[[Xvar]]$sp
           w$z.cor = betas[[Xvar]]*A.matrix[id,Xvar]
           w$z.cor[is.na(w$z.cor)] <- 0
         } else {
-          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) i$sp))
+          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) as.matrix(i$sp)))
           w$z = sum(stack(lapply(y.list[Xvar], function(i) i$z)), na.rm = T)
           w$z.cor = sum(stack(lapply(names(y.list), function(i) betas[[i]]*as.numeric(A.matrix[id,i]))), na.rm = T)
           w$z.cor[is.na(w$z.cor)] <- 0
         }
+        do.call(rbind, lapply(anem_EN$z.mod$Andaman, function(i) as.matrix(i$sp)))
         w$z <- w$z.cor * w$Z
         w$z.uncor <- w$z/raster::cellStats(w$z, "max")
         w$z.uncor[is.na(w$z.uncor)] <- 0
@@ -55,10 +56,10 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
         w$z.cor <- w$z.cor/raster::cellStats(w$z.cor, "max")
       } else {
         if(length(Xvar) == 1){
-          w$sp <- as.data.frame(cbind(y.list[[Xvar]]$sp, species = Xvar))
+          w$sp <- y.list[[Xvar]]$sp
           w$z.uncor = betas[[Xvar]]*A.matrix[id,Xvar]
         } else {
-          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) i$sp))
+          w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) as.matrix(i$sp)))
           w$z = sum(stack(lapply(y.list[Xvar], function(i) i$z)), na.rm = T)
           w$z.uncor = sum(stack(lapply(names(y.list), function(i) betas[[i]]*as.numeric(A.matrix[id,i]))), na.rm = T)
         }
@@ -101,9 +102,9 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
       Pw <-  stack(Pw) * r
       w <- y.list[[Pvar[1]]]
       if(length(Pvar) == 1){
-        w$sp <- as.data.frame(cbind(y.list[[Pvar]]$sp, species = Pvar))
+        w$sp <- y.list[[Pvar]]$sp
       } else {
-        w$sp <- do.call(rbind, lapply(y.list[Pvar], function(i) i$sp))
+        w$sp <- do.call(rbind, lapply(y.list[Pvar], function(i) as.matrix(i$sp)))
       }
       w$Z <- sum(stack(sapply(y.list[Pvar], function(i) i$Z)))[[1]]
       if (cor){
@@ -145,7 +146,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
         r <- raster::cellStats(PNP, "max") / sum(stack(Nw))
         Nw <-  stack(Nw) * r
         Nz <- y.list[[Nvar[1]]]
-        Nz$sp <- plyr::ldply(sapply(y.list[Nvar], function(i) i$sp), .id = "species")[,c(2:3,1)]
+        Nz$sp <- do.call(rbind, lapply(y.list[Nvar], function(i) as.matrix(i$sp)))
         Nz$Z <- sum(stack(sapply(y.list[Nvar], function(i) i$Z)))
         Nz$z <- PPP * Nz$Z
         Nz$z.uncor <- Nz$z/raster::cellStats(Nz$z, "max")

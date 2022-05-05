@@ -37,17 +37,21 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
   Xvar = colnames(A.matrix)[A.matrix[id, ]  != 0]
   Xvar <- Xvar[Xvar %in% names(y.list)]
   if(length(Xvar) > 0){
-    out$w <- estimate_w(y.list, id = id, A.matrix = A.matrix, cor = cor,
+    w <- estimate_w(y.list, id = id, A.matrix = A.matrix, cor = cor,
                         K = K, method = method, C.matrix = C.matrix)
-    if (!is.null(out$w)){
+    class(w) <- c("NINA", "niche")
+    if (!is.null(w)){
       if (cor) {
-        wc <- out$w$z.cor
+        wc <- w$z.cor
       } else {
-        wc <- out$w$z.uncor
+        wc <- w$z.uncor
       }
     } else{ wc = 0}
   }
-  else{ wc = 0}
+  else{
+    w = NULL
+    wc = 0
+  }
   if (method == "composition"){
     z$z <- z$z - z$z * D * (1-wc)
   }
@@ -63,7 +67,11 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
   z$z.cor <- z$z/z$Z
   z$z.cor[is.na(z$z.cor)] <- 0
   z$z.cor <- z$z.cor/raster::cellStats(z$z.cor, "max")
+  class(z) <- c("NINA", "niche")
+
+  out$w = w
   out$z = z
+
   message("\t...Success!")
   return(out)
 }
