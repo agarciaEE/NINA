@@ -76,5 +76,3 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
   return(out)
 }
 
-
-

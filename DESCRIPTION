@@ -9,16 +9,16 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: ecospat, raster, fpc, NbClust, prabclus, viridis, Morpho, ade4, ggplot2, graphics, spatialEco, plyr, stats, tidyr, utils, grDevices, rasterVis, sp, car, gridExtra, plotrix, scales, stringr, adehabitatMA, adehabitatHR
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     knitr,
     rmarkdown,
     covr,
-    testthat (>= 2.0.0)
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 URL: https://github.com/agarciaEE/NINA
 BugReports: https://github.com/agarciaEE/NINA/issues
-Config/testthat/edition: 2
+Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)

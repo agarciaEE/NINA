@@ -33,6 +33,7 @@ load_model <- function(project.name, path = "./"){
       for (r in fn){
         rn <- gsub("\\.snm", "", r)
         m$z.mod[[rn]] = read_niche(filepath = file.path(npath,r))
+        class(m$z.mod[[rn]]) <- c("NINA", "niche")
       }
     }
     else {
@@ -44,6 +45,7 @@ load_model <- function(project.name, path = "./"){
           for (s in rn){
             sn <- gsub("\\.snm", "", s)
             m$z.mod[[r]][[sn]] = read_niche(filepath = file.path(rpath,s))
+            class(m$z.mod[[r]][[sn]]) <- c("NINA", "niche")
           }
         }
         else {
@@ -61,7 +63,8 @@ load_model <- function(project.name, path = "./"){
     if (all(stringr::str_detect(fn, ".snm"))){
       for (r in fn){
         rn <- gsub("\\.snm", "", r)
-        m$z.mod.global[[r]] = read_niche(filepath = file.path(npath,r))
+        m$z.mod.global[[rn]] = read_niche(filepath = file.path(npath,r))
+        class(m$z.mod.global[[rn]]) <- c("NINA", "niche")
       }
     }
     else {
@@ -77,6 +80,7 @@ load_model <- function(project.name, path = "./"){
       for (r in fn){
         rn <- gsub("\\.snm", "", r)
         m$w[[rn]] = read_niche(filepath = file.path(npath,r))
+        class(m$w[[rn]]) <- c("NINA", "niche")
       }
     }
     else {
@@ -88,6 +92,7 @@ load_model <- function(project.name, path = "./"){
           for (s in rn){
             sn <- gsub("\\.snm", "", s)
             m$w[[r]][[sn]] = read_niche(filepath = file.path(rpath,s))
+            class(m$w[[r]][[sn]]) <- c("NINA", "niche")
           }
         }
         else {
@@ -130,6 +135,11 @@ load_model <- function(project.name, path = "./"){
     for (n in ef) {
       m$eval[[n]] <- utils::read.table(file.path(npath, n))
     }
+  }
+  if ("w" %in% f){
+    attr(m, "class") <- c("NINA", "BCmodel")
+  } else {
+    attr(m, "class") <- c("NINA", "ENmodel")
   }
   return(m)
 }

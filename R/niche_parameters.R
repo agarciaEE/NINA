@@ -580,12 +580,14 @@ niche_parameters <- function(x, y, type = c("region", "global"), centroid.w = F,
         }
         np[[e]] <- plyr::ldply(np[[e]], .id = "species")
       }
-      out$np <- plyr::ldply(np, .id = "region")
       if (rnd.test){
         simList <- reverse_list(simList)
         p.values <- reverse_list(p.values)
+        out$np <- plyr::ldply(np, .id = "region")
         out$sim <- lapply(simList, function(i) ldply(i, .id = "region"))
         out$pvalue <- lapply(p.values, function(i) ldply(i, .id = "region"))
+      } else {
+        out <- plyr::ldply(np, .id = "region")
       }
     }
     else {
@@ -1104,13 +1106,14 @@ niche_parameters <- function(x, y, type = c("region", "global"), centroid.w = F,
         message(paste("...nothing to analyze."))
       }
     }
-    out$np <- np <- plyr::ldply(np, .id = "species")
     if (rnd.test){
+      out$np <- plyr::ldply(np, .id = "species")
       out$sim <- simList
       out$pvalues <- p.values
+    } else {
+      out <- plyr::ldply(np, .id = "species")
     }
   }
-  attr(out, "class") <- c("NINA", "comp")
   message("DONE")
   return(out)
 }

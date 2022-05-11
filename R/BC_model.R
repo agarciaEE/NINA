@@ -171,7 +171,6 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
     BC$eval <- models_evaluation(BC, sample.pseudoabsences = sample.pseudoabsences, res = res, plot = plot.eval,
                                 int.matrix = A.matrix , rep = rep, th = th, best.th = best.th)
   }
-  #BC$type = "BC"
   message("Models successfully corrected!")
   attr(BC, "class") <- c("NINA", "BCmodel")
 

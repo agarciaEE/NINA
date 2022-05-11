@@ -4,7 +4,7 @@
 \alias{load_model}
 \title{LOAD NICHE MODEL}
 \usage{
-load_model(project.name, path = "~")
+load_model(project.name, path = "./")
 }
 \arguments{
 \item{project.name}{name of the folder to be created}
