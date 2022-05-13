@@ -24,19 +24,13 @@ save_model <- function(m, path = "~", project.name = "NINA1"){
     for (l in names(m)) {
       save_model(m[[l]], path = path, project.name = l)
     }
+    write.table(class(m), file = paste0(path, "/class.txt"), row.names = F, col.names = F)
   }
   else if (class(m)[1] == "NINA" && class(m)[2] %in% c("ENmodel", "BCmodel", "ECmodel")){
     paths = list()
     ### initiate
     path = file.path(path, project.name)
     dir.create(path)
-    #paths <- list(z = file.path(path, "z"),
-    #              zglob = file.path(path, "zglobal"),
-    #              sd = file.path(path, "sd"),
-    #              info= file.path(path, "info"),
-    #              data = file.path(path, "data"),
-    #              eval = file.path(path, "eval"))
-    #sapply(paths, dir.create)
     write.table(class(m), file = paste0(path, "/class.txt"), row.names = F, col.names = F)
     #### zmod
     zmod = m$z.mod
@@ -114,7 +108,7 @@ save_model <- function(m, path = "~", project.name = "NINA1"){
     npath = file.path(path, "info")
     dir.create(npath)
     write.table(m$tab, file = paste0(npath, "/tab.txt"))
-    write.table(m$fail, file = paste0(npath, "/fail.txt"))
+    if(!is.null(m$fail)){ write.table(m$fail, file = paste0(npath, "/fail.txt")) }
     write.table(m$predictors, file = paste0(npath, "/predictors.txt"), row.names = F, col.names = F)
     write.table(as.character(m$crs), file = paste0(npath, "/crs.txt"))
     ####
@@ -125,7 +119,11 @@ save_model <- function(m, path = "~", project.name = "NINA1"){
     if (!is.null(m$clus)){
       write.table(m$clus, file = paste0(npath, "/regions.txt"))
     }
-    write.table(m$obs, file = paste0(npath, "/occurrences.txt"))
+    if(is.data.frame(m$obs)) {
+      write.table(m$obs, file = paste0(npath, "/occurrences.txt"))
+    } else {
+      write.table(do.call(rbind, m$obs), file = paste0(npath, "/occurrences.txt"))
+    }
     write.table(m$sp.scores, file = paste0(npath, "/sp_scores.txt"))
     write.table(m$env.scores, file = paste0(npath, "/env_scores.txt"))
     saveRDS(m$pca, file = paste0(npath, "/pca.RDS"))
