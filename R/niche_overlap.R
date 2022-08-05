@@ -25,7 +25,7 @@ niche_overlap <- function(x, y, cor = F, centroid.w = F, type = "unimodal", meth
   R = length(x$x)
 
   if (raster::compareRaster(list(x$Z, y$Z), stopiffalse = F) == F){
-    ras = raster::extent(x$Z)
+    ras = do.call(raster::merge, lapply(list(x$Z, y$Z), raster::extent))
     rasterEx <- raster::extent(ras)
     ras.template <- raster::raster(nrow=R,ncol=R)
     raster::extent(ras.template) <- rasterEx
