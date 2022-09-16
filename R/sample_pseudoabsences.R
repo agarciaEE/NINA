@@ -6,8 +6,7 @@
 #' @param predictors a n x m data.frame class object indicating longitud, latitud and species in the two first columns. The rest of the columns must be the environmental variables from which the PCA will be computed. Alternatively a raster stack with environmental variables or a dudi.pca object. If dudi.pca, res argument must be provided, otherwhise it will be set to 1.
 #' @param spsNames a string vector with selected species names to subset Obs. Default NULL will select all species present in the third column of paramteter Obs
 #' @param th a numeric threshold to estimate pseudo-absence distances from observations environmental centroid. Default is 0.95
-#' @param ras raster or stacked raster with the ecological contrains that will weight pseudo-absence probabilities. Default NULL
-#' @param int.matrix m x o matrix defining the effect of the interactors as columns, provided in ras parameter, on each species to sample pseudo-absences, as rows.
+#' @param ras raster or stacked raster with the ecological constrains per species that will weight pseudo-absence probabilities. Layers in ras must be named after the species. Default NULL
 #' @param res resolution of the environmental grid. Default NULL means that will be computed automatically.
 #' @param plot Boolean to indicate if computed distances is to be plotted
 #'
@@ -30,7 +29,7 @@
 #' @export
 #'
 sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
-                                       ras = NULL, int.matrix, res = NULL, plot = F){
+                                       ras = NULL, res = NULL, plot = F){
 
   # check spsNames argument
   if (is.null(spsNames)){spsNames = unique(Obs[,3])}
@@ -61,28 +60,11 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
     }
   }
   if (!is.null(ras)){
-    if(is.null(int.matrix)){
-      stop("Argument 'int.matrix' not provided. ")
+    if (!any(class(ras) %in% c("raster", "RasterBrick", "RasterStack"))){
+      stop("Argument 'ras' is not of class raster.")
     }
-    else{
-      if (is.data.frame(ras)){
-        ras.var = colnames(ras[,-c(1:2)]) # environmental variables
-        ras = raster_projection(ras)
-      }
-      if (any(class(ras) %in% c("raster", "RasterBrick", "RasterStack"))){
-        #  ras.stack = ras
-        #  ras <- na.exclude(raster::as.data.frame(ras.stack, xy = T))
-        ras.var = names(ras) # environmental variables
-      }
-      if(all(spsNames %in% colnames(int.matrix)) && all(rownames(int.matrix) %in% ras.var)){
-        int.matrix = t(int.matrix)
-      }
-      if(!all(spsNames %in% rownames(int.matrix))){
-        stop("Argument 'int.matrix' is missing some of the species of study.")
-      }
-      if(!all(colnames(int.matrix) %in% ras.var)){
-        stop("Argument 'ras' is missing some of the species interactions.")
-      }
+    if(!all(spsNames %in% names(ras))){
+      stop("Argument 'ras' is missing some of the species in 'Obs' argument")
     }
   }
   out = list()
@@ -99,12 +81,8 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
     occ.inn <- rownames(occ.inn)
     occ.P = rbind(occ.P, cbind(predictors[occ.inn,1:2], species = sp, PA = 1))
     if (!is.null(ras)){
-      Xvar <- colnames(int.matrix)[which(int.matrix[sp,] != 0)]
-      nvar<-length(Xvar)
-      if (nvar > 1){
-        m.ras <- sum(ras[[Xvar]], na.rm = T)
-      } else {m.ras <- ras[[Xvar]]}
-      m.ras <- cbind(predictors[,1:2], P = raster::extract(m.ras, predictors[,1:2]))
+      P.ras <- raster::extract(ras[[sp]], predictors[,1:2])
+      m.ras <- cbind(predictors[,1:2], P = P.ras)
       m.ras = m.ras[m.ras[,3] != 0, 1:3]
       ras.inn <- rownames(m.ras)
     }
