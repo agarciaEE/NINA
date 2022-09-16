@@ -89,7 +89,7 @@ models_evaluation <- function(Pred, Obs, predictors, spsNames = NULL, th = NULL,
   Obs <- Obs[Obs[,3] %in% spsNames,]
   if (sample.pseudoabsences == TRUE){
     message("Sampling pseudo_absences... ")
-    Abs.samp <- sample_pseudoabsences(Obs,  predictors , spsNames = spsNames, ras = ras, int.matrix = int.matrix,  res = res)
+    Abs.samp <- sample_pseudoabsences(Obs,  predictors , spsNames = spsNames, ras = ras,  res = res)
     Obs <- rbind(Abs.samp$Presences, Abs.samp$Absences)
     occ.tab <- Abs.samp$tab
   }
