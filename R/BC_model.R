@@ -43,7 +43,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
                      relative.niche = T, K = NULL, sample.pseudoabsences = TRUE, R = 100,
                      res = NULL, plot.eval = FALSE, rep = 100, th = NULL, ras = NULL,
                      best.th = c("accuracy", "similarity"), combine.regions = F,
-                     cor = F, type = c("region", "global")){
+                     cor = F, type = c("region", "global"), rm.empty.niches = F){
 
   type = type[1]
   method = method[1]
@@ -91,9 +91,11 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
           z.mod[[e]][[i]] = bc$z
           w.list[[e]][[i]] = bc$w
         }
-        z.mod[[e]] <-  z.mod[[e]][unlist(lapply(z.mod[[e]], length) != 0)]
-        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
-        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) maxValue(x$z) != 0))]
+        if (rm.empty.niches){
+          z.mod[[e]] <-  z.mod[[e]][unlist(lapply(z.mod[[e]], length) != 0)]
+          z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
+          z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) maxValue(x$z) != 0))]
+        }
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
       }
       if (relative.niche){
@@ -115,7 +117,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
         }
         z.mod <- reverse_list(z.rev)
       }
-      z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
+      #z.mod <-  z.mod[unlist(lapply(z.mod, length) != 0)]
       tab = cbind(ldply(sapply(z.mod, function(x) names(x)), data.frame, .id = "region"), P = 1)
       tab =  spread(tab, "region", "P")
       rownames(tab) <- tab[,1]
