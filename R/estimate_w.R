@@ -47,7 +47,6 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
           w$z.cor = sum(stack(lapply(names(y.list), function(i) betas[[i]]*as.numeric(A.matrix[id,i]))), na.rm = T)
           w$z.cor[is.na(w$z.cor)] <- 0
         }
-        do.call(rbind, lapply(anem_EN$z.mod$Andaman, function(i) as.matrix(i$sp)))
         w$z <- w$z.cor * w$Z
         w$z.uncor <- w$z/raster::cellStats(w$z, "max")
         w$z.uncor[is.na(w$z.uncor)] <- 0

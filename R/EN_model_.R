@@ -240,7 +240,7 @@ EN_model_ <- function(env, occ, res = NULL, sample.pseudoabsences = TRUE, crs = 
           }
         }
         z.mod[[e]] <-  z.mod[[e]][unlist(lapply(z.mod[[e]], length) != 0)]
-        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z))))]
+        z.mod[[e]] <- z.mod[[e]][unlist(lapply(z.mod[[e]], function(x) !is.na(maxValue(x$z.uncor))))]
         mod.Val[[e]] <- ldply(mod.Val[[e]], data.frame, .id = "species")
       }
       else {

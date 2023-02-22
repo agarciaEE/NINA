@@ -105,7 +105,7 @@ niche_parameters <- function(x, y, type = c("region", "global"), centroid.w = F,
         for (i in names(X[[1]][[e]])){
           message(paste("Computing niche metrics of", i, "..."), appendLF = F)
           if (xmod == "BC" && is.null(ymod)){
-            if(!is.null(X$EnvSuit[[e]][[i]]) &&  !is.null(X$EnvAcc[[e]][[i]])){
+            if(!is.null(X$EnvSuit[[e]][[i]]) && !is.null(X$EnvAcc[[e]][[i]])){
               message("\n\t...between environmental niche and environmental accessibillity....", appendLF = F)
               ncomp <-  niche_comparison(X$EnvSuit[[e]][[i]], X$EnvAcc[[e]][[i]], centroid.w = centroid.w, rnd.test = rnd.test,
                                          quantile = quantile, np.type = np.type,  np.metric = np.metric,
