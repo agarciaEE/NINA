@@ -33,6 +33,7 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
                       method = c("composition", "densities"),
                       cor = F,  K  = NULL, C.matrix = NULL ){
 
+  method <- method[1]
   out = list()
   Xvar = colnames(A.matrix)[A.matrix[id, ]  != 0]
   Xvar <- Xvar[Xvar %in% names(y.list)]

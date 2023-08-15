@@ -10,7 +10,6 @@ sample_pseudoabsences(
   spsNames = NULL,
   th = 0.95,
   ras = NULL,
-  int.matrix,
   res = NULL,
   plot = F
 )
@@ -25,8 +24,6 @@ sample_pseudoabsences(
 \item{th}{a numeric threshold to estimate pseudo-absence distances from observations environmental centroid. Default is 0.95}
 
 \item{ras}{raster or stacked raster with the ecological contrains that will weight pseudo-absence probabilities. Default NULL}
-
-\item{int.matrix}{m x o matrix defining the effect of the interactors as columns, provided in ras parameter, on each species to sample pseudo-absences, as rows.}
 
 \item{res}{resolution of the environmental grid. Default NULL means that will be computed automatically.}
 

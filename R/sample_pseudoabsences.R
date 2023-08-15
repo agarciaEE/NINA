@@ -124,4 +124,3 @@ sample_pseudoabsences <- function(Obs, predictors, spsNames = NULL, th = 0.95,
   out$tab = def
   return(out)
 }
-

@@ -140,8 +140,9 @@ load_model <- function(project.name, path = "./"){
       ef <- list.files(npath)
       m$eval <- list()
       for (n in ef) {
-        m$eval[[n]] <- utils::read.table(file.path(npath, n))
+        m$eval[[gsub("\\.txt", "", n)]] <- utils::read.table(file.path(npath, n))
       }
+      attr(m$eval, "class") <- c("NINA", "eval")
     }
     if ("w" %in% f){
       attr(m, "class") <- c("NINA", "BCmodel")
