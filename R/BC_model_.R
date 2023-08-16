@@ -35,6 +35,9 @@ BC_model_ <- function(z, y.list, id, D = 1, A.matrix = NULL,
 
   method <- method[1]
   out = list()
+  if (is.null(A.matrix)) {
+    A.matrix <- data.frame(matrix(0, nrow = 1, ncol = length(y.list), dimnames <- list(id, names(y.list))))
+  }
   Xvar = colnames(A.matrix)[A.matrix[id, ]  != 0]
   Xvar <- Xvar[Xvar %in% names(y.list)]
   if(length(Xvar) > 0){
