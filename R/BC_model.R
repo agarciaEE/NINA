@@ -4,7 +4,7 @@
 #' @param C.matrix n by n matrix indicating the competition coefficient between interactions (0 to 1).
 #' @param x NINA EN model object for species group one
 #' @param y NINA EN model object for species group two
-#' @param type String indicating whether to perform at a region or a global level. Note that if models have not been estimated at a region level and it is selected it will produce an error
+#' @param type String indicating whether to perform at a "regional" or a "global" level. Note that if models have not been estimated at a region level and it is selected it will produce an error
 #' @param D Numeric value indicating independence from biotic associations. Value must be comprised between 0 and 1.
 #' @param method Method; abundances or composition
 #' @param cor Logical
@@ -43,7 +43,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
                      relative.niche = T, K = NULL, sample.pseudoabsences = TRUE, R = 100,
                      res = NULL, plot.eval = FALSE, rep = 100, th = NULL, ras = NULL,
                      best.th = c("accuracy", "similarity"), combine.regions = F,
-                     cor = F, type = c("region", "global")){
+                     cor = F, type = c("regional", "global")){
 
   type = type[1]
   method = method[1]
@@ -51,24 +51,50 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
   w = F
   clus = F
   type = type[1]
-  if(!is.null(x$clus)){clus = T}
-  if (sum(class(x) %in% c("NINA", "ENmodel", "BCmodel")) != 2) {
+  if(inherits(x$clus, "data.frame")){clus = T}
+  if (!inherits(x, c("NINA", "ENmodel"))) {
     stop("Argument 'x' is not a NINA Environmental model")
   }
-  if (sum(class(y) %in% c("NINA", "ENmodel", "BCmodel")) != 2) {
+  if (!inherits(y, c("NINA", "ENmodel"))) {
     stop("Argument 'y' is not a NINA Environmental model")
   }
-  if (is.null(A.matrix)) { stop("Argument 'A.matrix' needed")}
-  else {
-    if(any(!names(x$maps) %in% rownames(A.matrix))){ stop("Some species in models 'x' are not present in argument 'A.matrix")}
-    if(any(!colnames(A.matrix) %in% names(y$maps))){ stop("Some species in models 'y' are not present in argument 'A.matrix")}
-  }
-  if(!is.null(y$clus) != clus) {stop("Model x and model y have been estimated in different scales") }
+  if(!identical(x$clus, y$clus)) {stop("Model x and model y have been estimated in different scales") }
 
+  xnames <- names(x$maps)
+  ynames <- names(y$maps)
   x.mod = x$z.mod
   y.mod = y$z.mod
   env.scores = x$env.scores
-  if (type == "region"){
+
+  if (inherits(A.matrix, "list")) {
+    if (clus & type == "global"){
+      stop("A global interaction matrix of class 'data.frame' has to be provided for global models.")
+    }
+    A.matrixList <- A.matrix
+    if (length(A.matrixList) != length(x.mod)) {
+      stop("Length of A.matrix is not equal to the number of regions.")
+    }
+    if (names(A.matrixList) != names(x.mod)) {
+      stop("Names on A.matrix does not correspond to regions names.")
+    }
+    if(any(!xnames %in% unique(unlist(lapply(A.matrixList, rownames))) )){
+      stop("Some species in model 'x' are not present in argument 'A.matrix")
+    }
+    if(any(!unique(unlist(lapply(A.matrixList, colnames))) %in% ynames)){
+      stop("Some species in model 'y' are not present in argument 'A.matrix")
+    }
+  }
+  else if (inherits(A.matrix, "data.frame")) {
+    if(any(!xnames %in% rownames(A.matrix))){ stop("Some species in model 'x' are not present in argument 'A.matrix")}
+    if(any(!colnames(A.matrix) %in% ynames)){ stop("Some species in model 'y' are not present in argument 'A.matrix")}
+    if (clus & type == "regional"){
+      A.matrixList <- rep(list(A.matrix), length(x$mod))
+      names(A.matrixList) <- names(x$mod)
+    }
+  }
+  else { stop("Argument 'A.matrix' of class 'data.frame' or 'list' has to be provided.") }
+
+  if (type == "regional"){
     if(!is.null(x$clus) && !is.null(y$clus)){
       z.mod = list()
       w.list = list()
@@ -82,7 +108,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
         for (i in names(x.mod[[e]])){
           message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
           z = x.mod[[e]][[i]]
-          bc <- NINA:::BC_model_(z, y.mod[[e]], id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor,  C.matrix = C.matrix)
+          bc <- NINA:::BC_model_(z, y.mod[[e]], id = i, D = D, K = K, A.matrix = A.matrixList[[e]], method = method, cor = cor,  C.matrix = C.matrix)
           if (cor){
             mod.Val[[e]][[i]] <- cbind(reg.env.scores[,1:2], vals = raster::extract(bc$z$z/bc$z$Z, reg.env.scores[,3:4]))
           } else {
