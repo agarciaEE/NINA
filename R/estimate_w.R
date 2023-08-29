@@ -56,7 +56,7 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
       } else {
         if(length(Xvar) == 1){
           w$sp <- y.list[[Xvar]]$sp
-          w$z.uncor = betas[[Xvar]]*A.matrix[id,Xvar]
+          w$z.uncor = betas[[Xvar]]*as.numeric(A.matrix[id,Xvar])
         } else {
           w$sp <- do.call(rbind, lapply(y.list[Xvar], function(i) as.matrix(i$sp)))
           w$z = sum(stack(lapply(y.list[Xvar], function(i) i$z)), na.rm = T)
@@ -88,14 +88,14 @@ estimate_w <- function(y.list, id,  A.matrix = NULL, cor  = F, K = NULL,  method
     PPA <- 1
     for (i in Pvar)  {
       betas[[i]][is.na(betas[[i]])] = 0
-      PPA <- (1-betas[[i]] * A.matrix[id, i]) * PPA #Pvar represent positive interactions, A.matrix weights the effect of the interaction (TO CHECK)
+      PPA <- (1-betas[[i]] * as.numeric(A.matrix[id, i])) * PPA #Pvar represent positive interactions, A.matrix weights the effect of the interaction (TO CHECK)
     }
     # PPA equals to Probability of all Positive species Absence
     PPP <- 1-PPA # PPP equals to Probability of at least one Positive species Presence
     ## Make positive effects output
     if(length(Pvar)>0) {
       ## Compute species independent relative effects
-      Pw <- sapply(Pvar, function(i) betas[[i]]* A.matrix[id, i])
+      Pw <- sapply(Pvar, function(i) betas[[i]]* as.numeric(A.matrix[id, i]))
       r <- raster::cellStats(PPP, "max") / sum(stack(Pw))
       r[!is.finite(r)] = 0
       Pw <-  stack(Pw) * r
