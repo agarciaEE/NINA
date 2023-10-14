@@ -105,8 +105,8 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
       if(any(!xnames %in% rownames(A.matrix))){ stop("Some species in model 'x' are not present in argument 'A.matrix")}
       if(any(!colnames(A.matrix) %in% ynames)){ stop("Some species in model 'y' are not present in argument 'A.matrix")}
       if (clus){
-        A.matrixList <- rep(list(A.matrix), length(x$mod))
-        names(A.matrixList) <- names(x$mod)
+        A.matrixList <- rep(list(A.matrix), length(x$z.mod))
+        names(A.matrixList) <- names(x$z.mod)
       }
       warning("Only one interaction matrix provided as 'data.frame'. Assuming same interaction matrix in every region.")
     }
