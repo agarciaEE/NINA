@@ -195,7 +195,7 @@ BC_model <- function(x, y, A.matrix = NULL, C.matrix = NULL,
     for (i in names(x.mod)){
       message(paste0("\tAdding biotic constrains to ", i, "..."), appendLF = F)
       z = x.mod[[i]]
-      bc <- BC_model_(z, y.mod, id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor, C.matrix = C.matrix)
+      bc <- NINA:::BC_model_(z, y.mod, id = i, D = D, K = K, A.matrix = A.matrix, method = method, cor = cor, C.matrix = C.matrix)
       if (cor) {
         mod.Val[[i]] <- cbind(env.scores[,1:2], vals = raster::extract(bc$z$z, bc$z$glob))
       } else {
