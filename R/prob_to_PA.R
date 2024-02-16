@@ -21,15 +21,15 @@ prob_to_PA <- function(x, th = NULL, output = c("data.frame", "raster"), ras = N
   }
   if(is.data.frame(x)){
     df <- x
-    spsNames <- colnames(df)[-c(1:2)]
-    if (is.null(th)){
-      if (length(spsNames) == 1){
-        th <- mean(df[,spsNames], na.rm = T)
-        names(th) = spsNames
-      }
-      else {
-        th <- apply(df[,spsNames], 2, function(i) mean(i, na.rm = T))
-      }
+  }
+  spsNames <- colnames(df)[-c(1:2)]
+  if (is.null(th)){
+    if (length(spsNames) == 1){
+      th <- mean(df[,spsNames], na.rm = T)
+      names(th) = spsNames
+    }
+    else {
+      th <- apply(df[,spsNames], 2, function(i) mean(i, na.rm = T))
     }
   }
   df[is.na(df)] = 0
